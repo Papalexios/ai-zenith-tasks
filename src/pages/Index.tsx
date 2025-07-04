@@ -120,7 +120,7 @@ const Pricing = () => (
               ))}
             </ul>
 
-            <Link to="/app">
+            <Link to="/auth">
               <Button variant="outline" className="w-full" size="lg">
                 Start Free Today
               </Button>
@@ -169,10 +169,10 @@ const Pricing = () => (
               ))}
             </ul>
 
-            <Link to="/app">
+            <Link to="/auth">
               <Button variant="hero" className="w-full" size="lg">
                 <Zap className="mr-2 h-4 w-4" />
-                Upgrade to Pro
+                Start Free Trial
               </Button>
             </Link>
           </div>
@@ -204,7 +204,7 @@ const FinalCTA = () => (
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link to="/app">
+          <Link to="/auth">
             <Button size="xl" variant="hero" className="group">
               Start Your AI Journey Free
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
