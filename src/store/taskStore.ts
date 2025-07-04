@@ -94,6 +94,11 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
           finalDueDate = enhancement.priority === 'urgent' ? today : tomorrow.toISOString().split('T')[0];
         }
         
+        // Ensure the date is actually in the correct format and not in the past
+        if (finalDueDate && finalDueDate < today) {
+          finalDueDate = today;
+        }
+        
         taskData = {
           ...taskData,
           title: enhancement.enhancedTitle,

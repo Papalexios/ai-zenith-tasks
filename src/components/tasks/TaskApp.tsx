@@ -38,12 +38,20 @@ export function TaskApp() {
 
   const stats = getProductivityStats();
 
-  const handleAddTask = async () => {
+  const handleAddTask = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (!newTask.trim()) return;
     
-    await addTask(newTask, true); // Use AI by default
-    setNewTask('');
-    setShowAIDemo(false);
+    try {
+      await addTask(newTask, true); // Use AI by default
+      setNewTask('');
+      setShowAIDemo(false);
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
   };
 
   const filterOptions = [
@@ -106,18 +114,17 @@ export function TaskApp() {
                   </div>
                 </div>
                 
-                <div className="space-y-4">
+                <form onSubmit={handleAddTask} className="space-y-4">
                   <div className="relative">
                     <Input
                       placeholder="Describe your task naturally... (e.g., 'Plan team meeting for tomorrow')"
                       value={newTask}
                       onChange={(e) => setNewTask(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
                       className="modern-input h-14 text-base pl-6 pr-32"
                       disabled={isLoading}
                     />
                     <Button 
-                      onClick={handleAddTask}
+                      type="submit"
                       disabled={!newTask.trim() || isLoading}
                       variant="glow"
                       size="lg"
@@ -136,23 +143,23 @@ export function TaskApp() {
                       )}
                     </Button>
                   </div>
-                  
-                  {showAIDemo && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="glass-card p-4 border border-primary/20"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-                        <span className="text-sm font-medium text-primary">AI Magic</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Try: "Plan birthday party for mom next weekend" and watch AI break it into actionable steps!
-                      </p>
-                    </motion.div>
-                  )}
-                </div>
+                </form>
+                
+                {showAIDemo && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="glass-card p-4 border border-primary/20"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+                      <span className="text-sm font-medium text-primary">AI Magic</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Try: "Plan birthday party for mom next weekend" and watch AI break it into actionable steps!
+                    </p>
+                  </motion.div>
+                )}
               </div>
             </div>
 

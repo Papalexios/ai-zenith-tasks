@@ -71,7 +71,8 @@ export function AIInsights() {
           </div>
         ) : (
           insights.map((insight, index) => {
-            const IconComponent = insightIcons[insight.type];
+            const IconComponent = insightIcons[insight.type] || Lightbulb;
+            const colorClass = insightColors[insight.type] || insightColors.suggestion;
             return (
               <motion.div
                 key={index}
@@ -82,7 +83,7 @@ export function AIInsights() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2 flex-1">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${insightColors[insight.type]}`}>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${colorClass}`}>
                       <IconComponent className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
