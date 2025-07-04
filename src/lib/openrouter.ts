@@ -104,12 +104,16 @@ Make it specific, actionable, and motivating.`
     const model = OPENROUTER_CONFIG.models.DEEPSEEK_R1;
     
     try {
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      
       const completion = await this.client.chat.completions.create({
         model,
         messages: [
           {
             role: 'system',
-            content: `Extract structured information from natural language task input. 
+            content: `Extract structured information from natural language task input. Today is ${today.toISOString().split('T')[0]}.
             
 Return JSON with:
 {
@@ -124,7 +128,7 @@ Return JSON with:
 }
 
 Examples:
-"Call mom tomorrow at 2pm" -> {"title": "Call mom", "dueDate": "2024-XX-XX", "dueTime": "14:00", "priority": "medium"}
+"Call mom tomorrow at 2pm" -> {"title": "Call mom", "dueDate": "${tomorrow.toISOString().split('T')[0]}", "dueTime": "14:00", "priority": "medium"}
 "Weekly team meeting every Tuesday" -> {"title": "Team meeting", "recurring": "weekly", "priority": "medium"}`
           },
           {
@@ -136,10 +140,12 @@ Examples:
         max_tokens: 400
       });
 
-      return JSON.parse(completion.choices[0].message.content || '{}');
+      const content = completion.choices[0].message.content || '{}';
+      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      return JSON.parse(cleanContent);
     } catch (error) {
       console.error('Natural language parsing error:', error);
-      return { title: input, priority: 'medium' };
+      return { title: input, priority: 'medium', dueDate: null };
     }
   }
 
@@ -147,47 +153,64 @@ Examples:
     const model = OPENROUTER_CONFIG.models.GEMINI_25_PRO;
     
     try {
+      const today = new Date().toISOString().split('T')[0];
+      const pendingTasks = tasks.filter(t => !t.completed);
+      
       const completion = await this.client.chat.completions.create({
         model,
         messages: [
           {
             role: 'system',
-            content: `You are an expert productivity planner. Create an optimized daily schedule considering:
-- Task priorities and deadlines
+            content: `You are an expert productivity planner. Create an optimized daily schedule for today (${today}) considering:
+- Task priorities (urgent > high > medium > low)
 - Estimated time for each task
-- User's energy levels throughout the day
+- Due dates and deadlines
+- Energy levels: morning (high), afternoon (medium), evening (low)
 - Context switching minimization
-- Buffer time for unexpected tasks
+- 15-minute buffer between tasks
 
-Return JSON with:
+Return ONLY valid JSON with no markdown:
 {
   "timeBlocks": [
     {
       "startTime": "09:00",
       "endTime": "10:30",
+      "taskId": "task-id",
       "task": "task title",
-      "type": "focused_work|meeting|break|admin",
-      "energy": "high|medium|low"
+      "type": "focused_work",
+      "energy": "high",
+      "priority": "urgent"
     }
   ],
-  "insights": ["insight 1", "insight 2"],
-  "recommendations": ["rec 1", "rec 2"]
+  "insights": ["Most urgent tasks scheduled for high-energy morning hours"],
+  "recommendations": ["Take 5-min breaks between tasks"],
+  "totalFocusTime": "6 hours 30 minutes",
+  "productivityScore": 85
 }`
           },
           {
             role: 'user',
-            content: `Tasks: ${JSON.stringify(tasks)}
+            content: `Create daily plan for these tasks: ${JSON.stringify(pendingTasks)}
+Working hours: 9 AM - 6 PM
 Preferences: ${JSON.stringify(userPreferences)}`
           }
         ],
-        temperature: 0.5,
-        max_tokens: 1000
+        temperature: 0.3,
+        max_tokens: 1500
       });
 
-      return JSON.parse(completion.choices[0].message.content || '{}');
+      const content = completion.choices[0].message.content || '{}';
+      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      return JSON.parse(cleanContent);
     } catch (error) {
       console.error('Daily plan generation error:', error);
-      return { timeBlocks: [], insights: [], recommendations: [] };
+      return { 
+        timeBlocks: [], 
+        insights: ['Unable to generate plan - please try again'], 
+        recommendations: ['Add more specific time estimates to your tasks'],
+        totalFocusTime: '0 hours',
+        productivityScore: 0
+      };
     }
   }
 
@@ -202,14 +225,14 @@ Preferences: ${JSON.stringify(userPreferences)}`
             role: 'system',
             content: `You are a supportive productivity coach. Analyze user patterns and provide encouraging, actionable insights.
 
-Return JSON array of insights:
+Return ONLY a valid JSON array of insights with no markdown formatting:
 [
   {
-    "type": "productivity|pattern|suggestion|warning",
+    "type": "productivity",
     "title": "short title",
     "description": "helpful description",
-    "actionable": true/false,
-    "priority": 1-5
+    "actionable": true,
+    "priority": 1
   }
 ]
 
@@ -224,7 +247,10 @@ Be positive, specific, and helpful.`
         max_tokens: 600
       });
 
-      const insights = JSON.parse(completion.choices[0].message.content || '[]');
+      const content = completion.choices[0].message.content || '[]';
+      // Clean up any markdown formatting
+      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const insights = JSON.parse(cleanContent);
       return insights.slice(0, 3); // Limit to 3 insights
     } catch (error) {
       console.error('Coaching error:', error);

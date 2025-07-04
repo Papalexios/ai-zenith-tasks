@@ -83,6 +83,17 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         // Then enhance with AI
         const enhancement = await openRouterService.enhanceTask(taskInput);
         
+        // Set proper due date - default to today if none specified
+        const today = new Date().toISOString().split('T')[0];
+        let finalDueDate = nlpResult.dueDate || enhancement.deadline;
+        
+        // If no due date found, set to today for urgent tasks, tomorrow for others
+        if (!finalDueDate) {
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          finalDueDate = enhancement.priority === 'urgent' ? today : tomorrow.toISOString().split('T')[0];
+        }
+        
         taskData = {
           ...taskData,
           title: enhancement.enhancedTitle,
@@ -91,7 +102,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
           category: enhancement.category,
           estimatedTime: enhancement.estimatedTime,
           subtasks: enhancement.subtasks,
-          dueDate: enhancement.deadline || nlpResult.dueDate,
+          dueDate: finalDueDate,
           dueTime: nlpResult.dueTime,
           tags: nlpResult.tags || [],
           aiEnhanced: true,

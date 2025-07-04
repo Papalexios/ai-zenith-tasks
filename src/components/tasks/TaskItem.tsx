@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { TaskEditModal } from './TaskEditModal';
 import { 
   MoreHorizontal, 
   Sparkles, 
@@ -159,10 +160,12 @@ export function TaskItem({ task }: TaskItemProps) {
                 </Button>
               )}
               
-              <Button variant="ghost" size="sm" className="gap-2">
-                <Edit className="h-3 w-3" />
-                Edit
-              </Button>
+              <TaskEditModal task={task}>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <Edit className="h-3 w-3" />
+                  Edit
+                </Button>
+              </TaskEditModal>
               
               <Button 
                 variant="ghost" 
