@@ -9,19 +9,19 @@ import { ArrowRight, CheckCircle, Star, TrendingUp, Users, Zap } from 'lucide-re
 // Social Proof Section
 const SocialProof = () => (
   <section className="section-padding border-t border-border">
-    <div className="container-width">
+    <div className="container-width px-4 sm:px-6">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="text-center space-y-8"
+        className="text-center space-y-6 sm:space-y-8"
       >
-        <h2 className="text-3xl lg:text-4xl font-bold">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
           Trusted by <span className="gradient-text">50,000+ Productivity Enthusiasts</span>
         </h2>
         
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {[
             { icon: Users, number: '50,000+', label: 'Active Users' },
             { icon: CheckCircle, number: '2.5M+', label: 'Tasks Completed' },
@@ -34,30 +34,30 @@ const SocialProof = () => (
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1, duration: 0.6 }}
               viewport={{ once: true }}
-              className="text-center space-y-3"
+              className="text-center space-y-2 sm:space-y-3"
             >
-              <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mx-auto">
-                <stat.icon className="h-6 w-6 text-white" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-primary rounded-xl flex items-center justify-center mx-auto">
+                <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-primary">{stat.number}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="text-lg sm:text-2xl font-bold text-primary">{stat.number}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">{stat.label}</div>
               </div>
             </motion.div>
           ))}
         </div>
 
-        <div className="bg-muted/50 rounded-2xl p-8 max-w-3xl mx-auto">
-          <blockquote className="text-lg italic text-muted-foreground mb-4">
+        <div className="bg-muted/50 rounded-2xl p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto">
+          <blockquote className="text-sm sm:text-base lg:text-lg italic text-muted-foreground mb-4">
             "This AI task manager has completely transformed how I work. What used to take me hours of planning now happens in seconds. The AI suggestions are eerily accurate!"
           </blockquote>
           <div className="flex items-center gap-3 justify-center">
-            <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center text-white font-medium">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-primary rounded-full flex items-center justify-center text-white font-medium text-sm sm:text-base">
               JD
             </div>
             <div className="text-left">
-              <div className="font-medium">Jessica Davis</div>
-              <div className="text-sm text-muted-foreground">Product Manager, TechCorp</div>
+              <div className="font-medium text-sm sm:text-base">Jessica Davis</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Product Manager, TechCorp</div>
             </div>
           </div>
         </div>
@@ -69,23 +69,23 @@ const SocialProof = () => (
 // Pricing Section
 const Pricing = () => (
   <section className="section-padding bg-muted/20">
-    <div className="container-width">
+    <div className="container-width px-4 sm:px-6">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="text-center space-y-6 mb-12"
+        className="text-center space-y-4 sm:space-y-6 mb-8 sm:mb-12"
       >
-        <h2 className="text-4xl lg:text-5xl font-bold">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
           Start Free, <span className="gradient-text">Scale with AI</span>
         </h2>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto">
           Get access to all 5 AI models with our free tier. Upgrade when you're ready for unlimited AI power.
         </p>
       </motion.div>
 
-      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6 sm:gap-8">
         {/* Free Plan */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}

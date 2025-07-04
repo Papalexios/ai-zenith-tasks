@@ -43,14 +43,14 @@ const TasksPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="container mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Welcome back, {user.email?.split('@')[0]}!</h1>
-            <p className="text-muted-foreground">Manage your AI-powered tasks</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold truncate">Welcome back, {user.email?.split('@')[0]}!</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Manage your AI-powered tasks</p>
           </div>
-          <Button variant="outline" onClick={signOut}>
+          <Button variant="outline" onClick={signOut} className="self-start sm:self-auto text-sm sm:text-base">
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </Button>

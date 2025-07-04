@@ -189,11 +189,28 @@
 
   /* Landing page sections */
   .section-padding {
-    @apply py-24 px-6;
+    @apply py-12 sm:py-16 md:py-20 lg:py-24;
   }
   
   .container-width {
     @apply max-w-7xl mx-auto;
+  }
+
+  /* Mobile-first responsive utilities */
+  .mobile-safe-area {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .mobile-text-lg {
+    @apply text-sm sm:text-base md:text-lg;
+  }
+
+  .mobile-text-xl {
+    @apply text-base sm:text-lg md:text-xl;
+  }
+
+  .mobile-spacing {
+    @apply space-y-4 sm:space-y-6;
   }
 
   /* Gradient text effects */

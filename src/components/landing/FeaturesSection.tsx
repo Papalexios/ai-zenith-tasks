@@ -84,26 +84,26 @@ const FeatureCard = ({ feature, index }: { feature: typeof features[0]; index: n
 export function FeaturesSection() {
   return (
     <section className="section-padding bg-muted/20">
-      <div className="container-width">
+      <div className="container-width px-4 sm:px-6">
         {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center space-y-6 mb-16"
+          className="text-center space-y-4 sm:space-y-6 mb-12 sm:mb-16"
         >
-          <h2 className="text-4xl lg:text-5xl font-bold">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
             5 AI Models, <span className="gradient-text">Infinite Possibilities</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto">
             Each AI model specializes in different aspects of productivity, working together to create 
             the ultimate task management experience.
           </p>
         </motion.div>
 
         {/* Features grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {features.map((feature, index) => (
             <FeatureCard key={feature.title} feature={feature} index={index} />
           ))}

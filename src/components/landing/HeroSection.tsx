@@ -10,10 +10,10 @@ const AIModel = ({ name, icon: Icon, delay }: { name: string; icon: any; delay: 
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay, duration: 0.6 }}
-    className="flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-border rounded-xl px-4 py-2 hover:shadow-glow transition-all duration-300"
+    className="flex items-center gap-1.5 sm:gap-2 bg-card/80 backdrop-blur-sm border border-border rounded-lg sm:rounded-xl px-2 sm:px-4 py-1.5 sm:py-2 hover:shadow-glow transition-all duration-300"
   >
-    <Icon className="h-4 w-4 text-primary" />
-    <span className="text-sm font-medium">{name}</span>
+    <Icon className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
+    <span className="text-xs sm:text-sm font-medium">{name}</span>
   </motion.div>
 );
 
@@ -72,14 +72,14 @@ export function HeroSection() {
         }} />
       </div>
 
-      <div className="container-width relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container-width relative z-10 px-4 sm:px-6">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left column - Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-8"
+            className="space-y-6 sm:space-y-8 text-center lg:text-left"
           >
             {/* Main headline */}
             <div className="space-y-4">
@@ -87,7 +87,7 @@ export function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
-                className="text-5xl lg:text-7xl font-bold leading-tight"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold leading-tight"
               >
                 Transform Your{' '}
                 <span className="gradient-text animate-gradient-shift">
@@ -100,7 +100,7 @@ export function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
-                className="text-xl text-muted-foreground max-w-2xl"
+                className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl"
               >
                 Let 5 powerful AI models organize your life while you focus on what matters. 
                 Experience 100000x productivity boost with intelligent task management.
@@ -112,17 +112,17 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
-              className="bg-card border border-border rounded-2xl p-6 space-y-4"
+              className="bg-card border border-border rounded-2xl p-4 sm:p-6 space-y-4"
             >
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
                 Live AI Demo
               </div>
-              <div className="bg-input rounded-xl p-4 min-h-[60px] flex items-center">
-                <span className="text-lg">{taskDemo}</span>
+              <div className="bg-input rounded-xl p-3 sm:p-4 min-h-[50px] sm:min-h-[60px] flex items-center">
+                <span className="text-sm sm:text-lg">{taskDemo}</span>
                 <div className="w-0.5 h-6 bg-primary ml-1 animate-pulse" />
               </div>
-              <div className="flex gap-2 text-xs text-muted-foreground">
+              <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                 <span className="bg-primary/10 text-primary px-2 py-1 rounded">5 subtasks created</span>
                 <span className="bg-secondary/10 text-secondary px-2 py-1 rounded">Priority: High</span>
                 <span className="bg-accent/10 text-accent px-2 py-1 rounded">Est: 2.5 hours</span>
@@ -134,16 +134,16 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.8 }}
-              className="flex flex-col sm:flex-row gap-4"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full"
             >
-              <Link to="/app">
-                <Button size="xl" variant="hero" className="group">
-                  Start Free with AI - No Credit Card
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              <Link to="/app" className="w-full sm:w-auto">
+                <Button size="lg" variant="hero" className="group w-full sm:w-auto text-sm sm:text-base px-6 sm:px-8">
+                  Start Free with AI
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Button size="xl" variant="outline">
-                See AI in Action (60s Demo)
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-sm sm:text-base px-6 sm:px-8">
+                See AI Demo (60s)
               </Button>
             </motion.div>
 
@@ -154,8 +154,8 @@ export function HeroSection() {
               transition={{ delay: 1, duration: 0.8 }}
               className="space-y-3"
             >
-              <p className="text-sm text-muted-foreground">Powered by 5 AI models working together:</p>
-              <div className="flex flex-wrap gap-3">
+              <p className="text-xs sm:text-sm text-muted-foreground">Powered by 5 AI models working together:</p>
+              <div className="flex flex-wrap gap-2 sm:gap-3 justify-center lg:justify-start">
                 {aiModels.map((model, index) => (
                   <AIModel
                     key={model.name}

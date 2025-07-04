@@ -108,37 +108,39 @@ export function AIDemo() {
 
   return (
     <section className="section-padding bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <div className="container-width">
+      <div className="container-width px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center space-y-6 mb-12"
+          className="text-center space-y-4 sm:space-y-6 mb-8 sm:mb-12"
         >
-          <h2 className="text-4xl lg:text-5xl font-bold">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
             See AI Magic in <span className="gradient-text">Real-Time</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto">
             Watch as our AI transforms your vague ideas into detailed, actionable plans. 
             Try it yourself with the interactive demo below.
           </p>
         </motion.div>
 
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
           {/* Input section */}
-          <motion.div
+            <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
             viewport={{ once: true }}
-            className="bg-card border border-border rounded-2xl p-8 space-y-6"
+            className="bg-card border border-border rounded-2xl p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-white" />
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-white" />
+                </div>
+                <h3 className="text-base sm:text-lg font-semibold">AI Task Enhancement Demo</h3>
               </div>
-              <h3 className="text-lg font-semibold">AI Task Enhancement Demo</h3>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                 Live AI Processing
@@ -151,17 +153,17 @@ export function AIDemo() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleTryDemo()}
-                className="text-lg h-14 border-2 focus:border-primary"
+                className="text-sm sm:text-base lg:text-lg h-12 sm:h-14 border-2 focus:border-primary"
                 disabled={isProcessing}
               />
               
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Button
                   onClick={() => handleTryDemo()}
                   disabled={!input.trim() || isProcessing}
                   size="lg"
                   variant="glow"
-                  className="flex-1"
+                  className="flex-1 text-sm sm:text-base"
                 >
                   {isProcessing ? (
                     <>
@@ -181,6 +183,7 @@ export function AIDemo() {
                   variant="outline"
                   size="lg"
                   disabled={isProcessing}
+                  className="text-sm sm:text-base"
                 >
                   Try Example
                 </Button>
@@ -192,7 +195,7 @@ export function AIDemo() {
                   <motion.button
                     key={example}
                     onClick={() => setInput(example)}
-                    className="text-xs bg-muted hover:bg-muted/80 px-3 py-1.5 rounded-lg transition-colors"
+                    className="text-xs sm:text-sm bg-muted hover:bg-muted/80 px-2 sm:px-3 py-1.5 rounded-lg transition-colors"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
