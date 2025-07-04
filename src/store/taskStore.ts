@@ -33,6 +33,7 @@ export interface TaskStore {
   // AI features
   enhanceTaskWithAI: (id: string) => Promise<void>;
   generateDailyPlan: () => Promise<any>;
+  updateDailyPlan: (plan: any) => void;
   getAIInsights: () => Promise<void>;
   applyInsightAction: (insightType: string) => void;
   
@@ -210,6 +211,10 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       set({ dailyPlan: fallbackPlan });
       return fallbackPlan;
     }
+  },
+
+  updateDailyPlan: (plan: any) => {
+    set({ dailyPlan: plan });
   },
 
   getAIInsights: async () => {

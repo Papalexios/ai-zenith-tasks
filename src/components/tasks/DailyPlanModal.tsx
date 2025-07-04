@@ -17,29 +17,162 @@ import {
   Target, 
   Brain, 
   Zap,
-  CheckCircle
+  CheckCircle,
+  Edit,
+  Save,
+  X,
+  GripVertical
 } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface DailyPlanModalProps {
   children: React.ReactNode;
+}
+
+// Sortable time block component
+interface SortableTimeBlockProps {
+  block: any;
+  index: number;
+  isEditing: boolean;
+  getPriorityColor: (priority: string) => string;
+}
+
+function SortableTimeBlock({ block, index, isEditing, getPriorityColor }: SortableTimeBlockProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: block.id || `block-${index}` });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-4 p-3 bg-muted/50 rounded-lg ${
+        isEditing ? 'border-2 border-dashed border-primary/30' : ''
+      }`}
+    >
+      {isEditing && (
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab hover:cursor-grabbing p-1 text-muted-foreground hover:text-foreground"
+        >
+          <GripVertical className="h-4 w-4" />
+        </div>
+      )}
+      <div className="text-sm font-mono text-muted-foreground min-w-[120px]">
+        {block.startTime} - {block.endTime}
+      </div>
+      <div className="flex-1">
+        <div className="font-medium">{block.task}</div>
+        <div className="flex items-center gap-2 mt-1">
+          {block.priority && (
+            <Badge className={getPriorityColor(block.priority)}>
+              {block.priority}
+            </Badge>
+          )}
+          <Badge variant="outline">
+            {block.energy} energy
+          </Badge>
+          <Badge variant="outline">
+            {block.type?.replace('_', ' ')}
+          </Badge>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function DailyPlanModal({ children }: DailyPlanModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [plan, setPlan] = useState<any>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const { generateDailyPlan, dailyPlan } = useTaskStore();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTimeBlocks, setEditedTimeBlocks] = useState<any[]>([]);
+  const { generateDailyPlan, dailyPlan, updateDailyPlan } = useTaskStore();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const handleGeneratePlan = async () => {
     setIsGenerating(true);
     try {
       const generatedPlan = await generateDailyPlan();
       setPlan(generatedPlan);
+      setEditedTimeBlocks(generatedPlan?.timeBlocks || []);
     } catch (error) {
       console.error('Failed to generate plan:', error);
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = editedTimeBlocks.findIndex((block, index) => 
+        (block.id || `block-${index}`) === active.id
+      );
+      const newIndex = editedTimeBlocks.findIndex((block, index) => 
+        (block.id || `block-${index}`) === over.id
+      );
+
+      setEditedTimeBlocks(arrayMove(editedTimeBlocks, oldIndex, newIndex));
+    }
+  };
+
+  const handleSaveChanges = () => {
+    const updatedPlan = {
+      ...currentPlan,
+      timeBlocks: editedTimeBlocks
+    };
+    
+    if (updateDailyPlan) {
+      updateDailyPlan(updatedPlan);
+    }
+    setPlan(updatedPlan);
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditedTimeBlocks(currentPlan?.timeBlocks || []);
+    setIsEditing(false);
+  };
+
+  const startEditing = () => {
+    setEditedTimeBlocks(currentPlan?.timeBlocks || []);
+    setIsEditing(true);
   };
 
   // Use existing plan from store if available
@@ -126,40 +259,89 @@ export function DailyPlanModal({ children }: DailyPlanModalProps) {
               {currentPlan.timeBlocks && currentPlan.timeBlocks.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Your Optimized Schedule</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Your Optimized Schedule</CardTitle>
+                      {!isEditing ? (
+                        <Button onClick={startEditing} size="sm" variant="outline">
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit Plan
+                        </Button>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Button onClick={handleSaveChanges} size="sm" variant="default">
+                            <Save className="h-4 w-4 mr-2" />
+                            Save
+                          </Button>
+                          <Button onClick={handleCancelEdit} size="sm" variant="ghost">
+                            <X className="h-4 w-4 mr-2" />
+                            Cancel
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    {isEditing && (
+                      <p className="text-sm text-muted-foreground">
+                        Drag and drop tasks to reorder your schedule
+                      </p>
+                    )}
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
-                      {currentPlan.timeBlocks.map((block: any, index: number) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg"
+                    {isEditing ? (
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                      >
+                        <SortableContext
+                          items={editedTimeBlocks.map((block, index) => block.id || `block-${index}`)}
+                          strategy={verticalListSortingStrategy}
                         >
-                          <div className="text-sm font-mono text-muted-foreground">
-                            {block.startTime} - {block.endTime}
+                          <div className="space-y-3">
+                            {editedTimeBlocks.map((block: any, index: number) => (
+                              <SortableTimeBlock
+                                key={block.id || `block-${index}`}
+                                block={block}
+                                index={index}
+                                isEditing={isEditing}
+                                getPriorityColor={getPriorityColor}
+                              />
+                            ))}
                           </div>
-                          <div className="flex-1">
-                            <div className="font-medium">{block.task}</div>
-                            <div className="flex items-center gap-2 mt-1">
-                              {block.priority && (
-                                <Badge className={getPriorityColor(block.priority)}>
-                                  {block.priority}
-                                </Badge>
-                              )}
-                              <Badge variant="outline">
-                                {block.energy} energy
-                              </Badge>
-                              <Badge variant="outline">
-                                {block.type?.replace('_', ' ')}
-                              </Badge>
+                        </SortableContext>
+                      </DndContext>
+                    ) : (
+                      <div className="space-y-3">
+                        {currentPlan.timeBlocks.map((block: any, index: number) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg"
+                          >
+                            <div className="text-sm font-mono text-muted-foreground min-w-[120px]">
+                              {block.startTime} - {block.endTime}
                             </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
+                            <div className="flex-1">
+                              <div className="font-medium">{block.task}</div>
+                              <div className="flex items-center gap-2 mt-1">
+                                {block.priority && (
+                                  <Badge className={getPriorityColor(block.priority)}>
+                                    {block.priority}
+                                  </Badge>
+                                )}
+                                <Badge variant="outline">
+                                  {block.energy} energy
+                                </Badge>
+                                <Badge variant="outline">
+                                  {block.type?.replace('_', ' ')}
+                                </Badge>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
