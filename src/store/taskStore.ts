@@ -21,6 +21,7 @@ export interface Task {
 export interface TaskStore {
   tasks: Task[];
   insights: AIInsight[];
+  dailyPlan: any;
   isLoading: boolean;
   
   // Task management
@@ -33,6 +34,7 @@ export interface TaskStore {
   enhanceTaskWithAI: (id: string) => Promise<void>;
   generateDailyPlan: () => Promise<any>;
   getAIInsights: () => Promise<void>;
+  applyInsightAction: (insightType: string) => void;
   
   // Filters and sorting
   filter: 'all' | 'pending' | 'completed' | 'today' | 'overdue';
@@ -45,8 +47,10 @@ export interface TaskStore {
     totalTasks: number;
     completedTasks: number;
     aiEnhancedTasks: number;
+    overdueTasks: number;
     averageCompletionTime: string;
     productivityScore: number;
+    tasksThisWeek: number;
   };
 }
 
@@ -55,6 +59,7 @@ const generateId = () => Math.random().toString(36).substr(2, 9);
 export const useTaskStore = create<TaskStore>((set, get) => ({
   tasks: [],
   insights: [],
+  dailyPlan: null,
   isLoading: false,
   filter: 'all',
   sortBy: 'priority',
@@ -197,10 +202,13 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         energyLevels: { morning: 'high', afternoon: 'medium', evening: 'low' }
       });
       
+      set({ dailyPlan: plan });
       return plan;
     } catch (error) {
       console.error('Error generating daily plan:', error);
-      return { timeBlocks: [], insights: [], recommendations: [] };
+      const fallbackPlan = { timeBlocks: [], insights: [], recommendations: [] };
+      set({ dailyPlan: fallbackPlan });
+      return fallbackPlan;
     }
   },
 
@@ -230,10 +238,27 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   
   setSortBy: (sortBy) => set({ sortBy }),
 
+  applyInsightAction: (insightType: string) => {
+    const { tasks, setFilter, setSortBy } = get();
+    
+    if (insightType === 'productivity') {
+      // Sort by priority and focus on high-impact tasks
+      setSortBy('priority');
+      setFilter('pending');
+    } else if (insightType === 'pattern') {
+      // Group similar tasks - sort by category
+      setSortBy('category');
+    } else if (insightType === 'suggestion') {
+      // Focus on today's tasks
+      setFilter('today');
+    }
+  },
+
   getProductivityStats: () => {
     const { tasks } = get();
     const completed = tasks.filter(t => t.completed);
     const aiEnhanced = tasks.filter(t => t.aiEnhanced);
+    const overdue = tasks.filter(t => !t.completed && t.dueDate && new Date(t.dueDate) < new Date());
     
     const productivityScore = Math.round(
       (completed.length / Math.max(tasks.length, 1)) * 100
@@ -243,8 +268,14 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       totalTasks: tasks.length,
       completedTasks: completed.length,
       aiEnhancedTasks: aiEnhanced.length,
+      overdueTasks: overdue.length,
       averageCompletionTime: '2.5 hours',
-      productivityScore
+      productivityScore,
+      tasksThisWeek: tasks.filter(t => {
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return new Date(t.createdAt) > weekAgo;
+      }).length
     };
   }
 }));

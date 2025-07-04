@@ -1,4 +1,23 @@
 import { useState } from 'react';
+import { 
+  DndContext, 
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useTaskStore, Task } from '@/store/taskStore';
 import { 
   Dialog, 
@@ -19,7 +38,92 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Edit, X, Plus } from 'lucide-react';
+import { Edit, X, Plus, GripVertical } from 'lucide-react';
+
+interface SortableSubtaskProps {
+  id: string;
+  subtask: string;
+  onRemove: () => void;
+  onEdit: (newText: string) => void;
+}
+
+function SortableSubtask({ id, subtask, onRemove, onEdit }: SortableSubtaskProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(subtask);
+  
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const handleSave = () => {
+    onEdit(editText);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditText(subtask);
+    setIsEditing(false);
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing p-1"
+      >
+        <GripVertical className="h-3 w-3 text-muted-foreground" />
+      </div>
+      
+      {isEditing ? (
+        <div className="flex-1 flex items-center gap-2">
+          <Input
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            className="h-7 text-xs"
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') handleSave();
+              if (e.key === 'Escape') handleCancel();
+            }}
+            autoFocus
+          />
+          <Button size="sm" variant="ghost" onClick={handleSave} className="h-6 w-6 p-0">
+            ✓
+          </Button>
+          <Button size="sm" variant="ghost" onClick={handleCancel} className="h-6 w-6 p-0">
+            ✕
+          </Button>
+        </div>
+      ) : (
+        <div className="flex-1 flex items-center justify-between">
+          <span 
+            className="text-xs cursor-pointer hover:text-primary"
+            onClick={() => setIsEditing(true)}
+          >
+            {subtask}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRemove}
+            className="p-1 h-6 w-6 hover:bg-destructive/20 hover:text-destructive"
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface TaskEditModalProps {
   task: Task;
@@ -41,6 +145,13 @@ export function TaskEditModal({ task, children }: TaskEditModalProps) {
   const [newSubtask, setNewSubtask] = useState('');
   
   const { updateTask } = useTaskStore();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const handleSave = () => {
     updateTask(task.id, {
@@ -65,6 +176,29 @@ export function TaskEditModal({ task, children }: TaskEditModalProps) {
       ...prev,
       subtasks: prev.subtasks.filter((_, i) => i !== index)
     }));
+  };
+
+  const editSubtask = (index: number, newText: string) => {
+    setFormData(prev => ({
+      ...prev,
+      subtasks: prev.subtasks.map((subtask, i) => i === index ? newText : subtask)
+    }));
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      setFormData(prev => {
+        const oldIndex = prev.subtasks.findIndex((_, i) => i.toString() === active.id);
+        const newIndex = prev.subtasks.findIndex((_, i) => i.toString() === over?.id);
+
+        return {
+          ...prev,
+          subtasks: arrayMove(prev.subtasks, oldIndex, newIndex)
+        };
+      });
+    }
   };
 
   return (
@@ -171,34 +305,39 @@ export function TaskEditModal({ task, children }: TaskEditModalProps) {
           {/* Subtasks */}
           <div className="space-y-2">
             <Label>Subtasks</Label>
-            <div className="space-y-2">
-              {formData.subtasks.map((subtask, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <Badge variant="outline" className="flex-1 justify-start">
-                    {subtask}
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeSubtask(index)}
-                    className="p-1 h-6 w-6"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
+            <DndContext 
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext 
+                items={formData.subtasks.map((_, i) => i.toString())}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {formData.subtasks.map((subtask, index) => (
+                    <SortableSubtask
+                      key={index}
+                      id={index.toString()}
+                      subtask={subtask}
+                      onRemove={() => removeSubtask(index)}
+                      onEdit={(newText) => editSubtask(index, newText)}
+                    />
+                  ))}
                 </div>
-              ))}
-              
-              <div className="flex gap-2">
-                <Input
-                  value={newSubtask}
-                  onChange={(e) => setNewSubtask(e.target.value)}
-                  placeholder="Add a subtask"
-                  onKeyPress={(e) => e.key === 'Enter' && addSubtask()}
-                />
-                <Button onClick={addSubtask} size="sm">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+              </SortableContext>
+            </DndContext>
+            
+            <div className="flex gap-2 pt-2">
+              <Input
+                value={newSubtask}
+                onChange={(e) => setNewSubtask(e.target.value)}
+                placeholder="Add a subtask"
+                onKeyPress={(e) => e.key === 'Enter' && addSubtask()}
+              />
+              <Button onClick={addSubtask} size="sm">
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 

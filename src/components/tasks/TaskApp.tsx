@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { TaskList } from './TaskList';
 import { AIInsights } from './AIInsights';
 import { DailyPlanModal } from './DailyPlanModal';
+import { AnalyticsModal } from './AnalyticsModal';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
@@ -18,7 +19,8 @@ import {
   Brain,
   Target,
   CheckCircle,
-  Circle
+  Circle,
+  Eye
 } from 'lucide-react';
 
 export function TaskApp() {
@@ -33,7 +35,8 @@ export function TaskApp() {
     filter, 
     setFilter, 
     getProductivityStats,
-    getAIInsights 
+    getAIInsights,
+    dailyPlan 
   } = useTaskStore();
 
   const stats = getProductivityStats();
@@ -257,38 +260,30 @@ export function TaskApp() {
                     </Button>
                   </DailyPlanModal>
                   
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-start gap-3 h-12 hover:bg-muted/50 transition-all duration-300"
-                    onClick={() => {
-                      toast({
-                        title: "Analytics Coming Soon",
-                        description: "Advanced analytics dashboard is being developed.",
-                      });
-                    }}
-                  >
-                    <div className="w-8 h-8 bg-gradient-accent rounded-lg flex items-center justify-center">
-                      <BarChart3 className="h-4 w-4 text-white" />
-                    </div>
-                    <span className="font-medium">View Analytics</span>
-                  </Button>
+                  {dailyPlan && (
+                    <DailyPlanModal>
+                      <Button variant="ghost" className="w-full justify-start gap-3 h-12 hover:bg-muted/50 transition-all duration-300 border border-primary/20">
+                        <div className="w-8 h-8 bg-gradient-accent rounded-lg flex items-center justify-center">
+                          <Eye className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="flex flex-col items-start">
+                          <span className="font-medium">View Today's Plan</span>
+                          <span className="text-xs text-muted-foreground">
+                            {dailyPlan.timeBlocks?.length || 0} tasks scheduled
+                          </span>
+                        </div>
+                      </Button>
+                    </DailyPlanModal>
+                  )}
                   
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-start gap-3 h-12 hover:bg-muted/50 transition-all duration-300"
-                    onClick={() => {
-                      getAIInsights();
-                      toast({
-                        title: "AI Insights Updated",
-                        description: "Check the AI Insights panel for new recommendations.",
-                      });
-                    }}
-                  >
-                    <div className="w-8 h-8 bg-gradient-secondary rounded-lg flex items-center justify-center">
-                      <Sparkles className="h-4 w-4 text-white" />
-                    </div>
-                    <span className="font-medium">AI Coaching Session</span>
-                  </Button>
+                  <AnalyticsModal>
+                    <Button variant="ghost" className="w-full justify-start gap-3 h-12 hover:bg-muted/50 transition-all duration-300">
+                      <div className="w-8 h-8 bg-gradient-accent rounded-lg flex items-center justify-center">
+                        <BarChart3 className="h-4 w-4 text-white" />
+                      </div>
+                      <span className="font-medium">View Analytics</span>
+                    </Button>
+                  </AnalyticsModal>
                 </div>
               </div>
             </div>

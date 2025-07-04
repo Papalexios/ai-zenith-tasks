@@ -28,7 +28,7 @@ export function DailyPlanModal({ children }: DailyPlanModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [plan, setPlan] = useState<any>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const { generateDailyPlan } = useTaskStore();
+  const { generateDailyPlan, dailyPlan } = useTaskStore();
 
   const handleGeneratePlan = async () => {
     setIsGenerating(true);
@@ -41,6 +41,9 @@ export function DailyPlanModal({ children }: DailyPlanModalProps) {
       setIsGenerating(false);
     }
   };
+
+  // Use existing plan from store if available
+  const currentPlan = plan || dailyPlan;
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -66,7 +69,7 @@ export function DailyPlanModal({ children }: DailyPlanModalProps) {
         </DialogHeader>
 
         <div className="space-y-6">
-          {!plan && !isGenerating && (
+          {!currentPlan && !isGenerating && (
             <div className="text-center py-8">
               <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground mb-4">
@@ -88,7 +91,7 @@ export function DailyPlanModal({ children }: DailyPlanModalProps) {
             </div>
           )}
 
-          {plan && (
+          {currentPlan && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -100,34 +103,34 @@ export function DailyPlanModal({ children }: DailyPlanModalProps) {
                   <CardContent className="p-4 text-center">
                     <Clock className="h-6 w-6 text-primary mx-auto mb-2" />
                     <div className="text-sm text-muted-foreground">Focus Time</div>
-                    <div className="font-semibold">{plan.totalFocusTime || '6 hours'}</div>
+                    <div className="font-semibold">{currentPlan.totalFocusTime || '6 hours'}</div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="p-4 text-center">
                     <Target className="h-6 w-6 text-accent mx-auto mb-2" />
                     <div className="text-sm text-muted-foreground">Tasks Planned</div>
-                    <div className="font-semibold">{plan.timeBlocks?.length || 0}</div>
+                    <div className="font-semibold">{currentPlan.timeBlocks?.length || 0}</div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="p-4 text-center">
                     <CheckCircle className="h-6 w-6 text-secondary mx-auto mb-2" />
                     <div className="text-sm text-muted-foreground">Productivity Score</div>
-                    <div className="font-semibold">{plan.productivityScore || 85}%</div>
+                    <div className="font-semibold">{currentPlan.productivityScore || 85}%</div>
                   </CardContent>
                 </Card>
               </div>
 
               {/* Time Blocks */}
-              {plan.timeBlocks && plan.timeBlocks.length > 0 && (
+              {currentPlan.timeBlocks && currentPlan.timeBlocks.length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Your Optimized Schedule</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {plan.timeBlocks.map((block: any, index: number) => (
+                      {currentPlan.timeBlocks.map((block: any, index: number) => (
                         <motion.div
                           key={index}
                           initial={{ opacity: 0, x: -20 }}
@@ -162,14 +165,14 @@ export function DailyPlanModal({ children }: DailyPlanModalProps) {
               )}
 
               {/* Insights */}
-              {plan.insights && plan.insights.length > 0 && (
+              {currentPlan.insights && currentPlan.insights.length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle>AI Insights</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {plan.insights.map((insight: string, index: number) => (
+                      {currentPlan.insights.map((insight: string, index: number) => (
                         <li key={index} className="flex items-start gap-2">
                           <Brain className="h-4 w-4 text-primary mt-0.5" />
                           <span className="text-sm">{insight}</span>
@@ -181,14 +184,14 @@ export function DailyPlanModal({ children }: DailyPlanModalProps) {
               )}
 
               {/* Recommendations */}
-              {plan.recommendations && plan.recommendations.length > 0 && (
+              {currentPlan.recommendations && currentPlan.recommendations.length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Recommendations</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {plan.recommendations.map((rec: string, index: number) => (
+                      {currentPlan.recommendations.map((rec: string, index: number) => (
                         <li key={index} className="flex items-start gap-2">
                           <Zap className="h-4 w-4 text-accent mt-0.5" />
                           <span className="text-sm">{rec}</span>
