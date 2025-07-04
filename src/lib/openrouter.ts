@@ -141,8 +141,18 @@ Examples:
       });
 
       const content = completion.choices[0].message.content || '{}';
-      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      return JSON.parse(cleanContent);
+      const cleanContent = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+        .trim();
+      
+      try {
+        return JSON.parse(cleanContent);
+      } catch (parseError) {
+        console.warn('Failed to parse natural language, using fallback');
+        return { title: input, priority: 'medium', dueDate: null };
+      }
     } catch (error) {
       console.error('Natural language parsing error:', error);
       return { title: input, priority: 'medium', dueDate: null };
@@ -150,7 +160,7 @@ Examples:
   }
 
   async generateDailyPlan(tasks: any[], userPreferences: any = {}): Promise<any> {
-    const model = OPENROUTER_CONFIG.models.GEMINI_25_PRO;
+    const model = OPENROUTER_CONFIG.models.CYPHER_ALPHA;
     
     try {
       const today = new Date().toISOString().split('T')[0];
@@ -200,8 +210,24 @@ Preferences: ${JSON.stringify(userPreferences)}`
       });
 
       const content = completion.choices[0].message.content || '{}';
-      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      return JSON.parse(cleanContent);
+      const cleanContent = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+        .trim();
+      
+      try {
+        return JSON.parse(cleanContent);
+      } catch (parseError) {
+        console.warn('Failed to parse daily plan, using fallback');
+        return { 
+          timeBlocks: [], 
+          insights: ['Unable to generate plan - please try again'], 
+          recommendations: ['Add more specific time estimates to your tasks'],
+          totalFocusTime: '0 hours',
+          productivityScore: 0
+        };
+      }
     } catch (error) {
       console.error('Daily plan generation error:', error);
       return { 
@@ -248,9 +274,20 @@ Be positive, specific, and helpful.`
       });
 
       const content = completion.choices[0].message.content || '[]';
-      // Clean up any markdown formatting
-      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      const insights = JSON.parse(cleanContent);
+      // Clean up any markdown formatting and escape issues
+      const cleanContent = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+        .trim();
+      
+      let insights;
+      try {
+        insights = JSON.parse(cleanContent);
+      } catch (parseError) {
+        console.warn('Failed to parse AI insights, using fallback');
+        insights = [];
+      }
       return insights.slice(0, 3); // Limit to 3 insights
     } catch (error) {
       console.error('Coaching error:', error);

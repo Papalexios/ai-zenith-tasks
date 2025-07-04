@@ -104,7 +104,30 @@ export function AIInsights() {
                 
                 {insight.actionable && (
                   <div className="pl-10">
-                    <Button variant="outline" size="sm" className="text-xs h-7">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs h-7"
+                      onClick={() => {
+                        // Execute the insight action based on type
+                        if (insight.type === 'productivity') {
+                          // Sort tasks by priority
+                          const sortedTasks = tasks.filter(t => !t.completed).sort((a, b) => {
+                            const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+                            return priorityOrder[b.priority] - priorityOrder[a.priority];
+                          });
+                          console.log('Prioritized tasks:', sortedTasks);
+                        } else if (insight.type === 'pattern') {
+                          // Group similar tasks
+                          const grouped = tasks.reduce((acc, task) => {
+                            if (!acc[task.category]) acc[task.category] = [];
+                            acc[task.category].push(task);
+                            return acc;
+                          }, {});
+                          console.log('Grouped tasks:', grouped);
+                        }
+                      }}
+                    >
                       Take Action
                     </Button>
                   </div>
