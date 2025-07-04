@@ -56,6 +56,25 @@ serve(async (req) => {
         trialEnd: subscriber.trial_end,
         subscribed: subscriber.subscribed 
       });
+    } else {
+      // New user - create subscriber record with 5-day trial
+      logStep("No subscriber record found, creating new trial");
+      const trialEndDate = new Date();
+      trialEndDate.setDate(trialEndDate.getDate() + 5);
+      
+      await supabaseClient.from("subscribers").insert({
+        user_id: user.id,
+        email: user.email,
+        trial_start: now.toISOString(),
+        trial_end: trialEndDate.toISOString(),
+        is_trial_active: true,
+        subscribed: false,
+        subscription_tier: 'free'
+      });
+      
+      isTrialActive = true;
+      trialEnd = trialEndDate.toISOString();
+      logStep("Created new trial", { trialEnd });
     }
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { 
