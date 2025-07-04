@@ -42,7 +42,7 @@ serve(async (req) => {
       .from("subscribers")
       .select("*")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
     const now = new Date();
     let isTrialActive = false;
