@@ -81,6 +81,63 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks: {
+        Row: {
+          ai_enhanced: boolean
+          ai_model_used: string | null
+          category: string
+          completed: boolean
+          created_at: string
+          description: string | null
+          due_date: string | null
+          due_time: string | null
+          estimated_time: string | null
+          id: string
+          priority: string
+          subtasks: string[] | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_enhanced?: boolean
+          ai_model_used?: string | null
+          category?: string
+          completed?: boolean
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          due_time?: string | null
+          estimated_time?: string | null
+          id?: string
+          priority?: string
+          subtasks?: string[] | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_enhanced?: boolean
+          ai_model_used?: string | null
+          category?: string
+          completed?: boolean
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          due_time?: string | null
+          estimated_time?: string | null
+          id?: string
+          priority?: string
+          subtasks?: string[] | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

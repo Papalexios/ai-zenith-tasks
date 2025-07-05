@@ -1,1 +1,4 @@
 project_id = "bczlquactmlfwnxphfwn"
+
+[functions.add-to-calendar]
+verify_jwt = true

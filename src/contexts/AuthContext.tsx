@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useTaskStore } from '@/store/taskStore';
 
 interface SubscriptionInfo {
   subscribed: boolean;
@@ -72,10 +73,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Check subscription status when user logs in
+        // Check subscription status and load tasks when user logs in
         if (session?.user) {
           setTimeout(() => {
             checkSubscription();
+            // Load user tasks after authentication
+            useTaskStore.getState().loadTasks();
           }, 0);
         } else {
           setSubscription(null);
@@ -92,6 +95,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (session?.user) {
         setTimeout(() => {
           checkSubscription();
+          // Load user tasks after authentication
+          useTaskStore.getState().loadTasks();
         }, 0);
       }
     });
