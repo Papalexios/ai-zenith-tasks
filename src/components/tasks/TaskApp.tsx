@@ -9,6 +9,7 @@ import { TaskList } from './TaskList';
 import { AIInsights } from './AIInsights';
 import { DailyPlanModal } from './DailyPlanModal';
 import { AnalyticsModal } from './AnalyticsModal';
+import { FocusTimer } from './FocusTimer';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
@@ -48,13 +49,9 @@ export function TaskApp() {
     }
     if (!newTask.trim()) return;
     
-    try {
-      await addTask(newTask, true); // Use AI by default
-      setNewTask('');
-      setShowAIDemo(false);
-    } catch (error) {
-      console.error('Error adding task:', error);
-    }
+    await addTask(newTask, true); // Use AI by default
+    setNewTask('');
+    setShowAIDemo(false);
   };
 
   const filterOptions = [
@@ -117,36 +114,26 @@ export function TaskApp() {
                   </div>
                 </div>
                 
-                <form onSubmit={handleAddTask} className="space-y-4">
-                  <div className="relative">
-                    <Input
-                      placeholder="Describe your task naturally... (e.g., 'Plan team meeting for tomorrow')"
-                      value={newTask}
-                      onChange={(e) => setNewTask(e.target.value)}
-                      className="modern-input h-14 text-base pl-6 pr-32"
-                      disabled={isLoading}
-                    />
-                    <Button 
-                      type="submit"
-                      disabled={!newTask.trim() || isLoading}
-                      variant="glow"
-                      size="lg"
-                      className="absolute right-2 top-2"
-                    >
-                      {isLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="mr-2 h-4 w-4" />
-                          Add with AI
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
+                 <form onSubmit={handleAddTask} className="space-y-4">
+                   <div className="relative flex items-center gap-3">
+                     <Input
+                       placeholder="Describe your task naturally... (e.g., 'Plan team meeting for tomorrow')"
+                       value={newTask}
+                       onChange={(e) => setNewTask(e.target.value)}
+                       className="h-14 text-base pl-6 pr-4 flex-1 transition-all duration-300 focus:shadow-glow"
+                     />
+                     <Button 
+                       type="submit"
+                       disabled={!newTask.trim()}
+                       variant="glow"
+                       size="lg"
+                       className="h-14 px-8 gap-2 transition-all duration-300 hover:scale-105"
+                     >
+                       <Plus className="h-4 w-4" />
+                       Add with AI
+                     </Button>
+                   </div>
+                 </form>
                 
                 {showAIDemo && (
                   <motion.div
@@ -290,6 +277,9 @@ export function TaskApp() {
           </div>
         </div>
       </div>
+      
+      {/* Focus Timer */}
+      <FocusTimer />
     </div>
   );
 }

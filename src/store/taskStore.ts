@@ -23,6 +23,12 @@ export interface TaskStore {
   insights: AIInsight[];
   dailyPlan: any;
   isLoading: boolean;
+  focusTimer: {
+    taskId: string | null;
+    isActive: boolean;
+    timeLeft: number;
+    type: 'focus' | 'break';
+  };
   
   // Task management
   addTask: (taskInput: string, useAI?: boolean) => Promise<void>;
@@ -36,6 +42,12 @@ export interface TaskStore {
   updateDailyPlan: (plan: any) => void;
   getAIInsights: () => Promise<void>;
   applyInsightAction: (insightType: string) => void;
+  
+  // Focus timer
+  startFocusTimer: (taskId: string) => void;
+  pauseFocusTimer: () => void;
+  stopFocusTimer: () => void;
+  tickTimer: () => void;
   
   // Filters and sorting
   filter: 'all' | 'pending' | 'completed' | 'today' | 'overdue';
@@ -64,85 +76,75 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   isLoading: false,
   filter: 'all',
   sortBy: 'priority',
+  focusTimer: {
+    taskId: null,
+    isActive: false,
+    timeLeft: 25 * 60, // 25 minutes in seconds
+    type: 'focus'
+  },
 
   addTask: async (taskInput: string, useAI = true) => {
-    set({ isLoading: true });
+    const taskId = generateId();
     
+    // OPTIMISTIC UI: Add task immediately
+    const optimisticTask: Task = {
+      id: taskId,
+      title: taskInput,
+      description: useAI ? 'AI is enhancing...' : undefined,
+      completed: false,
+      priority: 'medium',
+      category: 'general',
+      estimatedTime: '30 minutes',
+      subtasks: [],
+      aiEnhanced: false,
+      tags: [],
+      createdAt: new Date().toISOString(),
+    };
+
+    set(state => ({
+      tasks: [...state.tasks, optimisticTask],
+    }));
+
+    if (!useAI) return;
+
+    // AI Enhancement in background
     try {
-      let taskData: Partial<Task> = {
-        id: generateId(),
-        title: taskInput,
-        completed: false,
-        priority: 'medium',
-        category: 'general',
-        estimatedTime: '30 minutes',
-        subtasks: [],
-        aiEnhanced: false,
-        tags: [],
-        createdAt: new Date().toISOString(),
-      };
-
-      if (useAI) {
-        // Use natural language parsing first
-        const nlpResult = await openRouterService.parseNaturalLanguage(taskInput);
-        
-        // Then enhance with AI
-        const enhancement = await openRouterService.enhanceTask(taskInput);
-        
-        // Set proper due date - default to today if none specified
-        const today = new Date().toISOString().split('T')[0];
-        let finalDueDate = nlpResult.dueDate || enhancement.deadline;
-        
-        // If no due date found, set to today for urgent tasks, tomorrow for others
-        if (!finalDueDate) {
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          finalDueDate = enhancement.priority === 'urgent' ? today : tomorrow.toISOString().split('T')[0];
-        }
-        
-        // Ensure the date is actually in the correct format and not in the past
-        if (finalDueDate && finalDueDate < today) {
-          finalDueDate = today;
-        }
-        
-        taskData = {
-          ...taskData,
-          title: enhancement.enhancedTitle,
-          description: enhancement.description,
-          priority: enhancement.priority,
-          category: enhancement.category,
-          estimatedTime: enhancement.estimatedTime,
-          subtasks: enhancement.subtasks,
-          dueDate: finalDueDate,
-          dueTime: nlpResult.dueTime,
-          tags: nlpResult.tags || [],
-          aiEnhanced: true,
-          aiModelUsed: 'cypher-alpha'
-        };
+      const nlpResult = await openRouterService.parseNaturalLanguage(taskInput);
+      const enhancement = await openRouterService.enhanceTask(taskInput);
+      
+      const today = new Date().toISOString().split('T')[0];
+      let finalDueDate = nlpResult.dueDate || enhancement.deadline;
+      
+      if (!finalDueDate) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        finalDueDate = enhancement.priority === 'urgent' ? today : tomorrow.toISOString().split('T')[0];
       }
-
-      set(state => ({
-        tasks: [...state.tasks, taskData as Task],
-        isLoading: false
-      }));
+      
+      if (finalDueDate && finalDueDate < today) {
+        finalDueDate = today;
+      }
+      
+      // Update with AI enhancement
+      get().updateTask(taskId, {
+        title: enhancement.enhancedTitle,
+        description: enhancement.description,
+        priority: enhancement.priority,
+        category: enhancement.category,
+        estimatedTime: enhancement.estimatedTime,
+        subtasks: enhancement.subtasks,
+        dueDate: finalDueDate,
+        dueTime: nlpResult.dueTime,
+        tags: nlpResult.tags || [],
+        aiEnhanced: true,
+        aiModelUsed: 'cypher-alpha'
+      });
     } catch (error) {
-      console.error('Error adding task:', error);
-      // Fallback to simple task creation
-      set(state => ({
-        tasks: [...state.tasks, {
-          id: generateId(),
-          title: taskInput,
-          completed: false,
-          priority: 'medium',
-          category: 'general',
-          estimatedTime: '30 minutes',
-          subtasks: [],
-          aiEnhanced: false,
-          tags: [],
-          createdAt: new Date().toISOString(),
-        } as Task],
-        isLoading: false
-      }));
+      console.error('Error enhancing task:', error);
+      // Remove loading state on error
+      get().updateTask(taskId, {
+        description: undefined,
+      });
     }
   },
 
@@ -282,5 +284,65 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         return new Date(t.createdAt) > weekAgo;
       }).length
     };
+  },
+
+  // Focus Timer Methods
+  startFocusTimer: (taskId: string) => {
+    set({
+      focusTimer: {
+        taskId,
+        isActive: true,
+        timeLeft: 25 * 60,
+        type: 'focus'
+      }
+    });
+  },
+
+  pauseFocusTimer: () => {
+    set(state => ({
+      focusTimer: {
+        ...state.focusTimer,
+        isActive: false
+      }
+    }));
+  },
+
+  stopFocusTimer: () => {
+    set({
+      focusTimer: {
+        taskId: null,
+        isActive: false,
+        timeLeft: 25 * 60,
+        type: 'focus'
+      }
+    });
+  },
+
+  tickTimer: () => {
+    set(state => {
+      if (!state.focusTimer.isActive || state.focusTimer.timeLeft <= 0) {
+        return state;
+      }
+      
+      const newTimeLeft = state.focusTimer.timeLeft - 1;
+      
+      if (newTimeLeft === 0) {
+        // Timer finished
+        return {
+          focusTimer: {
+            ...state.focusTimer,
+            isActive: false,
+            timeLeft: 0
+          }
+        };
+      }
+      
+      return {
+        focusTimer: {
+          ...state.focusTimer,
+          timeLeft: newTimeLeft
+        }
+      };
+    });
   }
 }));

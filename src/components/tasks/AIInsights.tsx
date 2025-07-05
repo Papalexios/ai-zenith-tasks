@@ -105,16 +105,18 @@ export function AIInsights() {
                 {insight.actionable && (
                   <div className="pl-10">
                     <Button 
-                      variant="outline" 
+                      variant="default" 
                       size="sm" 
-                      className="text-xs h-7"
+                      className="text-xs h-8 gap-2 hover:scale-105 transition-all duration-300"
                       onClick={() => {
-                        // Execute the insight action using the store method
                         const { applyInsightAction } = useTaskStore.getState();
                         applyInsightAction(insight.type);
                       }}
                     >
-                      Take Action
+                      <Sparkles className="h-3 w-3" />
+                      {insight.type === 'productivity' ? 'Focus on High Priority' : 
+                       insight.type === 'pattern' ? 'Group Similar Tasks' : 
+                       insight.type === 'suggestion' ? "Show Today's Tasks" : 'Apply Suggestion'}
                     </Button>
                   </div>
                 )}
