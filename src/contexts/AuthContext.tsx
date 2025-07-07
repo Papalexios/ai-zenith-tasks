@@ -65,43 +65,59 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Improved state management with proper timing
   useEffect(() => {
+    let mounted = true;
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
-        setLoading(false);
-
-        // Check subscription status and load tasks when user logs in
+        
         if (session?.user) {
-          setTimeout(() => {
-            checkSubscription();
-            // Load user tasks after authentication
-            useTaskStore.getState().loadTasks();
-          }, 0);
+          // Wait for state to be fully updated before loading tasks
+          await new Promise(resolve => setTimeout(resolve, 100));
+          if (mounted) {
+            await checkSubscription();
+            await useTaskStore.getState().loadTasks();
+          }
         } else {
           setSubscription(null);
         }
+        
+        setLoading(false);
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-      
-      if (session?.user) {
-        setTimeout(() => {
-          checkSubscription();
-          // Load user tasks after authentication
-          useTaskStore.getState().loadTasks();
-        }, 0);
+    // Check for existing session with proper timing
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!mounted) return;
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await checkSubscription();
+          await useTaskStore.getState().loadTasks();
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      } finally {
+        if (mounted) setLoading(false);
       }
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    initAuth();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string) => {

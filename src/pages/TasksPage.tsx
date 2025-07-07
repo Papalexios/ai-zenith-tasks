@@ -2,12 +2,15 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TaskApp } from '@/components/tasks/TaskApp';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTaskStore } from '@/store/taskStore';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
+import { SyncStatusIndicator } from '@/components/SyncStatusIndicator';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 
 const TasksPage = () => {
   const { user, loading, signOut, subscription, checkSubscription } = useAuth();
+  const { isLoadingTasks, syncError } = useTaskStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,12 +26,17 @@ const TasksPage = () => {
     }
   }, [user, checkSubscription]);
 
-  if (loading) {
+  if (loading || isLoadingTasks) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">
+            {isLoadingTasks ? 'Loading your tasks...' : 'Loading...'}
+          </p>
+          {syncError && (
+            <p className="text-destructive text-sm">{syncError}</p>
+          )}
         </div>
       </div>
     );
@@ -59,6 +67,9 @@ const TasksPage = () => {
 
         {/* Subscription Banner */}
         <SubscriptionBanner />
+
+        {/* Sync Status Indicator */}
+        <SyncStatusIndicator />
 
         {/* Task App */}
         {hasAccess ? (

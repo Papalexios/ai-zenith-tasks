@@ -24,6 +24,9 @@ export interface TaskStore {
   insights: AIInsight[];
   dailyPlan: any;
   isLoading: boolean;
+  isLoadingTasks: boolean;
+  syncStatus: 'idle' | 'syncing' | 'synced' | 'error';
+  syncError: string | null;
   focusTimer: {
     taskId: string | null;
     isActive: boolean;
@@ -63,6 +66,11 @@ export interface TaskStore {
   sortBy: 'priority' | 'dueDate' | 'createdAt' | 'category';
   setSortBy: (sortBy: TaskStore['sortBy']) => void;
   
+  // Data sync methods
+  setSyncStatus: (status: 'idle' | 'syncing' | 'synced' | 'error') => void;
+  clearSyncError: () => void;
+  forceSyncAllTasks: () => Promise<void>;
+  
   // Analytics
   getProductivityStats: () => {
     totalTasks: number;
@@ -82,6 +90,9 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   insights: [],
   dailyPlan: null,
   isLoading: false,
+  isLoadingTasks: false,
+  syncStatus: 'idle',
+  syncError: null,
   filter: 'all',
   sortBy: 'priority',
   focusTimer: {
@@ -93,67 +104,151 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   // Data persistence methods
   loadTasks: async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) return;
+    set({ isLoadingTasks: true, syncStatus: 'syncing', syncError: null });
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        set({ isLoadingTasks: false, syncStatus: 'idle' });
+        return;
+      }
 
-    const { data: tasks, error } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .order('created_at', { ascending: false });
+      const { data: tasks, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
 
-    if (error) {
+      if (error) {
+        console.error('Error loading tasks:', error);
+        set({ 
+          isLoadingTasks: false, 
+          syncStatus: 'error',
+          syncError: `Failed to load tasks: ${error.message}`
+        });
+        return;
+      }
+
+      const formattedTasks: Task[] = tasks?.map(task => ({
+        id: task.id,
+        title: task.title,
+        description: task.description || undefined,
+        completed: task.completed,
+        priority: task.priority as 'low' | 'medium' | 'high' | 'urgent',
+        dueDate: task.due_date || undefined,
+        dueTime: task.due_time || undefined,
+        category: task.category,
+        estimatedTime: task.estimated_time || undefined,
+        subtasks: task.subtasks || [],
+        aiEnhanced: task.ai_enhanced,
+        aiModelUsed: task.ai_model_used || undefined,
+        tags: task.tags || [],
+        createdAt: task.created_at,
+      })) || [];
+
+      set({ 
+        tasks: formattedTasks, 
+        isLoadingTasks: false, 
+        syncStatus: 'synced',
+        syncError: null
+      });
+    } catch (error) {
       console.error('Error loading tasks:', error);
-      return;
+      set({ 
+        isLoadingTasks: false, 
+        syncStatus: 'error',
+        syncError: `Failed to load tasks: ${error instanceof Error ? error.message : 'Unknown error'}`
+      });
     }
-
-    const formattedTasks: Task[] = tasks?.map(task => ({
-      id: task.id,
-      title: task.title,
-      description: task.description || undefined,
-      completed: task.completed,
-      priority: task.priority as 'low' | 'medium' | 'high' | 'urgent',
-      dueDate: task.due_date || undefined,
-      dueTime: task.due_time || undefined,
-      category: task.category,
-      estimatedTime: task.estimated_time || undefined,
-      subtasks: task.subtasks || [],
-      aiEnhanced: task.ai_enhanced,
-      aiModelUsed: task.ai_model_used || undefined,
-      tags: task.tags || [],
-      createdAt: task.created_at,
-    })) || [];
-
-    set({ tasks: formattedTasks });
   },
 
   syncTaskToSupabase: async (task: Task) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) return;
+    const maxRetries = 3;
+    let retryCount = 0;
+    
+    const attemptSync = async (): Promise<void> => {
+      try {
+        set({ syncStatus: 'syncing' });
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) {
+          throw new Error('No authenticated user');
+        }
 
-    const taskData = {
-      id: task.id,
-      user_id: session.user.id,
-      title: task.title,
-      description: task.description,
-      completed: task.completed,
-      priority: task.priority,
-      due_date: task.dueDate,
-      due_time: task.dueTime,
-      category: task.category,
-      estimated_time: task.estimatedTime,
-      subtasks: task.subtasks,
-      ai_enhanced: task.aiEnhanced,
-      ai_model_used: task.aiModelUsed,
-      tags: task.tags,
+        const taskData = {
+          id: task.id,
+          user_id: session.user.id,
+          title: task.title,
+          description: task.description,
+          completed: task.completed,
+          priority: task.priority,
+          due_date: task.dueDate,
+          due_time: task.dueTime,
+          category: task.category,
+          estimated_time: task.estimatedTime,
+          subtasks: task.subtasks,
+          ai_enhanced: task.aiEnhanced,
+          ai_model_used: task.aiModelUsed,
+          tags: task.tags,
+        };
+
+        const { error } = await supabase
+          .from('tasks')
+          .upsert(taskData);
+
+        if (error) {
+          throw error;
+        }
+
+        set({ syncStatus: 'synced', syncError: null });
+      } catch (error) {
+        console.error(`Error syncing task to Supabase (attempt ${retryCount + 1}):`, error);
+        
+        if (retryCount < maxRetries - 1) {
+          retryCount++;
+          // Exponential backoff: wait 1s, then 2s, then 4s
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
+          return attemptSync();
+        } else {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown sync error';
+          set({ 
+            syncStatus: 'error',
+            syncError: `Failed to save task "${task.title}": ${errorMessage}`
+          });
+          // Show user-visible error
+          import('@/hooks/use-toast').then(({ toast }) => {
+            toast({
+              title: "Sync Failed",
+              description: `Failed to save task "${task.title}". Your changes may be lost.`,
+              variant: "destructive"
+            });
+          });
+        }
+      }
     };
 
-    const { error } = await supabase
-      .from('tasks')
-      .upsert(taskData);
+    await attemptSync();
+  },
 
-    if (error) {
-      console.error('Error syncing task to Supabase:', error);
+  setSyncStatus: (status) => set({ syncStatus: status }),
+  
+  clearSyncError: () => set({ syncError: null }),
+  
+  forceSyncAllTasks: async () => {
+    const { tasks } = get();
+    set({ syncStatus: 'syncing' });
+    
+    try {
+      await Promise.all(tasks.map(task => get().syncTaskToSupabase(task)));
+      set({ syncStatus: 'synced', syncError: null });
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "Sync Complete",
+          description: "All tasks have been synced successfully.",
+        });
+      });
+    } catch (error) {
+      set({ syncStatus: 'error', syncError: 'Failed to sync all tasks' });
     }
   },
 
