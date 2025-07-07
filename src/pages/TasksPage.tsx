@@ -39,7 +39,8 @@ const TasksPage = () => {
   }
 
   // Check if user has access (subscribed or trial active)
-  const hasAccess = subscription?.has_access ?? false;
+  // Show loading or default to true while subscription is being checked to prevent flash
+  const hasAccess = subscription ? subscription.has_access : true;
 
   return (
     <div className="min-h-screen bg-background">

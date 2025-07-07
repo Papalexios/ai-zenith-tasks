@@ -273,35 +273,40 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     const updatedTask = get().tasks.find(t => t.id === id);
     if (updatedTask) {
       await get().syncTaskToSupabase(updatedTask);
-      // Auto-add to Google Calendar when task is created or updated
-      if (updatedTask.dueDate) {
-        try {
-          await get().addToGoogleCalendar(id);
-        } catch (error) {
-          console.error('Error adding to Google Calendar:', error);
-        }
+      // Auto-add to Google Calendar for all tasks (with default values if needed)
+      try {
+        await get().addToGoogleCalendar(id);
+      } catch (error) {
+        console.error('Error adding to Google Calendar:', error);
       }
     }
   },
 
   addToGoogleCalendar: async (taskId: string) => {
     const task = get().tasks.find(t => t.id === taskId);
-    if (!task || !task.dueDate) return;
+    if (!task) return;
 
+    // Auto-add to calendar for all tasks, even without due dates
     try {
+      // Set a default due date if none exists
+      const dueDate = task.dueDate || new Date().toISOString().split('T')[0];
+      const dueTime = task.dueTime || '09:00';
+
       const { data, error } = await supabase.functions.invoke('add-to-calendar', {
         body: {
           taskId: task.id,
           title: task.title,
-          description: task.description,
-          dueDate: task.dueDate,
-          dueTime: task.dueTime,
-          estimatedTime: task.estimatedTime
+          description: task.description || 'AI-generated task',
+          dueDate: dueDate,
+          dueTime: dueTime,
+          estimatedTime: task.estimatedTime || '30 minutes'
         }
       });
 
       if (error) {
         console.error('Error adding to Google Calendar:', error);
+      } else {
+        console.log('Successfully added task to Google Calendar');
       }
     } catch (error) {
       console.error('Error calling calendar function:', error);

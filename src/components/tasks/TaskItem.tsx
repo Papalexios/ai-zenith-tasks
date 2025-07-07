@@ -160,7 +160,14 @@ export function TaskItem({ task }: TaskItemProps) {
               
               {task.dueDate && (
                 <Badge variant="outline" className="transition-all duration-300 hover:scale-105">
-                  Due: {new Date(task.dueDate).toLocaleDateString()}
+                  Due: {(() => {
+                    try {
+                      const date = new Date(task.dueDate);
+                      return isNaN(date.getTime()) ? 'No date set' : date.toLocaleDateString();
+                    } catch {
+                      return 'No date set';
+                    }
+                  })()}
                 </Badge>
               )}
             </div>

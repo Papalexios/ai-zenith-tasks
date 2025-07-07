@@ -111,6 +111,15 @@ export function AIInsights() {
                       onClick={() => {
                         const { applyInsightAction } = useTaskStore.getState();
                         applyInsightAction(insight.type);
+                        // Show feedback about what was applied
+                        import('@/hooks/use-toast').then(({ toast }) => {
+                          toast({
+                            title: "AI Suggestion Applied",
+                            description: `${insight.type === 'productivity' ? 'Tasks sorted by priority and filtered to pending' : 
+                                         insight.type === 'pattern' ? 'Tasks grouped by category' : 
+                                         insight.type === 'suggestion' ? "Showing today's tasks" : 'Suggestion applied'}`,
+                          });
+                        });
                       }}
                     >
                       <Sparkles className="h-3 w-3" />

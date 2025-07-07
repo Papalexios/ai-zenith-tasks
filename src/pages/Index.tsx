@@ -149,7 +149,7 @@ const Pricing = () => (
             </div>
             
             <div className="space-y-1">
-              <div className="text-4xl font-bold">$12</div>
+              <div className="text-4xl font-bold">$11.99</div>
               <div className="text-muted-foreground">per month</div>
             </div>
 
