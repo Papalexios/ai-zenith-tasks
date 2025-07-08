@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTaskStore } from '@/store/taskStore';
 import { DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useDailyPlan() {
   const [plan, setPlan] = useState<any>(null);
@@ -69,7 +70,9 @@ export function useDailyPlan() {
   const handleSyncToCalendar = async () => {
     setIsSyncing(true);
     try {
-      // Find matching tasks for each time block and sync to Google Calendar
+      const googleCalendarUrls: string[] = [];
+      
+      // Find matching tasks for each time block and get Google Calendar URLs
       for (const block of currentPlan?.timeBlocks || []) {
         const matchingTask = tasks.find(task => 
           task.title === block.task || 
@@ -78,17 +81,39 @@ export function useDailyPlan() {
         );
         
         if (matchingTask) {
-          await addToGoogleCalendar(matchingTask.id);
+          // Get the Google Calendar URL from the edge function
+          const { data } = await supabase.functions.invoke('add-to-calendar', {
+            body: {
+              taskId: matchingTask.id,
+              title: matchingTask.title,
+              description: matchingTask.description || 'AI-generated task',
+              dueDate: matchingTask.dueDate || new Date().toISOString().split('T')[0],
+              dueTime: block.startTime || '09:00',
+              estimatedTime: matchingTask.estimatedTime || '1 hour'
+            }
+          });
+          
+          if (data?.googleCalendarUrl) {
+            googleCalendarUrls.push(data.googleCalendarUrl);
+          }
         }
       }
       
-      // Show success message
-      import('@/hooks/use-toast').then(({ toast }) => {
-        toast({
-          title: "Calendar Sync Complete",
-          description: "Your daily plan has been synced to Google Calendar!",
+      // Open the first Google Calendar URL to start the process
+      if (googleCalendarUrls.length > 0) {
+        window.open(googleCalendarUrls[0], '_blank');
+        
+        // Show instructions to user
+        import('@/hooks/use-toast').then(({ toast }) => {
+          toast({
+            title: "Calendar Sync Started",
+            description: `Google Calendar opened with ${googleCalendarUrls.length} event${googleCalendarUrls.length > 1 ? 's' : ''}. Click "Save" to add each event to your calendar.`,
+          });
         });
-      });
+      } else {
+        throw new Error('No events to sync');
+      }
+      
     } catch (error) {
       console.error('Error syncing to calendar:', error);
       import('@/hooks/use-toast').then(({ toast }) => {
