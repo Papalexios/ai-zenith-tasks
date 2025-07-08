@@ -99,15 +99,20 @@ export function useDailyPlan() {
         }
       }
       
-      // Open the first Google Calendar URL to start the process
+      // Open ALL Google Calendar URLs to create separate events
       if (googleCalendarUrls.length > 0) {
-        window.open(googleCalendarUrls[0], '_blank');
+        // Open each URL with a small delay to avoid browser blocking
+        googleCalendarUrls.forEach((url, index) => {
+          setTimeout(() => {
+            window.open(url, '_blank');
+          }, index * 500); // 500ms delay between each URL
+        });
         
         // Show instructions to user
         import('@/hooks/use-toast').then(({ toast }) => {
           toast({
             title: "Calendar Sync Started",
-            description: `Google Calendar opened with ${googleCalendarUrls.length} event${googleCalendarUrls.length > 1 ? 's' : ''}. Click "Save" to add each event to your calendar.`,
+            description: `Opening ${googleCalendarUrls.length} separate calendar event${googleCalendarUrls.length > 1 ? 's' : ''}. Each will open in a new tab - click "Save" to add each event.`,
           });
         });
       } else {

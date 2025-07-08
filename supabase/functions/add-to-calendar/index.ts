@@ -24,17 +24,21 @@ serve(async (req) => {
   try {
     const { taskId, title, description, dueDate, dueTime, estimatedTime }: TaskCalendarEvent = await req.json();
 
-    // Create a simple calendar event format (iCal)
-    const startDateTime = dueTime 
-      ? new Date(`${dueDate}T${dueTime}`)
-      : new Date(`${dueDate}T09:00:00`);
+    // Parse the date and time correctly
+    const startDateTime = new Date(`${dueDate}T${dueTime || '09:00'}:00`);
 
-    // Parse estimated time to determine duration
-    const duration = estimatedTime?.includes('hour') 
-      ? parseInt(estimatedTime) * 60 
-      : parseInt(estimatedTime || '30');
+    // Parse estimated time to determine duration in minutes
+    let durationMinutes = 90; // Default 1.5 hours
+    if (estimatedTime) {
+      if (estimatedTime.includes('hour')) {
+        const hours = parseFloat(estimatedTime.match(/(\d+\.?\d*)/)?.[0] || '1.5');
+        durationMinutes = hours * 60;
+      } else if (estimatedTime.includes('minute')) {
+        durationMinutes = parseInt(estimatedTime.match(/(\d+)/)?.[0] || '90');
+      }
+    }
 
-    const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
+    const endDateTime = new Date(startDateTime.getTime() + durationMinutes * 60000);
 
     // Format dates for iCal
     const formatDate = (date: Date) => {
@@ -58,7 +62,7 @@ serve(async (req) => {
     ].join('\r\n');
 
     // Create Google Calendar URL for easy adding
-    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatDate(startDateTime)}/${formatDate(endDateTime)}&details=${encodeURIComponent(description || 'AI-generated task')}`;
+    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatDate(startDateTime)}/${formatDate(endDateTime)}&details=${encodeURIComponent(description || 'AI-generated task')}&location=&trp=false`;
 
     return new Response(JSON.stringify({ 
       success: true,
