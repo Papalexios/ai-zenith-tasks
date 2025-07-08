@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -65,48 +66,87 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Improved state management with proper timing
+  // Load tasks with proper error handling
+  const loadUserTasks = async (userId: string) => {
+    try {
+      console.log('Loading tasks for user:', userId);
+      await useTaskStore.getState().loadTasks();
+      console.log('Tasks loaded successfully');
+    } catch (error) {
+      console.error('Failed to load tasks:', error);
+      toast.error('Failed to load your tasks. Please refresh the page.');
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
     
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id);
+        
         if (!mounted) return;
         
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Wait for state to be fully updated before loading tasks
-          await new Promise(resolve => setTimeout(resolve, 100));
-          if (mounted) {
-            await checkSubscription();
-            await useTaskStore.getState().loadTasks();
-          }
+          // Clear any existing timeout
+          if (timeoutId) clearTimeout(timeoutId);
+          
+          // Set a short delay to ensure auth state is fully settled
+          timeoutId = setTimeout(async () => {
+            if (!mounted) return;
+            
+            try {
+              await checkSubscription();
+              await loadUserTasks(session.user.id);
+            } catch (error) {
+              console.error('Error in auth state change handler:', error);
+            }
+          }, 200);
         } else {
           setSubscription(null);
+          // Clear tasks when user logs out
+          useTaskStore.getState().tasks = [];
         }
         
-        setLoading(false);
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          setLoading(false);
+        }
       }
     );
 
-    // Check for existing session with proper timing
+    // Check for existing session
     const initAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Checking for existing session...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setLoading(false);
+          return;
+        }
+        
         if (!mounted) return;
         
+        console.log('Existing session found:', session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          await checkSubscription();
-          await useTaskStore.getState().loadTasks();
+          try {
+            await checkSubscription();
+            await loadUserTasks(session.user.id);
+          } catch (error) {
+            console.error('Error loading user data:', error);
+          }
         }
       } catch (error) {
-        console.error('Error checking session:', error);
+        console.error('Error in initAuth:', error);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -116,6 +156,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     return () => {
       mounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);
@@ -159,6 +200,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (!error) {
       toast.success('Signed out successfully');
       setSubscription(null);
+      // Clear all tasks from store
+      useTaskStore.getState().tasks = [];
     }
   };
 

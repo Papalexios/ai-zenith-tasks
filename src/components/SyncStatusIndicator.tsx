@@ -1,3 +1,4 @@
+
 import { useTaskStore } from '@/store/taskStore';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -7,18 +8,19 @@ import {
   AlertCircle, 
   Loader2, 
   RefreshCw,
-  WifiOff 
+  WifiOff,
+  Database 
 } from 'lucide-react';
 
 export function SyncStatusIndicator() {
-  const { syncStatus, syncError, forceSyncAllTasks, clearSyncError } = useTaskStore();
+  const { syncStatus, syncError, forceSyncAllTasks, clearSyncError, tasks, loadTasks } = useTaskStore();
 
   const getStatusConfig = () => {
     switch (syncStatus) {
       case 'synced':
         return {
           icon: CheckCircle,
-          text: 'All tasks synced',
+          text: `All ${tasks.length} tasks synced`,
           variant: 'success' as const,
           className: 'text-accent border-accent/20'
         };
@@ -39,7 +41,7 @@ export function SyncStatusIndicator() {
       default:
         return {
           icon: WifiOff,
-          text: 'Not synced',
+          text: `${tasks.length} tasks (not synced)`,
           variant: 'secondary' as const,
           className: 'text-muted-foreground border-muted/20'
         };
@@ -48,13 +50,28 @@ export function SyncStatusIndicator() {
 
   const { icon: Icon, text, variant, className } = getStatusConfig();
 
+  const handleReloadTasks = async () => {
+    console.log('Reloading tasks from database...');
+    await loadTasks();
+  };
+
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <Badge variant="outline" className={className}>
           <Icon className={`h-3 w-3 mr-1 ${syncStatus === 'syncing' ? 'animate-spin' : ''}`} />
           {text}
         </Badge>
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleReloadTasks}
+          className="h-6 px-2"
+        >
+          <Database className="h-3 w-3 mr-1" />
+          Reload from DB
+        </Button>
         
         {(syncStatus === 'error' || syncStatus === 'idle') && (
           <Button
@@ -64,7 +81,7 @@ export function SyncStatusIndicator() {
             className="h-6 px-2"
           >
             <RefreshCw className="h-3 w-3 mr-1" />
-            Retry Sync
+            Force Sync
           </Button>
         )}
       </div>
@@ -73,15 +90,25 @@ export function SyncStatusIndicator() {
         <Alert variant="destructive" className="text-sm">
           <AlertCircle className="h-3 w-3" />
           <AlertDescription className="text-xs">
-            {syncError}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearSyncError}
-              className="ml-2 h-4 px-1 text-xs"
-            >
-              Dismiss
-            </Button>
+            <strong>Sync Error:</strong> {syncError}
+            <div className="flex gap-2 mt-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearSyncError}
+                className="h-4 px-1 text-xs"
+              >
+                Dismiss
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleReloadTasks}
+                className="h-4 px-1 text-xs"
+              >
+                Reload Tasks
+              </Button>
+            </div>
           </AlertDescription>
         </Alert>
       )}

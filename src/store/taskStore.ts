@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { openRouterService, TaskEnhancement, AIInsight } from '@/lib/openrouter';
 import { supabase } from '@/integrations/supabase/client';
@@ -104,14 +105,18 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   // Data persistence methods
   loadTasks: async () => {
+    console.log('loadTasks called');
     set({ isLoadingTasks: true, syncStatus: 'syncing', syncError: null });
     
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
-        set({ isLoadingTasks: false, syncStatus: 'idle' });
+        console.log('No authenticated user found');
+        set({ isLoadingTasks: false, syncStatus: 'idle', tasks: [] });
         return;
       }
+
+      console.log('Loading tasks for user:', session.user.id);
 
       const { data: tasks, error } = await supabase
         .from('tasks')
@@ -120,14 +125,24 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error loading tasks:', error);
+        console.error('Supabase error loading tasks:', error);
         set({ 
           isLoadingTasks: false, 
           syncStatus: 'error',
-          syncError: `Failed to load tasks: ${error.message}`
+          syncError: `Database error: ${error.message}`
+        });
+        // Show error toast
+        import('@/hooks/use-toast').then(({ toast }) => {
+          toast({
+            title: "Failed to Load Tasks",
+            description: `Error: ${error.message}`,
+            variant: "destructive"
+          });
         });
         return;
       }
+
+      console.log('Raw tasks from database:', tasks);
 
       const formattedTasks: Task[] = tasks?.map(task => ({
         id: task.id,
@@ -146,18 +161,39 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         createdAt: task.created_at,
       })) || [];
 
+      console.log('Formatted tasks:', formattedTasks);
+      console.log('Number of tasks loaded:', formattedTasks.length);
+
       set({ 
         tasks: formattedTasks, 
         isLoadingTasks: false, 
         syncStatus: 'synced',
         syncError: null
       });
+
+      // Show success toast with task count
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "Tasks Loaded",
+          description: `Successfully loaded ${formattedTasks.length} tasks`,
+        });
+      });
+
     } catch (error) {
-      console.error('Error loading tasks:', error);
+      console.error('Exception in loadTasks:', error);
       set({ 
         isLoadingTasks: false, 
         syncStatus: 'error',
         syncError: `Failed to load tasks: ${error instanceof Error ? error.message : 'Unknown error'}`
+      });
+      
+      // Show error toast
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "Critical Error",
+          description: "Failed to load your tasks. Please refresh the page and try again.",
+          variant: "destructive"
+        });
       });
     }
   },
@@ -168,11 +204,12 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     
     const attemptSync = async (): Promise<void> => {
       try {
+        console.log('Syncing task to Supabase:', task.id, task.title);
         set({ syncStatus: 'syncing' });
         
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) {
-          throw new Error('No authenticated user');
+          throw new Error('No authenticated user found');
         }
 
         const taskData = {
@@ -192,29 +229,36 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
           tags: task.tags,
         };
 
+        console.log('Task data being synced:', taskData);
+
         const { error } = await supabase
           .from('tasks')
           .upsert(taskData);
 
         if (error) {
+          console.error('Supabase upsert error:', error);
           throw error;
         }
 
+        console.log('Task synced successfully:', task.id);
         set({ syncStatus: 'synced', syncError: null });
+        
       } catch (error) {
         console.error(`Error syncing task to Supabase (attempt ${retryCount + 1}):`, error);
         
         if (retryCount < maxRetries - 1) {
           retryCount++;
-          // Exponential backoff: wait 1s, then 2s, then 4s
+          console.log(`Retrying sync in ${Math.pow(2, retryCount)} seconds...`);
           await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
           return attemptSync();
         } else {
           const errorMessage = error instanceof Error ? error.message : 'Unknown sync error';
+          console.error('Final sync failure:', errorMessage);
           set({ 
             syncStatus: 'error',
             syncError: `Failed to save task "${task.title}": ${errorMessage}`
           });
+          
           // Show user-visible error
           import('@/hooks/use-toast').then(({ toast }) => {
             toast({
@@ -254,6 +298,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   addTask: async (taskInput: string, useAI = true) => {
     const taskId = generateId();
+    console.log('Adding new task:', taskId, taskInput);
     
     // OPTIMISTIC UI: Add task immediately
     const optimisticTask: Task = {
@@ -274,8 +319,18 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       tasks: [...state.tasks, optimisticTask],
     }));
 
-    // Sync task with backend after optimistic update
-    await get().syncTaskToSupabase(optimisticTask);
+    // Sync task with backend immediately
+    try {
+      await get().syncTaskToSupabase(optimisticTask);
+      console.log('Task successfully saved to database');
+    } catch (error) {
+      console.error('Failed to save task to database:', error);
+      // Remove the optimistic task if save failed
+      set(state => ({
+        tasks: state.tasks.filter(t => t.id !== taskId)
+      }));
+      return;
+    }
 
     if (!useAI) return;
 
