@@ -21,7 +21,8 @@ import {
   Edit,
   Save,
   X,
-  GripVertical
+  GripVertical,
+  CalendarPlus
 } from 'lucide-react';
 import {
   DndContext,
@@ -115,7 +116,8 @@ export function DailyPlanModal({ children }: DailyPlanModalProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTimeBlocks, setEditedTimeBlocks] = useState<any[]>([]);
-  const { generateDailyPlan, dailyPlan, updateDailyPlan } = useTaskStore();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const { generateDailyPlan, dailyPlan, updateDailyPlan, tasks, addToGoogleCalendar } = useTaskStore();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -173,6 +175,43 @@ export function DailyPlanModal({ children }: DailyPlanModalProps) {
   const startEditing = () => {
     setEditedTimeBlocks(currentPlan?.timeBlocks || []);
     setIsEditing(true);
+  };
+
+  const handleSyncToCalendar = async () => {
+    setIsSyncing(true);
+    try {
+      // Find matching tasks for each time block and sync to Google Calendar
+      for (const block of currentPlan?.timeBlocks || []) {
+        const matchingTask = tasks.find(task => 
+          task.title === block.task || 
+          task.title.toLowerCase().includes(block.task.toLowerCase()) ||
+          block.task.toLowerCase().includes(task.title.toLowerCase())
+        );
+        
+        if (matchingTask) {
+          await addToGoogleCalendar(matchingTask.id);
+        }
+      }
+      
+      // Show success message
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "Calendar Sync Complete",
+          description: "Your daily plan has been synced to Google Calendar!",
+        });
+      });
+    } catch (error) {
+      console.error('Error syncing to calendar:', error);
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "Sync Failed",
+          description: "Failed to sync to Google Calendar. Please try again.",
+          variant: "destructive"
+        });
+      });
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   // Use existing plan from store if available
@@ -384,9 +423,26 @@ export function DailyPlanModal({ children }: DailyPlanModalProps) {
                 </Card>
               )}
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button onClick={handleGeneratePlan} variant="outline">
                   Regenerate Plan
+                </Button>
+                <Button 
+                  onClick={handleSyncToCalendar} 
+                  variant="secondary"
+                  disabled={isSyncing}
+                >
+                  {isSyncing ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                      Syncing...
+                    </>
+                  ) : (
+                    <>
+                      <CalendarPlus className="mr-2 h-4 w-4" />
+                      Sync to Google Calendar
+                    </>
+                  )}
                 </Button>
                 <Button onClick={() => setIsOpen(false)}>
                   Apply Schedule
