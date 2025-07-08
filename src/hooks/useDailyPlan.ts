@@ -77,15 +77,28 @@ export function useDailyPlan() {
       for (const block of currentPlan?.timeBlocks || []) {
         console.log('Processing time block:', block);
         
-        // Create a calendar event for each time block
+        // Calculate duration from start and end times
+        const startTime = block.startTime;
+        const endTime = block.endTime;
+        let durationMinutes = 90; // Default
+        
+        if (startTime && endTime) {
+          const start = new Date(`2000-01-01T${startTime}:00`);
+          const end = new Date(`2000-01-01T${endTime}:00`);
+          durationMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+        }
+        
+        const durationText = `${Math.floor(durationMinutes / 60)} hours ${durationMinutes % 60} minutes`;
+        
+        // Create a calendar event for each time block with correct data
         const { data, error } = await supabase.functions.invoke('add-to-calendar', {
           body: {
-            taskId: `block-${Math.random()}`, // Unique ID for each block
+            taskId: block.taskId || `block-${Math.random()}`,
             title: block.task,
-            description: `Priority: ${block.priority}\nEnergy Level: ${block.energyLevel}\nFocus: ${block.focus}`,
+            description: `${block.description || ''}\n\nPriority: ${block.priority}\nEnergy Level: ${block.energy}\nType: ${block.type}\nDuration: ${durationText}`,
             dueDate: new Date().toISOString().split('T')[0], // Today's date
-            dueTime: block.startTime,
-            estimatedTime: block.duration || '1.5 hours' // Default duration
+            dueTime: startTime,
+            estimatedTime: durationText
           }
         });
         
@@ -116,7 +129,7 @@ export function useDailyPlan() {
         import('@/hooks/use-toast').then(({ toast }) => {
           toast({
             title: "Calendar Sync Started",
-            description: `Opening ${googleCalendarUrls.length} separate calendar events. Each will open in a new tab - save each one individually.`,
+            description: `Opening ${googleCalendarUrls.length} separate calendar events with exact times and details. Save each one individually.`,
           });
         });
       } else {
