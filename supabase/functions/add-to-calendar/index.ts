@@ -23,11 +23,13 @@ serve(async (req) => {
 
   try {
     const { taskId, title, description, dueDate, dueTime, estimatedTime }: TaskCalendarEvent = await req.json();
+    console.log('Creating calendar event with data:', { taskId, title, description, dueDate, dueTime, estimatedTime });
 
     // Parse the date and time correctly
     const startDateTime = new Date(`${dueDate}T${dueTime || '09:00'}:00`);
+    console.log('Start date time:', startDateTime);
 
-    // Parse estimated time to determine duration in minutes
+    // Calculate duration based on time blocks (default 1.5 hours for each block)
     let durationMinutes = 90; // Default 1.5 hours
     if (estimatedTime) {
       if (estimatedTime.includes('hour')) {
@@ -39,6 +41,7 @@ serve(async (req) => {
     }
 
     const endDateTime = new Date(startDateTime.getTime() + durationMinutes * 60000);
+    console.log('End date time:', endDateTime, 'Duration:', durationMinutes, 'minutes');
 
     // Format dates for iCal
     const formatDate = (date: Date) => {

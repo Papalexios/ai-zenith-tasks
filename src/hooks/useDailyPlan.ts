@@ -70,53 +70,57 @@ export function useDailyPlan() {
   const handleSyncToCalendar = async () => {
     setIsSyncing(true);
     try {
+      console.log('Starting calendar sync with plan:', currentPlan);
       const googleCalendarUrls: string[] = [];
       
-      // Find matching tasks for each time block and get Google Calendar URLs
+      // Process each time block individually
       for (const block of currentPlan?.timeBlocks || []) {
-        const matchingTask = tasks.find(task => 
-          task.title === block.task || 
-          task.title.toLowerCase().includes(block.task.toLowerCase()) ||
-          block.task.toLowerCase().includes(task.title.toLowerCase())
-        );
+        console.log('Processing time block:', block);
         
-        if (matchingTask) {
-          // Get the Google Calendar URL from the edge function
-          const { data } = await supabase.functions.invoke('add-to-calendar', {
-            body: {
-              taskId: matchingTask.id,
-              title: matchingTask.title,
-              description: matchingTask.description || 'AI-generated task',
-              dueDate: matchingTask.dueDate || new Date().toISOString().split('T')[0],
-              dueTime: block.startTime || '09:00',
-              estimatedTime: matchingTask.estimatedTime || '1 hour'
-            }
-          });
-          
-          if (data?.googleCalendarUrl) {
-            googleCalendarUrls.push(data.googleCalendarUrl);
+        // Create a calendar event for each time block
+        const { data, error } = await supabase.functions.invoke('add-to-calendar', {
+          body: {
+            taskId: `block-${Math.random()}`, // Unique ID for each block
+            title: block.task,
+            description: `Priority: ${block.priority}\nEnergy Level: ${block.energyLevel}\nFocus: ${block.focus}`,
+            dueDate: new Date().toISOString().split('T')[0], // Today's date
+            dueTime: block.startTime,
+            estimatedTime: block.duration || '1.5 hours' // Default duration
           }
+        });
+        
+        if (error) {
+          console.error('Error creating calendar event:', error);
+          continue;
+        }
+        
+        console.log('Calendar event created:', data);
+        
+        if (data?.googleCalendarUrl) {
+          googleCalendarUrls.push(data.googleCalendarUrl);
         }
       }
       
-      // Open ALL Google Calendar URLs to create separate events
+      console.log(`Created ${googleCalendarUrls.length} calendar URLs`);
+      
+      // Open each Google Calendar URL in a new tab with delays
       if (googleCalendarUrls.length > 0) {
-        // Open each URL with a small delay to avoid browser blocking
         googleCalendarUrls.forEach((url, index) => {
           setTimeout(() => {
+            console.log(`Opening calendar event ${index + 1}:`, url);
             window.open(url, '_blank');
-          }, index * 500); // 500ms delay between each URL
+          }, index * 1000); // 1 second delay between each URL
         });
         
         // Show instructions to user
         import('@/hooks/use-toast').then(({ toast }) => {
           toast({
             title: "Calendar Sync Started",
-            description: `Opening ${googleCalendarUrls.length} separate calendar event${googleCalendarUrls.length > 1 ? 's' : ''}. Each will open in a new tab - click "Save" to add each event.`,
+            description: `Opening ${googleCalendarUrls.length} separate calendar events. Each will open in a new tab - save each one individually.`,
           });
         });
       } else {
-        throw new Error('No events to sync');
+        throw new Error('No events could be created');
       }
       
     } catch (error) {
