@@ -1,42 +1,6 @@
 import OpenAI from 'openai';
-
-// OpenRouter Configuration
-export const OPENROUTER_CONFIG = {
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: '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',
-  models: {
-    DEEPSEEK_R1T2_CHIMERA: 'tngtech/deepseek-r1t2-chimera:free',
-    CYPHER_ALPHA: 'openrouter/cypher-alpha:free',
-    DEEPSEEK_R1_0528: 'deepseek/deepseek-r1-0528:free',
-    DEEPSEEK_R1: 'deepseek/deepseek-r1:free',
-    DEEPSEEK_CHAT_V3: 'deepseek/deepseek-chat-v3-0324:free',
-    GEMINI_25_PRO: 'google/gemini-2.5-pro-exp-03-25'
-  },
-  headers: {
-    'HTTP-Referer': window.location.origin,
-    'X-Title': 'AI Productivity Assistant'
-  }
-};
-
-export interface TaskEnhancement {
-  originalTask: string;
-  enhancedTitle: string;
-  description: string;
-  subtasks: string[];
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  estimatedTime: string;
-  category: string;
-  deadline?: string;
-  dependencies?: string[];
-}
-
-export interface AIInsight {
-  type: 'productivity' | 'pattern' | 'suggestion' | 'warning';
-  title: string;
-  description: string;
-  actionable: boolean;
-  priority: number;
-}
+import { OPENROUTER_CONFIG } from './config';
+import { TaskEnhancement, AIInsight } from './types';
 
 export class OpenRouterService {
   private client: OpenAI;
@@ -343,5 +307,3 @@ Be positive, specific, and helpful.`
     return Object.fromEntries(this.modelUsageTracker);
   }
 }
-
-export const openRouterService = new OpenRouterService();

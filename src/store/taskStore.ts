@@ -1,6 +1,6 @@
 
 import { create } from 'zustand';
-import { openRouterService, TaskEnhancement, AIInsight } from '@/lib/openrouter';
+import { openRouterService, type TaskEnhancement, type AIInsight } from '@/lib/openrouter';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Task {
