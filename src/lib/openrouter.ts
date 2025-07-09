@@ -5,6 +5,7 @@ export const OPENROUTER_CONFIG = {
   baseURL: 'https://openrouter.ai/api/v1',
   apiKey: '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',
   models: {
+    DEEPSEEK_R1T2_CHIMERA: 'tngtech/deepseek-r1t2-chimera:free',
     CYPHER_ALPHA: 'openrouter/cypher-alpha:free',
     DEEPSEEK_R1_0528: 'deepseek/deepseek-r1-0528:free',
     DEEPSEEK_R1: 'deepseek/deepseek-r1:free',
@@ -51,7 +52,7 @@ export class OpenRouterService {
     });
   }
 
-  async enhanceTask(taskInput: string, model: string = OPENROUTER_CONFIG.models.CYPHER_ALPHA): Promise<TaskEnhancement> {
+  async enhanceTask(taskInput: string, model: string = OPENROUTER_CONFIG.models.DEEPSEEK_R1T2_CHIMERA): Promise<TaskEnhancement> {
     const cacheKey = `enhance_${taskInput}_${model}`;
     if (this.responseCache.has(cacheKey)) {
       return this.responseCache.get(cacheKey);
@@ -101,7 +102,7 @@ Make it specific, actionable, and motivating.`
   }
 
   async parseNaturalLanguage(input: string): Promise<any> {
-    const model = OPENROUTER_CONFIG.models.DEEPSEEK_R1;
+    const model = OPENROUTER_CONFIG.models.DEEPSEEK_R1T2_CHIMERA;
     
     try {
       const today = new Date();
@@ -160,7 +161,7 @@ Examples:
   }
 
   async generateDailyPlan(tasks: any[], userPreferences: any = {}): Promise<any> {
-    const model = OPENROUTER_CONFIG.models.CYPHER_ALPHA;
+    const model = OPENROUTER_CONFIG.models.DEEPSEEK_R1T2_CHIMERA;
     
     try {
       const today = new Date().toISOString().split('T')[0];
@@ -241,7 +242,7 @@ Preferences: ${JSON.stringify(userPreferences)}`
   }
 
   async provideCoaching(userContext: any): Promise<AIInsight[]> {
-    const model = OPENROUTER_CONFIG.models.DEEPSEEK_CHAT_V3;
+    const model = OPENROUTER_CONFIG.models.DEEPSEEK_R1T2_CHIMERA;
     
     try {
       const completion = await this.client.chat.completions.create({
