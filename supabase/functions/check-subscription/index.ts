@@ -90,12 +90,14 @@ serve(async (req) => {
       const currentDbSub = subscriber?.subscribed || false;
       const currentDbTier = subscriber?.subscription_tier || 'free';
       const currentDbEnd = subscriber?.subscription_end;
+      const manualCustomerId = subscriber?.stripe_customer_id;
       
-      // If user has a manual subscription in DB, respect it
-      if (currentDbSub && currentDbTier !== 'free') {
+      // If user has a manual test subscription, respect it
+      if ((currentDbSub && currentDbTier !== 'free') || manualCustomerId === 'manual_test_customer') {
         logStep("Found manual subscription in DB (no Stripe customer), respecting it", { 
           tier: currentDbTier, 
-          end: currentDbEnd 
+          end: currentDbEnd,
+          customerId: manualCustomerId
         });
         
         const hasAccess = currentDbSub || isTrialActive;
