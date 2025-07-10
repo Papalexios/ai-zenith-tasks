@@ -30,7 +30,8 @@ const TasksPage = () => {
   // Manual refresh function
   const handleRefresh = async () => {
     if (user) {
-      console.log('Manual refresh triggered');
+      console.log('Manual refresh triggered - refreshing subscription and tasks');
+      await checkSubscription(); // This was missing!
       await loadTasks();
     }
   };
