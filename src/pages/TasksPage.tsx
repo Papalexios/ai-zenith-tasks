@@ -67,24 +67,34 @@ const TasksPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+      <div className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6 space-y-4 sm:space-y-6">
+        {/* Mobile-Optimized Header */}
+        <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex-1 min-w-0">
             <h1 className="text-lg sm:text-xl lg:text-2xl font-bold truncate">
-              Welcome back, {user.email?.split('@')[0]}!
+              Welcome, {user.email?.split('@')[0]}!
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Manage your AI-powered tasks ({tasks.length} tasks loaded)
+            <p className="text-sm text-muted-foreground">
+              {tasks.length} tasks loaded
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={handleRefresh} size="sm" className="text-sm">
-              <RefreshCw className="mr-2 h-4 w-4" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Button 
+              variant="ghost" 
+              onClick={handleRefresh} 
+              size="sm" 
+              className="text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4"
+            >
+              <RefreshCw className="mr-1.5 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
               Refresh
             </Button>
-            <Button variant="outline" onClick={signOut} className="self-start sm:self-auto text-sm sm:text-base">
-              <LogOut className="mr-2 h-4 w-4" />
+            <Button 
+              variant="outline" 
+              onClick={signOut} 
+              size="sm"
+              className="text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4"
+            >
+              <LogOut className="mr-1.5 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
               Sign Out
             </Button>
           </div>
