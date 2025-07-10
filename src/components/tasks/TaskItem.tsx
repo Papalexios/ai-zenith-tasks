@@ -52,127 +52,153 @@ export function TaskItem({ task }: TaskItemProps) {
   const isCurrentlyFocused = focusTimer.taskId === task.id;
 
   return (
-    <Card className={`transition-all duration-300 hover:shadow-lg hover:scale-[1.01] group ${
-      task.completed ? 'opacity-75' : ''
+    <Card className={`transition-all duration-300 hover:shadow-md group relative overflow-hidden ${
+      task.completed ? 'opacity-60' : ''
     } ${isCurrentlyFocused ? 'ring-2 ring-primary/50 shadow-glow' : ''} ${
       task.description === 'AI is enhancing...' ? 'animate-pulse' : ''
     }`}>
-      <CardContent className="p-4 sm:p-6 space-y-4">
-        {/* Mobile-First Layout */}
+      <CardContent className="p-3 sm:p-4 lg:p-6">
+        {/* Ultra Mobile-First Layout */}
         <div className="space-y-3">
-          {/* Header Row */}
+          {/* Main Content Row - Optimized for Thumb Navigation */}
           <div className="flex items-start gap-3">
-            <div className="flex items-center gap-2 pt-1">
-              <Checkbox
-                checked={task.completed}
-                onCheckedChange={handleToggle}
-                className="w-5 h-5 transition-all duration-300"
-              />
+            {/* Left Action Zone - Touch Optimized */}
+            <div className="flex flex-col items-center gap-2 pt-0.5">
+              <div className="touch-target">
+                <Checkbox
+                  checked={task.completed}
+                  onCheckedChange={handleToggle}
+                  className="w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300"
+                />
+              </div>
               
               {!task.completed && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleStartFocus}
-                  className={`p-1.5 h-8 w-8 transition-all duration-300 hover:scale-110 ${
-                    isCurrentlyFocused ? 'bg-primary/10 text-primary' : 'opacity-70 hover:opacity-100'
-                  }`}
-                  title="Start focus session"
-                >
-                  <Play className="h-3 w-3" />
-                </Button>
+                <div className="touch-target">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleStartFocus}
+                    className={`p-2 h-8 w-8 sm:h-9 sm:w-9 transition-all duration-300 hover:scale-110 rounded-full ${
+                      isCurrentlyFocused ? 'bg-primary/20 text-primary' : 'bg-muted/50 hover:bg-muted'
+                    }`}
+                    title="Focus"
+                  >
+                    <Play className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </Button>
+                </div>
               )}
             </div>
             
-            <div className="flex-1 min-w-0">
-              <h3 className={`font-semibold text-base sm:text-lg transition-all duration-300 leading-tight ${
-                task.completed ? 'line-through text-muted-foreground' : 'text-foreground group-hover:text-primary'
+            {/* Content Zone - Mobile Optimized */}
+            <div className="flex-1 min-w-0 space-y-2">
+              {/* Title - Mobile Typography */}
+              <h3 className={`font-semibold text-base sm:text-lg lg:text-xl leading-tight transition-all duration-300 ${
+                task.completed ? 'line-through text-muted-foreground' : 'text-foreground'
               }`}>
                 {task.title}
               </h3>
+              
+              {/* Description - Mobile Truncated */}
               {task.description && (
-                <p className={`text-sm transition-all duration-300 mt-1 line-clamp-2 ${
+                <p className={`text-sm sm:text-base transition-all duration-300 line-clamp-2 sm:line-clamp-3 ${
                   task.description === 'AI is enhancing...' ? 'text-primary animate-pulse' : 'text-muted-foreground'
                 }`}>
-                  {task.description === 'AI is enhancing...' && (
+                  {task.description === 'AI is enhancing...' ? (
                     <span className="inline-flex items-center gap-2">
                       <Sparkles className="h-3 w-3 animate-pulse flex-shrink-0" />
                       AI is enhancing...
                     </span>
-                  )}
-                  {task.description !== 'AI is enhancing...' && task.description}
+                  ) : task.description}
                 </p>
               )}
+              
+              {/* Ultra Mobile Badge Row */}
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                {/* Priority - Always Visible */}
+                <Badge className={`${priorityColors[task.priority]} text-xs px-2 py-0.5 font-medium`}>
+                  <Target className="mr-1 h-2.5 w-2.5 flex-shrink-0" />
+                  {task.priority.charAt(0).toUpperCase()}
+                </Badge>
+                
+                {/* Time - Compact Mobile */}
+                {task.estimatedTime && (
+                  <Badge variant="outline" className="text-xs px-2 py-0.5">
+                    <Clock className="mr-1 h-2.5 w-2.5 flex-shrink-0" />
+                    {task.estimatedTime.replace(' minutes', 'm').replace(' hours', 'h')}
+                  </Badge>
+                )}
+                
+                {/* AI Badge - Mobile Priority */}
+                {task.aiEnhanced && !task.description?.includes('AI is enhancing') && (
+                  <Badge className="bg-primary/10 text-primary border-primary/20 text-xs px-2 py-0.5">
+                    <Sparkles className="mr-1 h-2.5 w-2.5 flex-shrink-0" />
+                    AI
+                  </Badge>
+                )}
+                
+                {/* Due Date - Mobile Format */}
+                {task.dueDate && (
+                  <Badge variant="outline" className="text-xs px-2 py-0.5">
+                    {(() => {
+                      try {
+                        const date = new Date(task.dueDate);
+                        const today = new Date();
+                        const diffDays = Math.ceil((date.getTime() - today.getTime()) / (1000 * 3600 * 24));
+                        
+                        if (diffDays === 0) return 'Today';
+                        if (diffDays === 1) return 'Tomorrow';
+                        if (diffDays === -1) return 'Yesterday';
+                        if (diffDays > 0 && diffDays <= 7) return `${diffDays}d`;
+                        
+                        return date.toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric' 
+                        });
+                      } catch {
+                        return 'No date';
+                      }
+                    })()}
+                  </Badge>
+                )}
+                
+                {/* Category - Desktop Only */}
+                {task.category && (
+                  <Badge variant="outline" className="text-xs px-2 py-0.5 hidden sm:inline-flex">
+                    {task.category}
+                  </Badge>
+                )}
+              </div>
             </div>
             
-            <div className="flex items-center gap-1 sm:gap-2 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
+            {/* Right Action Zone - Mobile Menu */}
+            <div className="flex flex-col items-center gap-1">
               {task.subtasks.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="p-1.5 h-8 w-8 hover:scale-110 transition-all duration-300"
-                >
-                  {isExpanded ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
+                <div className="touch-target">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="p-2 h-8 w-8 hover:scale-110 transition-all duration-300 rounded-full"
+                  >
+                    {isExpanded ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
               )}
               
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="p-1.5 h-8 w-8 hover:scale-110 transition-all duration-300"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
+              <div className="touch-target">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="p-2 h-8 w-8 hover:scale-110 transition-all duration-300 rounded-full opacity-50 hover:opacity-100"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-          </div>
-          
-          {/* Mobile-Optimized Tags */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge className={`${priorityColors[task.priority]} transition-all duration-300 text-xs px-2 py-1`}>
-              <Target className="mr-1 h-3 w-3 flex-shrink-0" />
-              <span className="hidden xs:inline">{task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}</span>
-              <span className="xs:hidden">{task.priority.charAt(0).toUpperCase()}</span>
-            </Badge>
-            
-            {task.estimatedTime && (
-              <Badge variant="outline" className="transition-all duration-300 text-xs px-2 py-1">
-                <Clock className="mr-1 h-3 w-3 flex-shrink-0" />
-                {task.estimatedTime}
-              </Badge>
-            )}
-            
-            {task.category && (
-              <Badge variant="outline" className="transition-all duration-300 text-xs px-2 py-1 hidden sm:inline-flex">
-                {task.category}
-              </Badge>
-            )}
-            
-            {task.aiEnhanced && !task.description?.includes('AI is enhancing') && (
-              <Badge className="bg-primary/10 text-primary border-primary/20 transition-all duration-300 text-xs px-2 py-1">
-                <Sparkles className="mr-1 h-3 w-3 flex-shrink-0" />
-                <span className="hidden sm:inline">AI Enhanced</span>
-                <span className="sm:hidden">AI</span>
-              </Badge>
-            )}
-            
-            {task.dueDate && (
-              <Badge variant="outline" className="transition-all duration-300 text-xs px-2 py-1">
-                <span className="hidden sm:inline">Due: </span>
-                {(() => {
-                  try {
-                    const date = new Date(task.dueDate);
-                    return isNaN(date.getTime()) ? 'No date' : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                  } catch {
-                    return 'No date';
-                  }
-                })()}
-              </Badge>
-            )}
           </div>
         </div>
 
@@ -193,24 +219,27 @@ export function TaskItem({ task }: TaskItemProps) {
             </motion.div>
           )}
 
-        {/* Mobile-Optimized Actions */}
+        {/* Ultra Mobile Actions - Swipe-Friendly */}
         {!task.completed && (
-          <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-border/50 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-3 border-t border-border/30 transition-all duration-300">
             {!task.aiEnhanced && !task.description?.includes('AI is enhancing') && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleEnhanceWithAI}
-                className="gap-1.5 hover:scale-105 transition-all duration-300 text-xs px-3 h-8"
+                className="gap-1.5 hover:scale-105 transition-all duration-300 text-xs px-3 py-1.5 h-8 touch-target flex-1 sm:flex-none min-w-[80px]"
               >
                 <Sparkles className="h-3 w-3" />
-                <span className="hidden sm:inline">Enhance with AI</span>
-                <span className="sm:hidden">AI Enhance</span>
+                AI Boost
               </Button>
             )}
             
             <TaskEditModal task={task}>
-              <Button variant="ghost" size="sm" className="gap-1.5 hover:scale-105 transition-all duration-300 text-xs px-3 h-8">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="gap-1.5 hover:scale-105 transition-all duration-300 text-xs px-3 py-1.5 h-8 touch-target flex-1 sm:flex-none min-w-[60px]"
+              >
                 <Edit className="h-3 w-3" />
                 Edit
               </Button>
@@ -220,11 +249,10 @@ export function TaskItem({ task }: TaskItemProps) {
               variant="ghost" 
               size="sm" 
               onClick={handleDelete}
-              className="gap-1.5 text-destructive hover:text-destructive hover:scale-105 transition-all duration-300 text-xs px-3 h-8"
+              className="gap-1.5 text-destructive hover:text-destructive hover:scale-105 transition-all duration-300 text-xs px-3 py-1.5 h-8 touch-target"
             >
               <Trash2 className="h-3 w-3" />
-              <span className="hidden sm:inline">Delete</span>
-              <span className="sm:hidden">Del</span>
+              Del
             </Button>
           </div>
         )}
