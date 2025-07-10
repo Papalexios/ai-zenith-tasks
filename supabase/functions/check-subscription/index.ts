@@ -84,9 +84,36 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
     if (customers.data.length === 0) {
-      logStep("No Stripe customer found, updating trial status");
+      logStep("No Stripe customer found");
       
-      // Update subscriber with current trial status
+      // Check if user has manually set subscription (for test accounts)
+      const currentDbSub = subscriber?.subscribed || false;
+      const currentDbTier = subscriber?.subscription_tier || 'free';
+      const currentDbEnd = subscriber?.subscription_end;
+      
+      // If user has a manual subscription in DB, respect it
+      if (currentDbSub && currentDbTier !== 'free') {
+        logStep("Found manual subscription in DB (no Stripe customer), respecting it", { 
+          tier: currentDbTier, 
+          end: currentDbEnd 
+        });
+        
+        const hasAccess = currentDbSub || isTrialActive;
+        
+        return new Response(JSON.stringify({
+          subscribed: currentDbSub,
+          subscription_tier: currentDbTier,
+          subscription_end: currentDbEnd,
+          trial_active: isTrialActive,
+          trial_end: trialEnd,
+          has_access: hasAccess
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+      
+      // No manual subscription, update with trial status only
       await supabaseClient.from("subscribers").upsert({
         user_id: user.id,
         email: user.email,
@@ -112,6 +139,33 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // Check if user has manually set subscription (for test accounts)
+    const currentDbSub = subscriber?.subscribed || false;
+    const currentDbTier = subscriber?.subscription_tier || 'free';
+    const currentDbEnd = subscriber?.subscription_end;
+    
+    // If user already has a manual subscription in DB, respect it
+    if (currentDbSub && currentDbTier !== 'free') {
+      logStep("Found manual subscription in DB, respecting it", { 
+        tier: currentDbTier, 
+        end: currentDbEnd 
+      });
+      
+      const hasAccess = currentDbSub || isTrialActive;
+      
+      return new Response(JSON.stringify({
+        subscribed: currentDbSub,
+        subscription_tier: currentDbTier,
+        subscription_end: currentDbEnd,
+        trial_active: isTrialActive,
+        trial_end: trialEnd,
+        has_access: hasAccess
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
@@ -127,7 +181,7 @@ serve(async (req) => {
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
     }
 
-    // Update subscriber record
+    // Update subscriber record only if no manual subscription exists
     await supabaseClient.from("subscribers").upsert({
       user_id: user.id,
       email: user.email,
