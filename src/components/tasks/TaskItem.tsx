@@ -53,24 +53,30 @@ export function TaskItem({ task }: TaskItemProps) {
   const isAiEnhancing = task.description?.includes('AI is enhancing');
 
   return (
-    <Card className={`transition-all duration-500 hover:shadow-xl group relative overflow-hidden border-0 shadow-lg backdrop-blur-sm ${
-      task.completed ? 'opacity-60' : ''
-    } ${isCurrentlyFocused ? 'ring-2 ring-primary/50 shadow-glow' : ''} ${
-      isAiEnhancing ? 'animate-pulse bg-gradient-to-r from-primary/5 to-accent/5' : 'bg-gradient-to-br from-card to-card/90'
-    }`}>
-      <CardContent className="p-4 sm:p-5 lg:p-6">
-        {/* Premium Mobile-First Layout */}
-        <div className="space-y-4">
-          {/* Main Content Row - Touch Optimized */}
-          <div className="flex items-start gap-4">
-            {/* Action Zone - Premium Touch Targets */}
-            <div className="flex flex-col items-center gap-3 pt-1">
-              <div className="relative">
+    <Card className={`group relative overflow-hidden border-0 transition-all duration-500 hover:shadow-2xl ${
+      task.completed ? 'opacity-70' : ''
+    } ${isCurrentlyFocused ? 'ring-2 ring-primary/50 shadow-glow scale-[1.02]' : ''} ${
+      isAiEnhancing ? 'animate-pulse bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5' : 'bg-gradient-to-br from-card via-card/95 to-card/90'
+    } shadow-lg backdrop-blur-sm`}>
+      
+      {/* Ambient Background Effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-accent/3 opacity-50" />
+      
+      <CardContent className="relative p-4 sm:p-6 lg:p-8">
+        <div className="space-y-5">
+          {/* Main Content Row */}
+          <div className="flex items-start gap-4 sm:gap-6">
+            {/* Action Zone */}
+            <div className="flex flex-col items-center gap-4 pt-1">
+              <div className="relative group/checkbox">
                 <Checkbox
                   checked={task.completed}
                   onCheckedChange={handleToggle}
-                  className="w-6 h-6 sm:w-7 sm:h-7 transition-all duration-300 hover:scale-110 data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent"
+                  className="w-7 h-7 sm:w-8 sm:h-8 transition-all duration-300 hover:scale-110 data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent border-2 border-border/30 hover:border-primary/50"
                 />
+                {task.completed && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-md animate-ping" />
+                )}
               </div>
               
               {!task.completed && (
@@ -78,52 +84,59 @@ export function TaskItem({ task }: TaskItemProps) {
                   variant="ghost"
                   size="sm"
                   onClick={handleStartFocus}
-                  className={`relative p-2.5 h-10 w-10 sm:h-11 sm:w-11 transition-all duration-300 hover:scale-110 rounded-full group ${
+                  className={`relative p-3 h-12 w-12 sm:h-14 sm:w-14 transition-all duration-300 hover:scale-110 rounded-2xl group/focus ${
                     isCurrentlyFocused 
                       ? 'bg-gradient-to-r from-primary/20 to-accent/20 text-primary shadow-lg' 
-                      : 'bg-muted/30 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10'
+                      : 'bg-muted/20 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 backdrop-blur-sm border border-border/20'
                   }`}
                   title="Start Focus Timer"
                 >
-                  <Play className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110" />
+                  <Play className="h-5 w-5 sm:h-6 sm:w-6 transition-transform group-hover/focus:scale-110" />
                   {isCurrentlyFocused && (
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary/20 to-accent/20 animate-ping" />
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/20 to-accent/20 animate-pulse" />
                   )}
                 </Button>
               )}
             </div>
             
-            {/* Content Zone - Premium Typography */}
-            <div className="flex-1 min-w-0 space-y-3">
-              {/* Title - Enhanced Mobile Typography */}
-              <div className="space-y-1">
-                <h3 className={`font-bold text-lg sm:text-xl lg:text-2xl leading-tight transition-all duration-300 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text ${
-                  task.completed ? 'line-through text-muted-foreground/60' : ''
+            {/* Content Zone */}
+            <div className="flex-1 min-w-0 space-y-4">
+              {/* Title Section */}
+              <div className="space-y-2">
+                <h3 className={`font-bold text-lg sm:text-xl lg:text-2xl xl:text-3xl leading-tight transition-all duration-300 ${
+                  task.completed ? 'line-through text-muted-foreground/60' : 'bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent'
                 }`}>
                   {task.title}
                 </h3>
                 
-                {/* Subtitle for AI Enhanced */}
+                {/* AI Enhancement Badge */}
                 {task.aiEnhanced && !isAiEnhancing && (
-                  <div className="flex items-center gap-2 text-xs text-primary/70">
-                    <Sparkles className="h-3 w-3" />
-                    <span>AI Enhanced with Premium Quality</span>
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-primary/80">
+                    <div className="flex items-center gap-1.5 px-2 py-1 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full border border-primary/20">
+                      <Sparkles className="h-3 w-3" />
+                      <span className="font-medium">Enhanced with Premium AI</span>
+                    </div>
                   </div>
                 )}
               </div>
               
-              {/* Description - Premium Mobile Display */}
+              {/* Description */}
               {task.description && (
-                <div className={`text-sm sm:text-base transition-all duration-300 ${
+                <div className={`text-sm sm:text-base lg:text-lg transition-all duration-300 ${
                   isAiEnhancing ? 'text-primary font-medium' : 'text-muted-foreground'
                 }`}>
                   {isAiEnhancing ? (
-                    <div className="flex items-center gap-2 p-3 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
-                      <Sparkles className="h-4 w-4 animate-pulse text-primary flex-shrink-0" />
-                      <span>AI is enhancing this task with premium quality...</span>
+                    <div className="flex items-center gap-3 p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border border-primary/20 backdrop-blur-sm">
+                      <div className="relative">
+                        <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 animate-pulse text-primary flex-shrink-0" />
+                        <div className="absolute inset-0 animate-ping">
+                          <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-primary/50 flex-shrink-0" />
+                        </div>
+                      </div>
+                      <span className="text-sm sm:text-base font-semibold">AI is enhancing this task with premium quality details...</span>
                     </div>
                   ) : (
-                    <p className="line-clamp-3 sm:line-clamp-4 leading-relaxed">
+                    <p className="line-clamp-4 sm:line-clamp-6 leading-relaxed text-base sm:text-lg">
                       {task.description}
                     </p>
                   )}
@@ -131,32 +144,32 @@ export function TaskItem({ task }: TaskItemProps) {
               )}
               
               {/* Premium Badge System */}
-              <div className="flex flex-wrap items-center gap-2">
-                {/* Priority Badge - Enhanced Design */}
-                <Badge className={`${priorityColors[task.priority]} text-xs font-semibold px-3 py-1 rounded-full border shadow-sm transition-all duration-300 hover:scale-105`}>
-                  <Target className="mr-1.5 h-3 w-3 flex-shrink-0" />
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                {/* Priority Badge */}
+                <Badge className={`${priorityColors[task.priority]} text-sm font-bold px-4 py-2 rounded-full border-2 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg`}>
+                  <Target className="mr-2 h-4 w-4 flex-shrink-0" />
                   {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
                 </Badge>
                 
-                {/* Time Badge - Premium Style */}
+                {/* Time Badge */}
                 {task.estimatedTime && (
-                  <Badge variant="outline" className="text-xs font-medium px-3 py-1 rounded-full border-muted-foreground/20 hover:border-primary/30 transition-all duration-300 hover:scale-105">
-                    <Clock className="mr-1.5 h-3 w-3 flex-shrink-0" />
+                  <Badge variant="outline" className="text-sm font-semibold px-4 py-2 rounded-full border-2 border-muted-foreground/30 hover:border-primary/40 transition-all duration-300 hover:scale-105 bg-background/50 backdrop-blur-sm">
+                    <Clock className="mr-2 h-4 w-4 flex-shrink-0" />
                     {task.estimatedTime.replace(' minutes', 'm').replace(' hours', 'h').replace(' hour', 'h')}
                   </Badge>
                 )}
                 
-                {/* AI Badge - Premium Gradient */}
+                {/* AI Badge */}
                 {task.aiEnhanced && !isAiEnhancing && (
-                  <Badge className="bg-gradient-to-r from-primary/15 to-accent/15 text-primary border-primary/30 text-xs font-semibold px-3 py-1 rounded-full shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md">
-                    <Sparkles className="mr-1.5 h-3 w-3 flex-shrink-0" />
+                  <Badge className="bg-gradient-to-r from-primary/15 via-accent/15 to-primary/15 text-primary border-2 border-primary/30 text-sm font-bold px-4 py-2 rounded-full shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm">
+                    <Sparkles className="mr-2 h-4 w-4 flex-shrink-0" />
                     Premium AI
                   </Badge>
                 )}
                 
-                {/* Due Date - Enhanced Mobile Format */}
+                {/* Due Date Badge */}
                 {task.dueDate && (
-                  <Badge variant="outline" className="text-xs font-medium px-3 py-1 rounded-full border-muted-foreground/20 hover:border-primary/30 transition-all duration-300 hover:scale-105">
+                  <Badge variant="outline" className="text-sm font-semibold px-4 py-2 rounded-full border-2 border-muted-foreground/30 hover:border-primary/40 transition-all duration-300 hover:scale-105 bg-background/50 backdrop-blur-sm">
                     {(() => {
                       try {
                         const date = new Date(task.dueDate);
@@ -168,7 +181,7 @@ export function TaskItem({ task }: TaskItemProps) {
                         if (diffDays === 0) return '📅 Today';
                         if (diffDays === 1) return '📅 Tomorrow';
                         if (diffDays === -1) return '📅 Yesterday';
-                        if (diffDays > 0 && diffDays <= 7) return `📅 ${diffDays}d`;
+                        if (diffDays > 0 && diffDays <= 7) return `📅 ${diffDays} days`;
                         if (diffDays < 0) return '⚠️ Overdue';
                         
                         return `📅 ${date.toLocaleDateString('en-US', { 
@@ -182,24 +195,24 @@ export function TaskItem({ task }: TaskItemProps) {
                   </Badge>
                 )}
                 
-                {/* Category - Desktop Enhanced */}
+                {/* Category Badge */}
                 {task.category && task.category !== 'general' && (
-                  <Badge variant="outline" className="text-xs font-medium px-3 py-1 rounded-full border-muted-foreground/20 hidden sm:inline-flex transition-all duration-300 hover:scale-105">
+                  <Badge variant="outline" className="text-sm font-semibold px-4 py-2 rounded-full border-2 border-muted-foreground/30 hidden sm:inline-flex transition-all duration-300 hover:scale-105 bg-background/50 backdrop-blur-sm">
                     📂 {task.category}
                   </Badge>
                 )}
                 
-                {/* Tags - Premium Display */}
+                {/* Tags */}
                 {task.tags && task.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {task.tags.slice(0, 2).map((tag, index) => (
-                      <Badge key={index} variant="outline" className="text-xs font-medium px-2 py-0.5 rounded-full border-muted-foreground/20 bg-muted/30 hidden sm:inline-flex">
+                  <div className="flex flex-wrap gap-2">
+                    {task.tags.slice(0, 3).map((tag, index) => (
+                      <Badge key={index} variant="outline" className="text-xs font-medium px-3 py-1 rounded-full border border-muted-foreground/30 bg-muted/20 hidden lg:inline-flex backdrop-blur-sm">
                         #{tag}
                       </Badge>
                     ))}
-                    {task.tags.length > 2 && (
-                      <Badge variant="outline" className="text-xs font-medium px-2 py-0.5 rounded-full border-muted-foreground/20 bg-muted/30 hidden sm:inline-flex">
-                        +{task.tags.length - 2}
+                    {task.tags.length > 3 && (
+                      <Badge variant="outline" className="text-xs font-medium px-3 py-1 rounded-full border border-muted-foreground/30 bg-muted/20 hidden lg:inline-flex backdrop-blur-sm">
+                        +{task.tags.length - 3} more
                       </Badge>
                     )}
                   </div>
@@ -207,24 +220,24 @@ export function TaskItem({ task }: TaskItemProps) {
               </div>
             </div>
             
-            {/* Right Action Zone - Enhanced */}
-            <div className="flex flex-col items-center gap-2">
-              {task.subtasks && task.subtasks.length > 0 && (
+            {/* Expand Button */}
+            {task.subtasks && task.subtasks.length > 0 && (
+              <div className="flex flex-col items-center pt-1">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className="p-2 h-9 w-9 hover:scale-110 transition-all duration-300 rounded-full hover:bg-primary/10"
+                  className="p-3 h-12 w-12 hover:scale-110 transition-all duration-300 rounded-2xl hover:bg-primary/10 border border-border/20 backdrop-blur-sm"
                   title={`${isExpanded ? 'Hide' : 'Show'} ${task.subtasks.length} subtasks`}
                 >
                   {isExpanded ? (
-                    <ChevronDown className="h-4 w-4 text-primary" />
+                    <ChevronDown className="h-5 w-5 text-primary" />
                   ) : (
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-5 w-5" />
                   )}
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 
