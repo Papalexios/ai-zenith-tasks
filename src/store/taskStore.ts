@@ -297,14 +297,21 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   },
 
   addTask: async (taskInput: string, useAI = true) => {
-    const taskId = generateId();
-    console.log('Adding new task:', taskId, taskInput);
+    if (!taskInput.trim()) {
+      console.warn('Empty task input, skipping');
+      return;
+    }
     
+    const taskId = generateId();
+    console.log('🚀 Adding new task:', taskId, 'Input:', taskInput, 'Language detection...');
+    
+    set({ isLoading: true });
+
     // OPTIMISTIC UI: Add task immediately
     const optimisticTask: Task = {
       id: taskId,
-      title: taskInput,
-      description: useAI ? 'AI is enhancing...' : undefined,
+      title: taskInput.trim(),
+      description: useAI ? 'AI is enhancing this task with premium quality...' : undefined,
       completed: false,
       priority: 'medium',
       category: 'general',
@@ -316,28 +323,56 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     };
 
     set(state => ({
-      tasks: [...state.tasks, optimisticTask],
+      tasks: [optimisticTask, ...state.tasks],
+      isLoading: false
     }));
+
+    console.log('✅ Optimistic task added to UI:', optimisticTask.title);
 
     // Sync task with backend immediately
     try {
+      console.log('💾 Syncing task to database...');
       await get().syncTaskToSupabase(optimisticTask);
-      console.log('Task successfully saved to database');
+      console.log('✅ Task successfully saved to database');
+      
+      // Show immediate success feedback
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "Task Created",
+          description: `"${taskInput.trim()}" added successfully`,
+        });
+      });
     } catch (error) {
-      console.error('Failed to save task to database:', error);
+      console.error('❌ Failed to save task to database:', error);
       // Remove the optimistic task if save failed
       set(state => ({
         tasks: state.tasks.filter(t => t.id !== taskId)
       }));
+      
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "Error",
+          description: "Failed to save task. Please try again.",
+          variant: "destructive"
+        });
+      });
       return;
     }
 
     if (!useAI) return;
 
-    // AI Enhancement in background
+    // AI Enhancement in background - PREMIUM QUALITY
     try {
-      const nlpResult = await openRouterService.parseNaturalLanguage(taskInput);
-      const enhancement = await openRouterService.enhanceTask(taskInput);
+      console.log('🤖 Starting AI enhancement for:', taskInput);
+      set({ isLoading: true });
+      
+      const [nlpResult, enhancement] = await Promise.all([
+        openRouterService.parseNaturalLanguage(taskInput),
+        openRouterService.enhanceTask(taskInput)
+      ]);
+      
+      console.log('🎯 NLP Result:', nlpResult);
+      console.log('✨ AI Enhancement:', enhancement);
       
       const today = new Date().toISOString().split('T')[0];
       let finalDueDate = nlpResult.dueDate || enhancement.deadline;
@@ -352,26 +387,46 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         finalDueDate = today;
       }
       
-      // Update with AI enhancement
+      // Update with PREMIUM AI enhancement
       await get().updateTask(taskId, {
-        title: enhancement.enhancedTitle,
+        title: enhancement.enhancedTitle || taskInput.trim(),
         description: enhancement.description,
-        priority: enhancement.priority,
-        category: enhancement.category,
-        estimatedTime: enhancement.estimatedTime,
-        subtasks: enhancement.subtasks,
+        priority: enhancement.priority || 'medium',
+        category: enhancement.category || 'general',
+        estimatedTime: enhancement.estimatedTime || '30 minutes',
+        subtasks: enhancement.subtasks || [],
         dueDate: finalDueDate,
         dueTime: nlpResult.dueTime,
         tags: nlpResult.tags || [],
         aiEnhanced: true,
-        aiModelUsed: 'cypher-alpha'
+        aiModelUsed: 'deepseek-r1t2-chimera'
       });
+      
+      console.log('🎉 Task enhanced successfully with AI');
+      
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "AI Enhancement Complete",
+          description: "Your task has been enhanced with premium quality details",
+        });
+      });
+      
     } catch (error) {
-      console.error('Error enhancing task:', error);
-      // Remove loading state on error
+      console.error('❌ Error enhancing task:', error);
+      // Remove loading state and keep basic task
       await get().updateTask(taskId, {
-        description: undefined,
+        description: `Task: ${taskInput.trim()}`,
       });
+      
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "AI Enhancement Failed",
+          description: "Task created successfully but AI enhancement failed",
+          variant: "destructive"
+        });
+      });
+    } finally {
+      set({ isLoading: false });
     }
   },
 

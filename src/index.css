@@ -1,50 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* AI Productivity App Design System - Electric Future Theme */
-
 @layer base {
   :root {
-    /* Base colors - clean and modern */
+    /* Enhanced Color System - Premium HSL Values */
     --background: 0 0% 100%;
-    --foreground: 222 84% 5%;
-
-    /* Card system */
+    --foreground: 222 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222 84% 5%;
-
-    /* Popover system */
+    --card-foreground: 222 84% 4.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 84% 5%;
-
-    /* Electric Blue Primary - OpenRouter brand */
-    --primary: 221 100% 50%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 221 100% 65%;
-
-    /* Vibrant Purple Secondary - AI magic */
-    --secondary: 262 83% 58%;
-    --secondary-foreground: 0 0% 100%;
-    --secondary-glow: 262 83% 73%;
-
-    /* Neon Green Accent - Success/productivity */
-    --accent: 158 64% 52%;
-    --accent-foreground: 0 0% 100%;
-    --accent-glow: 158 64% 67%;
-
-    /* Muted system */
+    --popover-foreground: 222 84% 4.9%;
+    --primary: 266 85% 58%;
+    --primary-glow: 270 95% 68%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 84% 4.9%;
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
-
-    /* Destructive system */
+    --accent: 295 85% 65%;
+    --accent-foreground: 222 84% 4.9%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    /* Border and input system */
+    --destructive-foreground: 210 40% 98%;
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 221 100% 50%;
+    --ring: 222 84% 4.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 1rem;
+
+    /* Premium Design Tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--muted)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)));
+    
+    /* Advanced Shadows */
+    --shadow-elegant: 0 20px 40px -10px hsl(var(--primary) / 0.15);
+    --shadow-glow: 0 0 50px hsl(var(--primary-glow) / 0.2);
+    --shadow-soft: 0 10px 30px -5px hsl(0 0% 0% / 0.1);
+    
+    /* Smooth Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     /* Gradients - Electric theme */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));

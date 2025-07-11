@@ -33,12 +33,14 @@ export class OpenRouterService {
 MULTILINGUAL SUPPORT: Handle input in ANY language (English, Spanish, French, German, Chinese, Japanese, Arabic, Russian, Portuguese, Italian, Dutch, Korean, Hindi, etc.) and preserve the original language in all fields.
 
 CRITICAL REQUIREMENTS:
-- Be EXTREMELY specific and actionable
-- Create concise, valuable subtasks (max 4-5 items)
-- Use precise time estimates based on task complexity
-- Assign strategic priorities based on impact/urgency
-- Generate premium quality descriptions that add real value
-- PRESERVE THE ORIGINAL LANGUAGE in all text fields
+- Handle ANY language input perfectly (Greek, Arabic, Chinese, Japanese, Cyrillic, etc.)
+- Be EXTREMELY specific and actionable in the original language  
+- Create 3-5 concise, valuable subtasks that actually help complete the task
+- Use precise time estimates based on actual task complexity
+- Assign strategic priorities based on real impact/urgency analysis
+- Generate PREMIUM quality descriptions that add genuine value
+- PRESERVE THE ORIGINAL LANGUAGE in ALL text fields
+- For medical/personal tasks, be extra careful and professional
 
 Return a JSON object with this EXACT structure:
 {
