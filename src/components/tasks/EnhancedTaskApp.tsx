@@ -274,11 +274,10 @@ export const EnhancedTaskApp = () => {
         )}
 
         {/* Modals */}
-        {showDailyPlan && (
-          <DailyPlanModal>
-            <Button onClick={() => setShowDailyPlan(false)}>Close</Button>
-          </DailyPlanModal>
-        )}
+        <DailyPlanModal 
+          open={showDailyPlan} 
+          onOpenChange={setShowDailyPlan} 
+        />
         
         <AnalyticsModal 
           open={showAnalytics} 

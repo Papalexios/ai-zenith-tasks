@@ -17,11 +17,13 @@ import { PlanInsights } from './daily-plan/PlanInsights';
 import { PlanActions } from './daily-plan/PlanActions';
 
 interface DailyPlanModalProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function DailyPlanModal({ children }: DailyPlanModalProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function DailyPlanModal({ children, open, onOpenChange }: DailyPlanModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const {
     currentPlan,
     isGenerating,
@@ -37,11 +39,16 @@ export function DailyPlanModal({ children }: DailyPlanModalProps) {
     getPriorityColor
   } = useDailyPlan();
 
+  const isOpen = open !== undefined ? open : internalOpen;
+  const setIsOpen = onOpenChange !== undefined ? onOpenChange : setInternalOpen;
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
+      {children && (
+        <DialogTrigger asChild>
+          {children}
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
