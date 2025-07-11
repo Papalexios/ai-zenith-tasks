@@ -28,7 +28,9 @@ export class OpenRouterService {
         messages: [
           {
             role: 'system',
-            content: `You are an elite productivity expert AI. Transform ANY task input into premium quality, actionable items with crystal-clear steps, precise time estimates, and strategic priorities.
+            content: `You are an elite multilingual productivity expert AI. Transform ANY task input in ANY LANGUAGE into premium quality, actionable items with crystal-clear steps, precise time estimates, and strategic priorities.
+
+MULTILINGUAL SUPPORT: Handle input in ANY language (English, Spanish, French, German, Chinese, Japanese, Arabic, Russian, Portuguese, Italian, Dutch, Korean, Hindi, etc.) and preserve the original language in all fields.
 
 CRITICAL REQUIREMENTS:
 - Be EXTREMELY specific and actionable
@@ -36,27 +38,31 @@ CRITICAL REQUIREMENTS:
 - Use precise time estimates based on task complexity
 - Assign strategic priorities based on impact/urgency
 - Generate premium quality descriptions that add real value
+- PRESERVE THE ORIGINAL LANGUAGE in all text fields
 
 Return a JSON object with this EXACT structure:
 {
-  "originalTask": "original input",
-  "enhancedTitle": "clear, specific, actionable title",
-  "description": "premium quality description with context and value",
-  "subtasks": ["precise action step 1", "specific step 2", "clear deliverable 3"],
+  "originalTask": "original input (keep language)",
+  "enhancedTitle": "clear, specific, actionable title (same language as input)",
+  "description": "premium quality description with context and value (same language)",
+  "subtasks": ["precise action step 1", "specific step 2", "clear deliverable 3"] (same language),
   "priority": "low|medium|high|urgent",
   "estimatedTime": "X minutes/hours",
   "category": "work|personal|health|learning|finance|creative|social",
   "deadline": "optional YYYY-MM-DD format",
-  "dependencies": ["optional specific dependencies"],
-  "tags": ["relevant", "searchable", "tags"]
+  "dependencies": ["optional specific dependencies"] (same language),
+  "tags": ["relevant", "searchable", "tags"] (same language)
 }
 
-EXAMPLES OF PREMIUM QUALITY:
-- Vague: "exercise" → Enhanced: "Complete 30-minute HIIT cardio workout"
-- Vague: "work on project" → Enhanced: "Review and finalize Q1 marketing strategy presentation slides"
-- Vague: "call mom" → Enhanced: "Schedule weekly check-in call with mom to discuss vacation plans"
+MULTILINGUAL EXAMPLES:
+English: "exercise" → "Complete 30-minute HIIT cardio workout"
+Spanish: "ejercicio" → "Completar entrenamiento HIIT de cardio de 30 minutos"
+French: "exercice" → "Compléter un entraînement cardio HIIT de 30 minutes"
+Chinese: "锻炼" → "完成30分钟HIIT有氧运动"
+German: "Sport" → "30-minütiges HIIT-Cardio-Training absolvieren"
+Arabic: "تمرين" → "إكمال تمرين الكارديو عالي الكثافة لمدة 30 دقيقة"
 
-Make every task PREMIUM QUALITY: specific, actionable, time-bound, and valuable.`
+Make every task PREMIUM QUALITY and maintain language consistency.`
           },
           {
             role: 'user',
@@ -91,13 +97,15 @@ Make every task PREMIUM QUALITY: specific, actionable, time-bound, and valuable.
         messages: [
           {
             role: 'system',
-            content: `Extract structured information from natural language task input. Today is ${today.toISOString().split('T')[0]}.
-            
+            content: `You are a multilingual task management assistant. Extract structured information from natural language task input in ANY LANGUAGE. Today is ${today.toISOString().split('T')[0]}.
+
+IMPORTANT: Handle input in ANY language (English, Spanish, French, German, Chinese, Japanese, Arabic, Russian, Portuguese, Italian, Dutch, Korean, Hindi, etc.)
+
 Return JSON with:
 {
-  "title": "extracted task title",
+  "title": "extracted task title (keep original language)",
   "dueDate": "YYYY-MM-DD or null",
-  "dueTime": "HH:MM or null",
+  "dueTime": "HH:MM or null (24-hour format)",
   "priority": "low|medium|high|urgent",
   "tags": ["tag1", "tag2"],
   "people": ["person1", "person2"],
@@ -105,9 +113,16 @@ Return JSON with:
   "recurring": "daily|weekly|monthly|yearly or null"
 }
 
-Examples:
-"Call mom tomorrow at 2pm" -> {"title": "Call mom", "dueDate": "${tomorrow.toISOString().split('T')[0]}", "dueTime": "14:00", "priority": "medium"}
-"Weekly team meeting every Tuesday" -> {"title": "Team meeting", "recurring": "weekly", "priority": "medium"}`
+Multi-language examples:
+English: "Call mom tomorrow at 2pm" -> {"title": "Call mom", "dueDate": "${tomorrow.toISOString().split('T')[0]}", "dueTime": "14:00", "priority": "medium"}
+Spanish: "Llamar a mamá mañana a las 2pm" -> {"title": "Llamar a mamá", "dueDate": "${tomorrow.toISOString().split('T')[0]}", "dueTime": "14:00", "priority": "medium"}
+French: "Appeler maman demain à 14h" -> {"title": "Appeler maman", "dueDate": "${tomorrow.toISOString().split('T')[0]}", "dueTime": "14:00", "priority": "medium"}
+Chinese: "明天下午2点给妈妈打电话" -> {"title": "给妈妈打电话", "dueDate": "${tomorrow.toISOString().split('T')[0]}", "dueTime": "14:00", "priority": "medium"}
+German: "Mama morgen um 14 Uhr anrufen" -> {"title": "Mama anrufen", "dueDate": "${tomorrow.toISOString().split('T')[0]}", "dueTime": "14:00", "priority": "medium"}
+Japanese: "明日午後2時にお母さんに電話する" -> {"title": "お母さんに電話する", "dueDate": "${tomorrow.toISOString().split('T')[0]}", "dueTime": "14:00", "priority": "medium"}
+Arabic: "اتصل بأمي غداً في الساعة الثانية مساءً" -> {"title": "اتصل بأمي", "dueDate": "${tomorrow.toISOString().split('T')[0]}", "dueTime": "14:00", "priority": "medium"}
+
+Always preserve the original language in the title and other text fields.`
           },
           {
             role: 'user',
@@ -149,7 +164,9 @@ Examples:
         messages: [
           {
             role: 'system',
-            content: `You are an elite productivity planner and time management expert. Create a PREMIUM QUALITY optimized daily schedule for today (${today}) with:
+            content: `You are an elite multilingual productivity planner and time management expert. Create a PREMIUM QUALITY optimized daily schedule for today (${today}) with FULL SUPPORT for tasks in ANY LANGUAGE.
+
+MULTILINGUAL SUPPORT: Preserve the original language of tasks (English, Spanish, French, German, Chinese, Japanese, Arabic, Russian, Portuguese, Italian, Dutch, Korean, Hindi, etc.) while providing insights and recommendations.
 
 STRATEGIC PLANNING PRINCIPLES:
 - Urgent tasks in peak energy hours (9-11 AM)
@@ -172,8 +189,8 @@ Return ONLY valid JSON with no markdown:
       "startTime": "09:00",
       "endTime": "10:30",
       "taskId": "task-id",
-      "task": "specific task title",
-      "description": "task details and subtasks combined",
+      "task": "specific task title (preserve original language)",
+      "description": "task details and subtasks combined (preserve original language)",
       "type": "deep_work|quick_task|admin|creative|meeting",
       "energy": "high|medium|low",
       "priority": "urgent|high|medium|low",
@@ -181,8 +198,8 @@ Return ONLY valid JSON with no markdown:
       "estimatedDuration": "90 minutes"
     }
   ],
-  "insights": ["Strategic insights about the day's plan"],
-  "recommendations": ["Actionable recommendations for peak performance"],
+  "insights": ["Strategic insights about the day's plan (English)"],
+  "recommendations": ["Actionable recommendations for peak performance (English)"],
   "totalFocusTime": "6 hours 30 minutes",
   "productivityScore": 85,
   "energyOptimization": "high",

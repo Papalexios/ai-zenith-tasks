@@ -44,7 +44,7 @@ export const TaskInputForm = () => {
         <form onSubmit={handleAddTask} className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <Input
-              placeholder="Describe your task naturally (e.g., 'Plan team meeting for next Friday')"
+              placeholder="Describe your task in any language (e.g., 'Plan team meeting', 'Llamar a mamá', '会議の準備')"
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               className="flex-1 h-12 text-base"
