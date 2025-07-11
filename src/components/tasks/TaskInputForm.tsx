@@ -13,28 +13,44 @@ export const TaskInputForm = () => {
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTask.trim()) {
-      console.warn('Empty task input');
+      console.warn('🚨 Empty task input, aborting');
       return;
     }
 
-    console.log('🚀 Form submitted with task:', newTask);
-    console.log('🔥 Task input length:', newTask.length);
-    console.log('🔥 Task characters:', newTask.split('').map(c => c.charCodeAt(0)));
+    const trimmedTask = newTask.trim();
+    console.log('🚀 FORM SUBMITTED - Starting task creation process');
+    console.log('📝 Task content:', trimmedTask);
+    console.log('📏 Task length:', trimmedTask.length);
+    console.log('🔤 Character codes:', trimmedTask.split('').map(c => c.charCodeAt(0)));
+    console.log('🌐 Task encoding test:', JSON.stringify(trimmedTask));
 
     try {
-      console.log('🎯 Calling addTask with:', newTask, true);
-      await addTask(newTask.trim(), true);
-      console.log('✅ Task added successfully');
+      console.log('🎯 CALLING addTask function with parameters:', {
+        taskInput: trimmedTask,
+        useAI: true,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Call the addTask function
+      await addTask(trimmedTask, true);
+      
+      console.log('✅ addTask completed successfully');
       setNewTask('');
+      
       toast({
         title: "Task Created Successfully",
-        description: `"${newTask.trim()}" has been added with AI enhancement`,
+        description: `"${trimmedTask}" has been added with AI enhancement`,
       });
+      
     } catch (error) {
-      console.error('❌ Failed to add task:', error);
+      console.error('❌ CRITICAL ERROR in handleAddTask:', error);
+      console.error('❌ Error type:', typeof error);
+      console.error('❌ Error message:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
+      
       toast({
-        title: "Error",
-        description: `Failed to add task: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        title: "Failed to Create Task",
+        description: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
     }
@@ -67,16 +83,18 @@ export const TaskInputForm = () => {
                   placeholder="Type your task in any language... (e.g., 'Plan meeting', 'Αφαίρεση cherries', '会議の準備', 'Llamar a mamá')"
                   value={newTask}
                   onChange={(e) => setNewTask(e.target.value)}
-                  className="h-14 sm:h-16 text-base sm:text-lg px-6 rounded-2xl border-2 border-border/20 bg-background/50 backdrop-blur-sm transition-all duration-300 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 placeholder:text-muted-foreground/60"
+                  className="h-16 sm:h-18 text-lg sm:text-xl px-8 rounded-3xl border-2 border-border/20 bg-background/50 backdrop-blur-sm transition-all duration-300 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 placeholder:text-muted-foreground/60 font-medium"
                   disabled={isLoading}
+                  autoComplete="off"
+                  spellCheck="false"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 rounded-3xl opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               </div>
               
               <Button 
                 type="submit" 
                 disabled={!newTask.trim() || isLoading}
-                className="h-14 sm:h-16 px-8 gap-3 bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/90 hover:to-accent/90 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:hover:scale-100 border-0 min-w-[140px] sm:min-w-[160px]"
+                className="h-16 sm:h-18 px-10 gap-3 bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/90 hover:to-accent/90 text-white font-bold rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 disabled:hover:scale-100 border-0 min-w-[160px] sm:min-w-[180px] text-lg"
               >
                 {isLoading ? (
                   <>

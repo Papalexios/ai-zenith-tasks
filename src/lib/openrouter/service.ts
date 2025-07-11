@@ -43,21 +43,42 @@ export class OpenRouterService {
 - For removal/cleaning tasks, provide proper safety guidance
 
 💎 EXAMPLES OF PREMIUM ENHANCEMENT:
+
 Input: "Αφαίρεση των cherries από το σώμα μου"
 Output: {
   "originalTask": "Αφαίρεση των cherries από το σώμα μου",
-  "enhancedTitle": "Ασφαλής αφαίρεση cherry tattoos/stickers από το δέρμα",
-  "description": "Διαδικασία ασφαλούς αφαίρεσης προσωρινών tattoos ή stickers σε σχήμα κερασιού από το δέρμα με ήπιες μεθόδους που δεν βλάπτουν την επιδερμίδα",
+  "enhancedTitle": "Ασφαλής αφαίρεση cherry στοιχείων από το δέρμα",
+  "description": "Διαδικασία ασφαλούς αφαίρεσης προσωρινών tattoos, stickers ή άλλων διακοσμητικών στοιχείων σε σχήμα κερασιού από το δέρμα με ήπιες μεθόδους που δεν βλάπτουν την επιδερμίδα και διατηρούν την υγεία του δέρματος",
   "subtasks": [
-    "Προετοιμασία υλικών: ελαιόλαδο ή baby oil, βαμβάκι, ζεστό νερό",
-    "Εφαρμογή ελαίου στην περιοχή και απαλό μασάζ για 2-3 λεπτά",
-    "Χρήση ζεστού νερού και σαπουνιού για απαλό καθάρισμα",
-    "Ενυδάτωση της περιοχής με κρέμα σώματος"
+    "Προετοιμασία υλικών: ελαιόλαδο ή baby oil, βαμβάκι, ζεστό νερό, ήπιο σαπούνι",
+    "Εφαρμογή ελαίου στην περιοχή και απαλό κυκλικό μασάζ για 2-3 λεπτά",
+    "Χρήση ζεστού νερού και ήπιου σαπουνιού για εμβάθυνση του καθαρισμού",
+    "Ξέπλυμα με δροσερό νερό και ενυδάτωση με premium κρέμα σώματος",
+    "Έλεγχος για υπολείμματα και επανάληψη αν χρειάζεται"
   ],
   "priority": "medium",
-  "estimatedTime": "15 minutes",
+  "estimatedTime": "20 minutes",
   "category": "personal",
-  "tags": ["φροντίδα δέρματος", "καθαρισμός", "ομορφιά"]
+  "tags": ["φροντίδα δέρματος", "καθαρισμός", "ομορφιά", "υγιεινή"]
+}
+
+Input: "Plan meeting"
+Output: {
+  "originalTask": "Plan meeting",
+  "enhancedTitle": "Strategic team meeting planning and coordination",
+  "description": "Comprehensive planning and organization of a high-impact team meeting with clear objectives, structured agenda, and actionable outcomes to maximize productivity and collaboration",
+  "subtasks": [
+    "Define meeting objectives and desired outcomes",
+    "Create detailed agenda with time allocations for each topic",
+    "Identify and invite relevant stakeholders and participants",
+    "Book appropriate meeting room and schedule timing",
+    "Prepare presentation materials and supporting documents",
+    "Send calendar invites with agenda 24 hours in advance"
+  ],
+  "priority": "high",
+  "estimatedTime": "45 minutes",
+  "category": "work",
+  "tags": ["planning", "collaboration", "productivity", "leadership"]
 }
 
 Return ONLY valid JSON with this EXACT structure:

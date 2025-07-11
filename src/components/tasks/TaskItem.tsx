@@ -102,8 +102,8 @@ export function TaskItem({ task }: TaskItemProps) {
             {/* Content Zone */}
             <div className="flex-1 min-w-0 space-y-4">
               {/* Title Section */}
-              <div className="space-y-2">
-                <h3 className={`font-bold text-lg sm:text-xl lg:text-2xl xl:text-3xl leading-tight transition-all duration-300 ${
+              <div className="space-y-3">
+                <h3 className={`font-bold text-xl sm:text-2xl lg:text-3xl xl:text-4xl leading-tight transition-all duration-300 ${
                   task.completed ? 'line-through text-muted-foreground/60' : 'bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent'
                 }`}>
                   {task.title}
@@ -136,7 +136,7 @@ export function TaskItem({ task }: TaskItemProps) {
                       <span className="text-sm sm:text-base font-semibold">AI is enhancing this task with premium quality details...</span>
                     </div>
                   ) : (
-                    <p className="line-clamp-4 sm:line-clamp-6 leading-relaxed text-base sm:text-lg">
+                    <p className="line-clamp-4 sm:line-clamp-6 leading-relaxed text-lg sm:text-xl lg:text-2xl">
                       {task.description}
                     </p>
                   )}
@@ -146,23 +146,23 @@ export function TaskItem({ task }: TaskItemProps) {
               {/* Premium Badge System */}
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 {/* Priority Badge */}
-                <Badge className={`${priorityColors[task.priority]} text-sm font-bold px-4 py-2 rounded-full border-2 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg`}>
-                  <Target className="mr-2 h-4 w-4 flex-shrink-0" />
+                <Badge className={`${priorityColors[task.priority]} text-base font-bold px-6 py-3 rounded-full border-2 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl`}>
+                  <Target className="mr-2 h-5 w-5 flex-shrink-0" />
                   {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
                 </Badge>
                 
                 {/* Time Badge */}
                 {task.estimatedTime && (
-                  <Badge variant="outline" className="text-sm font-semibold px-4 py-2 rounded-full border-2 border-muted-foreground/30 hover:border-primary/40 transition-all duration-300 hover:scale-105 bg-background/50 backdrop-blur-sm">
-                    <Clock className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <Badge variant="outline" className="text-base font-semibold px-6 py-3 rounded-full border-2 border-muted-foreground/30 hover:border-primary/40 transition-all duration-300 hover:scale-105 bg-background/50 backdrop-blur-sm">
+                    <Clock className="mr-2 h-5 w-5 flex-shrink-0" />
                     {task.estimatedTime.replace(' minutes', 'm').replace(' hours', 'h').replace(' hour', 'h')}
                   </Badge>
                 )}
                 
                 {/* AI Badge */}
                 {task.aiEnhanced && !isAiEnhancing && (
-                  <Badge className="bg-gradient-to-r from-primary/15 via-accent/15 to-primary/15 text-primary border-2 border-primary/30 text-sm font-bold px-4 py-2 rounded-full shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm">
-                    <Sparkles className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <Badge className="bg-gradient-to-r from-primary/15 via-accent/15 to-primary/15 text-primary border-2 border-primary/30 text-base font-bold px-6 py-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-sm">
+                    <Sparkles className="mr-2 h-5 w-5 flex-shrink-0" />
                     Premium AI
                   </Badge>
                 )}
