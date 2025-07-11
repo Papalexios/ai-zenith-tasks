@@ -226,8 +226,15 @@ export const EnhancedTaskApp = () => {
                     key={option.value}
                     variant={filter === option.value ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setFilter(option.value as any)}
-                    className="gap-2"
+                    onClick={() => {
+                      console.log('Filter button clicked:', option.value, 'Current filter:', filter);
+                      setFilter(option.value as any);
+                    }}
+                    className={`gap-2 transition-all ${
+                      filter === option.value 
+                        ? 'bg-primary text-primary-foreground shadow-lg' 
+                        : 'hover:bg-muted/80'
+                    }`}
                   >
                     <option.icon className="h-3 w-3" />
                     {option.label}

@@ -5,7 +5,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
 export function TaskList() {
-  const { tasks, filter } = useTaskStore();
+  const { tasks, filter, sortBy } = useTaskStore();
+
+  console.log('TaskList render:', { tasksCount: tasks.length, currentFilter: filter });
 
   const filteredTasks = tasks.filter(task => {
     switch (filter) {
@@ -15,11 +17,17 @@ export function TaskList() {
         return !task.completed;
       case 'today':
         const today = new Date().toISOString().split('T')[0];
-        return task.dueDate === today;
+        return task.dueDate === today && !task.completed;
+      case 'overdue':
+        const todayDate = new Date().toISOString().split('T')[0];
+        return task.dueDate && task.dueDate < todayDate && !task.completed;
+      case 'all':
       default:
         return true;
     }
   });
+
+  console.log('Filtered tasks:', { filter, originalCount: tasks.length, filteredCount: filteredTasks.length });
 
   const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
   const sortedTasks = filteredTasks.sort((a, b) => {
