@@ -63,23 +63,24 @@ export function TaskApp() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      {/* Mobile Header */}
-      <div className="glass-card border-b-0 rounded-none">
-        <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/60 to-muted/30 overflow-x-hidden">
+      {/* Ultra Modern Mobile Header */}
+      <div className="glass-card border-b-0 rounded-none backdrop-blur-xl bg-background/80 sticky top-0 z-40">
+        <div className="px-6 py-6">
           {/* Mobile Layout */}
           <div className="block lg:hidden">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-hero rounded-xl flex items-center justify-center shadow-glow">
-                  <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-gradient-hero rounded-2xl flex items-center justify-center shadow-glow-primary relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl animate-pulse-slow"></div>
+                  <Brain className="h-7 w-7 text-white relative z-10" />
                 </div>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-                    AI Task Manager
+                  <h1 className="text-2xl font-black bg-gradient-hero bg-clip-text text-transparent tracking-tight">
+                    AI Zenith
                   </h1>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    AI-powered productivity
+                  <p className="text-sm text-muted-foreground font-medium">
+                    Premium AI Workspace
                   </p>
                 </div>
               </div>
@@ -87,25 +88,31 @@ export function TaskApp() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowSidebar(!showSidebar)}
-                className="h-10 w-10 p-0"
+                className="h-12 w-12 p-0 rounded-xl hover:bg-muted/50 transition-all duration-300"
               >
-                <BarChart3 className="h-5 w-5" />
+                <BarChart3 className="h-6 w-6" />
               </Button>
             </div>
             
-            {/* Mobile Stats Row */}
-            <div className="grid grid-cols-3 gap-4 p-4 glass-card rounded-2xl">
-              <div className="text-center">
-                <div className="text-xl sm:text-2xl font-bold text-primary">{stats.totalTasks}</div>
-                <div className="text-xs text-muted-foreground">Tasks</div>
+            {/* Ultra Modern Stats Cards */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="glass-card p-4 rounded-2xl border border-primary/10 hover:border-primary/20 transition-all duration-300 group">
+                <div className="text-center space-y-1">
+                  <div className="text-2xl font-black text-primary group-hover:scale-105 transition-transform duration-300">{stats.totalTasks}</div>
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tasks</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-xl sm:text-2xl font-bold text-accent">{stats.productivityScore}%</div>
-                <div className="text-xs text-muted-foreground">Score</div>
+              <div className="glass-card p-4 rounded-2xl border border-accent/10 hover:border-accent/20 transition-all duration-300 group">
+                <div className="text-center space-y-1">
+                  <div className="text-2xl font-black text-accent group-hover:scale-105 transition-transform duration-300">{stats.productivityScore}%</div>
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Score</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-xl sm:text-2xl font-bold text-secondary">{stats.completedTasks}</div>
-                <div className="text-xs text-muted-foreground">Done</div>
+              <div className="glass-card p-4 rounded-2xl border border-secondary/10 hover:border-secondary/20 transition-all duration-300 group">
+                <div className="text-center space-y-1">
+                  <div className="text-2xl font-black text-secondary group-hover:scale-105 transition-transform duration-300">{stats.completedTasks}</div>
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Done</div>
+                </div>
               </div>
             </div>
           </div>
@@ -140,80 +147,85 @@ export function TaskApp() {
         </div>
       </div>
 
-      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-        <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+      <div className="px-6 py-8">
+        <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-            {/* AI Task Input - Mobile Optimized */}
-            <div className="minimal-card p-4 sm:p-6 lg:p-8">
-              <div className="space-y-4 sm:space-y-6">
-                <div className="text-center space-y-2">
-                  <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-primary rounded-xl flex items-center justify-center">
-                      <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+          <div className="lg:col-span-2 space-y-8">
+            {/* Ultra Modern AI Task Input */}
+            <div className="minimal-card p-8 border border-primary/10 hover:border-primary/20 transition-all duration-500 group">
+              <div className="space-y-8">
+                <div className="text-center space-y-4">
+                  <div className="flex items-center justify-center gap-4 mb-6">
+                    <div className="w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-glow-primary relative overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30 rounded-2xl animate-pulse-slow"></div>
+                      <Sparkles className="h-6 w-6 text-white relative z-10" />
                     </div>
-                    <h2 className="text-lg sm:text-xl font-semibold">Add New Task with AI</h2>
+                    <h2 className="text-2xl font-black bg-gradient-hero bg-clip-text text-transparent">Add New Task with AI</h2>
                   </div>
                 </div>
                 
-                <form onSubmit={handleAddTask} className="space-y-3 sm:space-y-4">
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <form onSubmit={handleAddTask} className="space-y-6">
+                  <div className="flex flex-col gap-4">
                     <Input
-                      placeholder="Describe your task naturally..."
+                      placeholder="Describe your task naturally... (any language)"
                       value={newTask}
                       onChange={(e) => setNewTask(e.target.value)}
-                      className="h-12 sm:h-14 text-sm sm:text-base px-4 sm:px-6 flex-1 transition-all duration-300 focus:shadow-glow"
+                      className="h-16 text-lg px-8 bg-background/50 border-2 border-muted/50 rounded-2xl transition-all duration-300 focus:border-primary/50 focus:shadow-glow-primary focus:bg-background/80 placeholder:text-muted-foreground/70"
                     />
                     <Button 
                       type="submit"
                       disabled={!newTask.trim()}
                       variant="glow"
                       size="lg"
-                      className="h-12 sm:h-14 px-6 sm:px-8 gap-2 transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+                      className="h-16 px-10 gap-3 text-lg font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] w-full rounded-2xl shadow-glow-primary"
                     >
-                      <Plus className="h-4 w-4" />
-                      <span className="hidden sm:inline">Add with AI</span>
-                      <span className="sm:hidden">Add Task</span>
+                      <Plus className="h-6 w-6" />
+                      <span>Create with AI Magic</span>
                     </Button>
                   </div>
                 </form>
                 
                 {showAIDemo && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="glass-card p-3 sm:p-4 border border-primary/20"
+                    className="glass-card p-6 border border-primary/20 rounded-2xl bg-gradient-to-r from-primary/5 to-accent/5"
                   >
-                    <div className="flex items-center gap-2 mb-2">
-                      <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-primary animate-pulse" />
-                      <span className="text-xs sm:text-sm font-medium text-primary">AI Magic</span>
+                    <div className="flex items-center gap-3 mb-3">
+                      <Sparkles className="h-5 w-5 text-primary animate-pulse" />
+                      <span className="text-base font-bold text-primary">AI Magic Demo</span>
                     </div>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      Try: "Plan birthday party" and watch AI create actionable steps!
+                    <p className="text-base text-muted-foreground leading-relaxed">
+                      Try: "Plan birthday party" or "Αφαίρεση των cherries από το σώμα μου" - AI works in any language!
                     </p>
                   </motion.div>
                 )}
               </div>
             </div>
 
-            {/* Mobile-First Filters */}
-            <div className="glass-card p-3 sm:p-4">
-              <div className="flex items-center gap-3 sm:gap-4">
-                <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <div className="flex gap-2 flex-wrap overflow-x-auto pb-1">
+            {/* Ultra Modern Filters */}
+            <div className="glass-card p-6 border border-muted/20 rounded-2xl">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-accent rounded-xl flex items-center justify-center">
+                    <Filter className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-lg font-bold">Filter Tasks</span>
+                </div>
+                <div className="flex gap-3 flex-wrap overflow-x-auto">
                   {filterOptions.map((option) => (
                     <Button
                       key={option.value}
                       variant={filter === option.value ? "default" : "ghost"}
-                      size="sm"
+                      size="lg"
                       onClick={() => setFilter(option.value as any)}
-                      className={`gap-1.5 sm:gap-2 transition-all duration-300 text-xs sm:text-sm px-3 sm:px-4 h-8 sm:h-9 flex-shrink-0 ${
+                      className={`gap-3 transition-all duration-300 text-base font-semibold px-6 h-12 rounded-xl ${
                         filter === option.value 
-                          ? 'shadow-glow' 
-                          : 'hover:bg-muted/50'
+                          ? 'shadow-glow-primary bg-gradient-primary text-white border-0' 
+                          : 'hover:bg-muted/50 hover:scale-105'
                       }`}
                     >
-                      <option.icon className="h-3 w-3" />
+                      <option.icon className="h-5 w-5" />
                       {option.label}
                     </Button>
                   ))}
