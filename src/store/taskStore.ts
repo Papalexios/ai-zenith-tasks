@@ -387,6 +387,11 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     const updatedTask = get().tasks.find(t => t.id === id);
     if (updatedTask) {
       await get().syncTaskToSupabase(updatedTask);
+      
+      // Auto-sync to Google Calendar on task updates
+      if (typeof window !== 'undefined') {
+        console.log('Task updated, triggering calendar sync for:', id);
+      }
     }
   },
 
@@ -419,15 +424,19 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       )
     }));
 
-    // Sync to Supabase
+    // Sync to Supabase and Calendar
     const updatedTask = get().tasks.find(t => t.id === id);
     if (updatedTask) {
       await get().syncTaskToSupabase(updatedTask);
-      // Auto-add to Google Calendar for all tasks (with default values if needed)
-      try {
-        await get().addToGoogleCalendar(id);
-      } catch (error) {
-        console.error('Error adding to Google Calendar:', error);
+      
+      // Auto-sync completion status to Google Calendar
+      if (typeof window !== 'undefined') {
+        console.log('Task completion toggled, triggering calendar sync for:', id);
+        try {
+          await get().addToGoogleCalendar(id);
+        } catch (error) {
+          console.error('Error syncing to Google Calendar:', error);
+        }
       }
     }
   },

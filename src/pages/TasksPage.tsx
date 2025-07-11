@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TaskApp } from '@/components/tasks/TaskApp';
+import { EnhancedTaskApp } from '@/components/tasks/EnhancedTaskApp';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTaskStore } from '@/store/taskStore';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
@@ -123,7 +123,7 @@ const TasksPage = () => {
 
         {/* Task App */}
         {hasAccess ? (
-          <TaskApp />
+          <EnhancedTaskApp />
         ) : (
           <div className="text-center py-12 space-y-4">
             <h2 className="text-xl font-semibold">Access Required</h2>

@@ -28,30 +28,43 @@ export class OpenRouterService {
         messages: [
           {
             role: 'system',
-            content: `You are a productivity expert AI. Transform vague tasks into actionable items with clear steps, time estimates, and priorities. 
+            content: `You are an elite productivity expert AI. Transform ANY task input into premium quality, actionable items with crystal-clear steps, precise time estimates, and strategic priorities.
 
-Return a JSON object with this exact structure:
+CRITICAL REQUIREMENTS:
+- Be EXTREMELY specific and actionable
+- Create concise, valuable subtasks (max 4-5 items)
+- Use precise time estimates based on task complexity
+- Assign strategic priorities based on impact/urgency
+- Generate premium quality descriptions that add real value
+
+Return a JSON object with this EXACT structure:
 {
   "originalTask": "original input",
-  "enhancedTitle": "clear, actionable title",
-  "description": "detailed description",
-  "subtasks": ["step 1", "step 2", "step 3"],
+  "enhancedTitle": "clear, specific, actionable title",
+  "description": "premium quality description with context and value",
+  "subtasks": ["precise action step 1", "specific step 2", "clear deliverable 3"],
   "priority": "low|medium|high|urgent",
   "estimatedTime": "X minutes/hours",
-  "category": "work|personal|health|learning|etc",
+  "category": "work|personal|health|learning|finance|creative|social",
   "deadline": "optional YYYY-MM-DD format",
-  "dependencies": ["optional dependencies"]
+  "dependencies": ["optional specific dependencies"],
+  "tags": ["relevant", "searchable", "tags"]
 }
 
-Make it specific, actionable, and motivating.`
+EXAMPLES OF PREMIUM QUALITY:
+- Vague: "exercise" → Enhanced: "Complete 30-minute HIIT cardio workout"
+- Vague: "work on project" → Enhanced: "Review and finalize Q1 marketing strategy presentation slides"
+- Vague: "call mom" → Enhanced: "Schedule weekly check-in call with mom to discuss vacation plans"
+
+Make every task PREMIUM QUALITY: specific, actionable, time-bound, and valuable.`
           },
           {
             role: 'user',
             content: taskInput
           }
         ],
-        temperature: 0.7,
-        max_tokens: 800
+        temperature: 0.4,
+        max_tokens: 1000
       });
 
       const result = this.parseTaskResponse(completion.choices[0].message.content);
@@ -136,13 +149,21 @@ Examples:
         messages: [
           {
             role: 'system',
-            content: `You are an expert productivity planner. Create an optimized daily schedule for today (${today}) considering:
-- Task priorities (urgent > high > medium > low)
-- Estimated time for each task
-- Due dates and deadlines
-- Energy levels: morning (high), afternoon (medium), evening (low)
-- Context switching minimization
-- 15-minute buffer between tasks
+            content: `You are an elite productivity planner and time management expert. Create a PREMIUM QUALITY optimized daily schedule for today (${today}) with:
+
+STRATEGIC PLANNING PRINCIPLES:
+- Urgent tasks in peak energy hours (9-11 AM)
+- High-focus work in morning/early afternoon
+- Administrative tasks in lower energy periods
+- Context switching minimization (group similar tasks)
+- Realistic buffer times (10-15 minutes between tasks)
+- Energy management (high → medium → low tasks)
+
+PREMIUM TIME BLOCKING:
+- Deep work blocks: 90-120 minutes max
+- Quick tasks: 15-30 minute blocks
+- Administrative: 30-45 minute blocks
+- Creative work: 60-90 minute blocks
 
 Return ONLY valid JSON with no markdown:
 {
@@ -151,16 +172,21 @@ Return ONLY valid JSON with no markdown:
       "startTime": "09:00",
       "endTime": "10:30",
       "taskId": "task-id",
-      "task": "task title",
-      "type": "focused_work",
-      "energy": "high",
-      "priority": "urgent"
+      "task": "specific task title",
+      "description": "task details and subtasks combined",
+      "type": "deep_work|quick_task|admin|creative|meeting",
+      "energy": "high|medium|low",
+      "priority": "urgent|high|medium|low",
+      "category": "work|personal|health|learning",
+      "estimatedDuration": "90 minutes"
     }
   ],
-  "insights": ["Most urgent tasks scheduled for high-energy morning hours"],
-  "recommendations": ["Take 5-min breaks between tasks"],
+  "insights": ["Strategic insights about the day's plan"],
+  "recommendations": ["Actionable recommendations for peak performance"],
   "totalFocusTime": "6 hours 30 minutes",
-  "productivityScore": 85
+  "productivityScore": 85,
+  "energyOptimization": "high",
+  "contextSwitching": "minimal"
 }`
           },
           {
