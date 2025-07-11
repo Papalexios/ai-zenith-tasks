@@ -23,13 +23,18 @@ import {
 } from 'lucide-react';
 
 interface AnalyticsModalProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function AnalyticsModal({ children }: AnalyticsModalProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function AnalyticsModal({ children, open, onOpenChange }: AnalyticsModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const { tasks, getProductivityStats } = useTaskStore();
   const stats = getProductivityStats();
+
+  const isOpen = open !== undefined ? open : internalOpen;
+  const setIsOpen = onOpenChange !== undefined ? onOpenChange : setInternalOpen;
 
   const categoryBreakdown = tasks.reduce((acc, task) => {
     acc[task.category] = (acc[task.category] || 0) + 1;
@@ -46,9 +51,11 @@ export function AnalyticsModal({ children }: AnalyticsModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
+      {children && (
+        <DialogTrigger asChild>
+          {children}
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
