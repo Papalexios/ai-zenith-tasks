@@ -167,6 +167,75 @@ export function TaskApp() {
 
       <div className="px-6 py-6">
         <div className="grid lg:grid-cols-4 gap-6">
+          {/* Sidebar - AI Insights moved to top */}
+          <div className="lg:col-span-1 order-first lg:order-last space-y-4">
+            <AIInsights />
+            
+            <div className="minimal-card p-4">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 bg-gradient-accent rounded-lg flex items-center justify-center">
+                    <BarChart3 className="h-3 w-3 text-white" />
+                  </div>
+                  <h3 className="font-semibold">Productivity</h3>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">Score</span>
+                    <span className="font-bold">{stats.productivityScore}%</span>
+                  </div>
+                  <div className="w-full bg-muted/50 rounded-full h-2">
+                    <motion.div 
+                      className="bg-gradient-accent h-2 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${stats.productivityScore}%` }}
+                      transition={{ duration: 1, delay: 0.5 }}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/50">
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-primary">{stats.completedTasks}</div>
+                      <div className="text-xs text-muted-foreground">Done</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-secondary">{stats.aiEnhancedTasks}</div>
+                      <div className="text-xs text-muted-foreground">AI</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="minimal-card p-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 bg-gradient-secondary rounded-lg flex items-center justify-center">
+                    <Sparkles className="h-3 w-3 text-white" />
+                  </div>
+                  <h3 className="font-semibold">Actions</h3>
+                </div>
+                
+                <div className="space-y-2">
+                  <DailyPlanModal>
+                    <Button variant="ghost" size="sm" className="w-full justify-start gap-2 h-10">
+                      <Calendar className="h-4 w-4" />
+                      <span className="text-sm">Daily Plan</span>
+                    </Button>
+                  </DailyPlanModal>
+                  
+                  <AnalyticsModal>
+                    <Button variant="ghost" size="sm" className="w-full justify-start gap-2 h-10">
+                      <BarChart3 className="h-4 w-4" />
+                      <span className="text-sm">Analytics</span>
+                    </Button>
+                  </AnalyticsModal>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
             {/* AI Task Input - Show on mobile only when adding */}
@@ -249,75 +318,6 @@ export function TaskApp() {
             {/* Task Views */}
             {activeView === 'list' && <TaskList />}
             {activeView === 'kanban' && <KanbanBoard />}
-          </div>
-
-          {/* Compact Sidebar */}
-          <div className="hidden lg:block space-y-4">
-            <AIInsights />
-            
-            <div className="minimal-card p-4">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-gradient-accent rounded-lg flex items-center justify-center">
-                    <BarChart3 className="h-3 w-3 text-white" />
-                  </div>
-                  <h3 className="font-semibold">Productivity</h3>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-muted-foreground">Score</span>
-                    <span className="font-bold">{stats.productivityScore}%</span>
-                  </div>
-                  <div className="w-full bg-muted/50 rounded-full h-2">
-                    <motion.div 
-                      className="bg-gradient-accent h-2 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${stats.productivityScore}%` }}
-                      transition={{ duration: 1, delay: 0.5 }}
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/50">
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-primary">{stats.completedTasks}</div>
-                      <div className="text-xs text-muted-foreground">Done</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-secondary">{stats.aiEnhancedTasks}</div>
-                      <div className="text-xs text-muted-foreground">AI</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="minimal-card p-4">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-gradient-secondary rounded-lg flex items-center justify-center">
-                    <Sparkles className="h-3 w-3 text-white" />
-                  </div>
-                  <h3 className="font-semibold">Actions</h3>
-                </div>
-                
-                <div className="space-y-2">
-                  <DailyPlanModal>
-                    <Button variant="ghost" size="sm" className="w-full justify-start gap-2 h-10">
-                      <Calendar className="h-4 w-4" />
-                      <span className="text-sm">Daily Plan</span>
-                    </Button>
-                  </DailyPlanModal>
-                  
-                  <AnalyticsModal>
-                    <Button variant="ghost" size="sm" className="w-full justify-start gap-2 h-10">
-                      <BarChart3 className="h-4 w-4" />
-                      <span className="text-sm">Analytics</span>
-                    </Button>
-                  </AnalyticsModal>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 

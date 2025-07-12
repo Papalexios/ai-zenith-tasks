@@ -276,6 +276,26 @@
     animation: gradient-shift 3s ease infinite;
   }
 
+/* Compact view styles */
+.compact-task-item {
+  @apply bg-card border border-border rounded-lg transition-all duration-200;
+}
+
+.compact-task-item:hover {
+  @apply shadow-md bg-card/90;
+}
+
+/* Drag and drop styles */
+.task-item-dragging {
+  @apply shadow-2xl scale-105 rotate-1 z-50;
+}
+
+/* Real-time sync indicator */
+.sync-indicator {
+  @apply fixed top-4 right-4 z-50 bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium;
+  animation: pulse 2s infinite;
+}
+
 /* Mobile optimizations */
 .mobile-input {
   @apply h-16 text-lg px-6 rounded-2xl border-2 transition-all duration-300;
