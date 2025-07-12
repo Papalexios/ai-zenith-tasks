@@ -111,18 +111,18 @@ export function TaskItem({ task, compact = false }: TaskItemProps) {
             <div className="flex-1 min-w-0 space-y-4">
               {/* Title Section */}
               <div className="space-y-3">
-                <h3 className={`font-bold text-xl sm:text-2xl lg:text-3xl xl:text-4xl leading-tight transition-all duration-300 ${
-                  task.completed ? 'line-through text-muted-foreground/60' : 'bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent'
+                <h3 className={`font-semibold text-sm sm:text-base leading-tight transition-all duration-300 ${
+                  task.completed ? 'line-through text-muted-foreground/60' : 'text-foreground'
                 }`}>
                   {task.title}
                 </h3>
                 
                 {/* AI Enhancement Badge */}
                 {task.aiEnhanced && !isAiEnhancing && (
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-primary/80">
-                    <div className="flex items-center gap-1.5 px-2 py-1 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full border border-primary/20">
+                  <div className="flex items-center gap-2 text-xs text-primary/80">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full border border-primary/20">
                       <Sparkles className="h-3 w-3" />
-                      <span className="font-medium">Enhanced with Premium AI</span>
+                      <span className="font-medium text-xs">AI Enhanced</span>
                     </div>
                   </div>
                 )}
@@ -130,21 +130,21 @@ export function TaskItem({ task, compact = false }: TaskItemProps) {
               
               {/* Description */}
               {task.description && (
-                <div className={`text-sm sm:text-base lg:text-lg transition-all duration-300 ${
+                <div className={`text-xs sm:text-sm transition-all duration-300 ${
                   isAiEnhancing ? 'text-primary font-medium' : 'text-muted-foreground'
                 }`}>
                   {isAiEnhancing ? (
-                    <div className="flex items-center gap-3 p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border border-primary/20 backdrop-blur-sm">
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border border-primary/20 backdrop-blur-sm">
                       <div className="relative">
-                        <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 animate-pulse text-primary flex-shrink-0" />
+                        <Sparkles className="h-4 w-4 animate-pulse text-primary flex-shrink-0" />
                         <div className="absolute inset-0 animate-ping">
-                          <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-primary/50 flex-shrink-0" />
+                          <Sparkles className="h-4 w-4 text-primary/50 flex-shrink-0" />
                         </div>
                       </div>
-                      <span className="text-sm sm:text-base font-semibold">AI is enhancing this task with premium quality details...</span>
+                      <span className="text-xs font-medium">AI is enhancing this task...</span>
                     </div>
                   ) : (
-                    <p className="line-clamp-4 sm:line-clamp-6 leading-relaxed text-lg sm:text-xl lg:text-2xl">
+                    <p className="line-clamp-2 sm:line-clamp-3 leading-relaxed text-xs sm:text-sm">
                       {task.description}
                     </p>
                   )}
@@ -154,24 +154,24 @@ export function TaskItem({ task, compact = false }: TaskItemProps) {
               {/* Premium Badge System */}
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 {/* Priority Badge */}
-                <Badge className={`${priorityBadgeColors[task.priority]} text-base font-bold px-6 py-3 rounded-full border-2 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl`}>
-                  <Target className="mr-2 h-5 w-5 flex-shrink-0" />
+                <Badge className={`${priorityBadgeColors[task.priority]} text-xs font-medium px-3 py-1 rounded-full border transition-all duration-300 hover:scale-105`}>
+                  <Target className="mr-1 h-3 w-3 flex-shrink-0" />
                   {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
                 </Badge>
                 
                 {/* Time Badge */}
                 {task.estimatedTime && (
-                  <Badge variant="outline" className="text-base font-semibold px-6 py-3 rounded-full border-2 border-muted-foreground/30 hover:border-primary/40 transition-all duration-300 hover:scale-105 bg-background/50 backdrop-blur-sm">
-                    <Clock className="mr-2 h-5 w-5 flex-shrink-0" />
+                  <Badge variant="outline" className="text-xs font-medium px-2 py-1 rounded-full border border-muted-foreground/30 hover:border-primary/40 transition-all duration-300 hover:scale-105 bg-background/50 backdrop-blur-sm">
+                    <Clock className="mr-1 h-3 w-3 flex-shrink-0" />
                     {task.estimatedTime.replace(' minutes', 'm').replace(' hours', 'h').replace(' hour', 'h')}
                   </Badge>
                 )}
                 
                 {/* AI Badge */}
                 {task.aiEnhanced && !isAiEnhancing && (
-                  <Badge className="bg-gradient-to-r from-primary/15 via-accent/15 to-primary/15 text-primary border-2 border-primary/30 text-base font-bold px-6 py-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-sm">
-                    <Sparkles className="mr-2 h-5 w-5 flex-shrink-0" />
-                    Premium AI
+                  <Badge className="bg-gradient-to-r from-primary/15 via-accent/15 to-primary/15 text-primary border border-primary/30 text-xs font-medium px-2 py-1 rounded-full transition-all duration-300 hover:scale-105 backdrop-blur-sm">
+                    <Sparkles className="mr-1 h-3 w-3 flex-shrink-0" />
+                    AI
                   </Badge>
                 )}
                 
@@ -277,17 +277,17 @@ export function TaskItem({ task, compact = false }: TaskItemProps) {
           </motion.div>
         )}
 
-        {/* Premium Mobile Actions */}
+        {/* Compact Mobile Actions */}
         {!task.completed && (
-          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-border/20">
+          <div className="flex items-center gap-1 mt-3 pt-3 border-t border-border/20">
             {!task.aiEnhanced && !isAiEnhancing && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleEnhanceWithAI}
-                className="flex-1 sm:flex-none min-w-[100px] gap-2 hover:scale-105 transition-all duration-300 bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 border-primary/30 hover:border-primary/50 text-primary"
+                className="h-7 px-2 gap-1 text-xs hover:scale-105 transition-all duration-300 bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 border-primary/30 hover:border-primary/50 text-primary"
               >
-                <Sparkles className="h-3.5 w-3.5" />
+                <Sparkles className="h-3 w-3" />
                 <span className="font-medium">Enhance</span>
               </Button>
             )}
@@ -296,9 +296,9 @@ export function TaskItem({ task, compact = false }: TaskItemProps) {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="flex-1 sm:flex-none min-w-[80px] gap-2 hover:scale-105 transition-all duration-300 hover:bg-muted/50"
+                className="h-7 px-2 gap-1 text-xs hover:scale-105 transition-all duration-300 hover:bg-muted/50"
               >
-                <Edit className="h-3.5 w-3.5" />
+                <Edit className="h-3 w-3" />
                 <span className="font-medium">Edit</span>
               </Button>
             </TaskEditModal>
@@ -307,9 +307,9 @@ export function TaskItem({ task, compact = false }: TaskItemProps) {
               variant="ghost" 
               size="sm" 
               onClick={handleDelete}
-              className="gap-2 text-destructive hover:text-destructive hover:scale-105 transition-all duration-300 hover:bg-destructive/10 px-3"
+              className="h-7 px-2 gap-1 text-xs text-destructive hover:text-destructive hover:scale-105 transition-all duration-300 hover:bg-destructive/10"
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Trash2 className="h-3 w-3" />
               <span className="font-medium">Delete</span>
             </Button>
           </div>
