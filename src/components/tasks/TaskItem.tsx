@@ -20,16 +20,24 @@ import {
 
 interface TaskItemProps {
   task: Task;
+  compact?: boolean;
 }
 
 const priorityColors = {
+  low: 'bg-green-500',
+  medium: 'bg-yellow-500',
+  high: 'bg-orange-500',
+  urgent: 'bg-red-500'
+};
+
+const priorityBadgeColors = {
   low: 'bg-green-500/10 text-green-600 border-green-500/20',
   medium: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
   high: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
   urgent: 'bg-red-500/10 text-red-600 border-red-500/20'
 };
 
-export function TaskItem({ task }: TaskItemProps) {
+export function TaskItem({ task, compact = false }: TaskItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { toggleTask, deleteTask, enhanceTaskWithAI, startFocusTimer, focusTimer } = useTaskStore();
 
@@ -146,7 +154,7 @@ export function TaskItem({ task }: TaskItemProps) {
               {/* Premium Badge System */}
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 {/* Priority Badge */}
-                <Badge className={`${priorityColors[task.priority]} text-base font-bold px-6 py-3 rounded-full border-2 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl`}>
+                <Badge className={`${priorityBadgeColors[task.priority]} text-base font-bold px-6 py-3 rounded-full border-2 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl`}>
                   <Target className="mr-2 h-5 w-5 flex-shrink-0" />
                   {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
                 </Badge>
