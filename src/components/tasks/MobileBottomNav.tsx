@@ -31,56 +31,58 @@ export function MobileBottomNav({
   ];
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
-      <div className="glass-card border-t backdrop-blur-xl bg-background/95 rounded-t-3xl">
-        <div className="px-6 py-4">
-          <div className="grid grid-cols-5 gap-2">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
+      <div className="glass-card border-t backdrop-blur-xl bg-background/95 rounded-t-2xl shadow-2xl">
+        <div className="px-4 py-3 pb-4">
+          <div className="grid grid-cols-5 gap-1">
             {navItems.map((item) => (
               <Button
                 key={item.id}
                 variant="ghost"
                 size="sm"
                 onClick={() => onViewChange(item.id as any)}
-                className={`flex flex-col gap-1 h-16 relative transition-all duration-300 ${
+                className={`flex flex-col gap-1 h-14 relative transition-all duration-300 rounded-xl ${
                   activeView === item.id
                     ? 'text-primary bg-primary/10 hover:bg-primary/15'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
                 }`}
               >
                 <div className="relative">
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className="h-4 w-4" />
                   {item.badge && item.badge > 0 && (
                     <Badge 
                       variant="secondary" 
-                      className="absolute -top-2 -right-2 h-4 w-4 p-0 text-xs bg-primary text-primary-foreground"
+                      className="absolute -top-1 -right-1 h-3 w-3 p-0 text-[10px] bg-primary text-primary-foreground border-0 rounded-full flex items-center justify-center"
                     >
-                      {item.badge > 99 ? '99+' : item.badge}
+                      {item.badge > 9 ? '9+' : item.badge}
                     </Badge>
                   )}
                 </div>
-                <span className="text-xs font-medium">{item.label}</span>
+                <span className="text-[10px] font-medium leading-tight">{item.label}</span>
                 {activeView === item.id && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-primary rounded-full"
+                    className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-primary rounded-full"
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   />
                 )}
               </Button>
             ))}
             
-            {/* Floating Add Button */}
+            {/* Floating Add Button - Enhanced */}
             <div className="flex justify-center items-center">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                className="relative"
               >
                 <Button
                   onClick={onAddTask}
                   size="sm"
-                  className="h-14 w-14 rounded-full bg-gradient-primary shadow-glow-primary hover:shadow-glow-primary/80 border-0 text-white"
+                  className="h-12 w-12 rounded-full bg-gradient-primary shadow-glow-primary hover:shadow-glow-primary/80 border-0 text-white relative"
                 >
-                  <Plus className="h-6 w-6" />
+                  <Plus className="h-5 w-5" />
+                  <div className="absolute inset-0 rounded-full bg-gradient-primary opacity-30 animate-pulse" />
                 </Button>
               </motion.div>
             </div>
