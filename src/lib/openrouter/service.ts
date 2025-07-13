@@ -190,62 +190,116 @@ Always preserve the original language in the title and other text fields.`
       const today = new Date().toISOString().split('T')[0];
       const pendingTasks = tasks.filter(t => !t.completed);
       
+      // Sort tasks by priority and urgency for optimal scheduling
+      const sortedTasks = pendingTasks.sort((a, b) => {
+        const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+        const aPriority = priorityOrder[a.priority] || 2;
+        const bPriority = priorityOrder[b.priority] || 2;
+        
+        // Factor in due dates for urgency
+        const today = new Date();
+        const aUrgent = a.dueDate && new Date(a.dueDate) <= today ? 1 : 0;
+        const bUrgent = b.dueDate && new Date(b.dueDate) <= today ? 1 : 0;
+        
+        return (bPriority + bUrgent) - (aPriority + aUrgent);
+      });
+      
       const completion = await this.client.chat.completions.create({
         model,
         messages: [
           {
             role: 'system',
-            content: `You are an elite multilingual productivity planner and time management expert. Create a PREMIUM QUALITY optimized daily schedule for today (${today}) with FULL SUPPORT for tasks in ANY LANGUAGE.
+            content: `You are an ELITE productivity strategist and optimization expert. Create the MOST OPTIMAL daily schedule that maximizes productivity, minimizes stress, and ensures all critical tasks are completed.
 
-MULTILINGUAL SUPPORT: Preserve the original language of tasks (English, Spanish, French, German, Chinese, Japanese, Arabic, Russian, Portuguese, Italian, Dutch, Korean, Hindi, etc.) while providing insights and recommendations.
+🎯 OPTIMIZATION STRATEGY:
+1. URGENT TASKS (due today/overdue) → 9:00-11:00 AM (peak energy)
+2. HIGH PRIORITY → 11:00 AM-2:00 PM (prime focus hours)
+3. MEDIUM PRIORITY → 2:00-4:00 PM (good productivity)
+4. LOW PRIORITY → 4:00-6:00 PM (administrative time)
 
-STRATEGIC PLANNING PRINCIPLES:
-- Urgent tasks in peak energy hours (9-11 AM)
-- High-focus work in morning/early afternoon
-- Administrative tasks in lower energy periods
-- Context switching minimization (group similar tasks)
-- Realistic buffer times (10-15 minutes between tasks)
-- Energy management (high → medium → low tasks)
+🧠 COGNITIVE LOAD MANAGEMENT:
+- Group similar tasks to minimize context switching
+- Place demanding work during peak energy (9-11 AM)
+- Schedule breaks every 90 minutes
+- Buffer time between different task types
 
-PREMIUM TIME BLOCKING:
-- Deep work blocks: 90-120 minutes max
-- Quick tasks: 15-30 minute blocks
-- Administrative: 30-45 minute blocks
-- Creative work: 60-90 minute blocks
+⚡ ENERGY OPTIMIZATION:
+- High energy: Complex problem-solving, creativity, strategic work
+- Medium energy: Communication, planning, review tasks
+- Low energy: Admin, organization, routine tasks
 
-Return ONLY valid JSON with no markdown:
+🎨 MULTILINGUAL SUPPORT: Preserve original language of ALL tasks
+
+📊 PREMIUM SCHEDULING RULES:
+- Deep work blocks: 60-120 minutes (no interruptions)
+- Quick tasks: 15-45 minutes (batch similar ones)
+- Creative work: 90 minutes max (optimal flow state)
+- Admin tasks: 30-60 minutes (group together)
+- ALWAYS include 10-15 minute buffers between major blocks
+
+Return OPTIMIZED JSON schedule:
 {
   "timeBlocks": [
     {
+      "id": "block-1",
       "startTime": "09:00",
       "endTime": "10:30",
-      "taskId": "task-id",
-      "task": "specific task title (preserve original language)",
-      "description": "task details and subtasks combined (preserve original language)",
-      "type": "deep_work|quick_task|admin|creative|meeting",
+      "taskId": "actual-task-id",
+      "task": "Complete task title (original language)",
+      "description": "Detailed description with specific actions (original language)",
+      "type": "deep_work|quick_task|admin|creative|meeting|break",
       "energy": "high|medium|low",
       "priority": "urgent|high|medium|low",
-      "category": "work|personal|health|learning",
-      "estimatedDuration": "90 minutes"
+      "category": "work|personal|health|learning|finance|creative",
+      "estimatedTime": "1.5 hours",
+      "focusLevel": "high|medium|low",
+      "contextGroup": "similar task grouping"
     }
   ],
-  "insights": ["Strategic insights about the day's plan (English)"],
-  "recommendations": ["Actionable recommendations for peak performance (English)"],
-  "totalFocusTime": "6 hours 30 minutes",
-  "productivityScore": 85,
-  "energyOptimization": "high",
-  "contextSwitching": "minimal"
+  "dailySummary": {
+    "totalTasks": 8,
+    "urgentTasks": 2,
+    "highPriorityTasks": 3,
+    "estimatedWorkload": "7.5 hours",
+    "peakProductivityHours": "9:00-11:00, 14:00-16:00"
+  },
+  "insights": [
+    "Strategic insight about optimal task sequencing",
+    "Energy management recommendation",
+    "Productivity optimization tip"
+  ],
+  "recommendations": [
+    "Specific actionable recommendation for peak performance",
+    "Time management strategy for the day",
+    "Focus optimization tip"
+  ],
+  "totalFocusTime": "6 hours 45 minutes",
+  "productivityScore": 92,
+  "energyOptimization": "optimal",
+  "contextSwitching": "minimal",
+  "stressLevel": "low"
 }`
           },
           {
             role: 'user',
-            content: `Create daily plan for these tasks: ${JSON.stringify(pendingTasks)}
-Working hours: 9 AM - 6 PM
-Preferences: ${JSON.stringify(userPreferences)}`
+            content: `Create the MOST OPTIMIZED daily plan for these tasks (already sorted by priority):
+Tasks: ${JSON.stringify(sortedTasks)}
+Current date: ${today}
+Working hours: 9:00 AM - 6:00 PM
+Total available time: 9 hours
+Break preferences: 15-minute buffers between major blocks
+
+REQUIREMENTS:
+- Schedule ALL tasks (don't skip any)
+- Optimize for maximum productivity and minimal stress
+- Place urgent/overdue tasks in peak energy hours (9-11 AM)
+- Group similar tasks to reduce context switching
+- Include realistic time estimates and buffers
+- Ensure perfect time sequencing with no overlaps`
           }
         ],
-        temperature: 0.3,
-        max_tokens: 1500
+        temperature: 0.2,
+        max_tokens: 2000
       });
 
       const content = completion.choices[0].message.content || '{}';
