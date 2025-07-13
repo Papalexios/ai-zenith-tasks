@@ -43,10 +43,26 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscription, disable
       setIsRecording(true);
     } catch (error) {
       console.error('Error starting recording:', error);
+      
+      let title = "Microphone Error";
+      let description = "Could not access microphone. Please check permissions.";
+      
+      if (error.name === 'NotAllowedError') {
+        title = "Microphone Permission Denied";
+        description = "Please allow microphone access in your browser. Click the 🔒 icon in the address bar and enable microphone permissions, then refresh the page.";
+      } else if (error.name === 'NotFoundError') {
+        title = "No Microphone Found";
+        description = "No microphone detected. Please connect a microphone and try again.";
+      } else if (error.name === 'NotSupportedError') {
+        title = "Microphone Not Supported";
+        description = "Your browser doesn't support microphone access. Please try a different browser.";
+      }
+      
       toast({
-        title: "Microphone Error",
-        description: "Could not access microphone. Please check permissions.",
-        variant: "destructive"
+        title,
+        description,
+        variant: "destructive",
+        duration: 8000
       });
     }
   };
