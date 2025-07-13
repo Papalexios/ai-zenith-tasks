@@ -91,7 +91,12 @@ export const TaskInputForm = () => {
                 />
                 <div className="absolute right-2 top-1/2 -translate-y-1/2">
                   <VoiceInput 
-                    onTranscription={(text) => setNewTask(prev => prev ? `${prev} ${text}` : text)}
+                    onTranscription={(text) => {
+                      console.log('🎤 TaskInputForm received transcription:', text);
+                      const updatedTask = newTask ? `${newTask} ${text}` : text;
+                      console.log('🎤 Updating task input to:', updatedTask);
+                      setNewTask(updatedTask);
+                    }}
                     disabled={isLoading}
                   />
                 </div>

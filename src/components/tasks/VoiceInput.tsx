@@ -42,6 +42,7 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscription, disable
 
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
+      console.log('🎤 Voice transcription received:', transcript);
       onTranscription(transcript);
       toast({
         title: "Voice Transcribed",
