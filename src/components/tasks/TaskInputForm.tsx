@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTaskStore } from '@/store/taskStore';
 import { toast } from '@/hooks/use-toast';
+import { VoiceInput } from './VoiceInput';
 
 export const TaskInputForm = () => {
   const [newTask, setNewTask] = useState('');
@@ -80,14 +81,20 @@ export const TaskInputForm = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1 relative">
                 <Input
-                  placeholder="Type your task in any language... (e.g., 'Plan meeting', 'Αφαίρεση cherries', '会議の準備', 'Llamar a mamá')"
+                  placeholder="Type or speak your task in any language... (e.g., 'Plan meeting', 'Αφαίρεση cherries', '会議の準備', 'Llamar a mamá')"
                   value={newTask}
                   onChange={(e) => setNewTask(e.target.value)}
-                  className="h-16 sm:h-18 text-lg sm:text-xl px-8 rounded-3xl border-2 border-border/20 bg-background/50 backdrop-blur-sm transition-all duration-300 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 placeholder:text-muted-foreground/60 font-medium"
+                  className="h-16 sm:h-18 text-lg sm:text-xl px-8 pr-20 rounded-3xl border-2 border-border/20 bg-background/50 backdrop-blur-sm transition-all duration-300 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 placeholder:text-muted-foreground/60 font-medium"
                   disabled={isLoading}
                   autoComplete="off"
                   spellCheck="false"
                 />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                  <VoiceInput 
+                    onTranscription={(text) => setNewTask(prev => prev ? `${prev} ${text}` : text)}
+                    disabled={isLoading}
+                  />
+                </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 rounded-3xl opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               </div>
               
