@@ -10,14 +10,21 @@ interface PlanActionsProps {
 
 export function PlanActions({ isSyncing, onGeneratePlan, onSyncToCalendar, onClose }: PlanActionsProps) {
   return (
-    <div className="flex gap-2 flex-wrap">
-      <Button onClick={onGeneratePlan} variant="outline">
+    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full">
+      <Button 
+        onClick={onGeneratePlan} 
+        variant="outline" 
+        className="flex-1 sm:flex-none"
+        size="sm"
+      >
         Regenerate Plan
       </Button>
       <Button 
         onClick={onSyncToCalendar} 
         variant="secondary"
         disabled={isSyncing}
+        className="flex-1 sm:flex-none"
+        size="sm"
       >
         {isSyncing ? (
           <>
@@ -27,11 +34,15 @@ export function PlanActions({ isSyncing, onGeneratePlan, onSyncToCalendar, onClo
         ) : (
           <>
             <CalendarPlus className="mr-2 h-4 w-4" />
-            Sync to Google Calendar
+            Sync to Calendar
           </>
         )}
       </Button>
-      <Button onClick={onClose}>
+      <Button 
+        onClick={onClose}
+        className="flex-1 sm:flex-none"
+        size="sm"
+      >
         Apply Schedule
       </Button>
     </div>
