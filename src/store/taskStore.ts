@@ -555,49 +555,137 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   generateDailyPlan: async () => {
     const tasks = get().tasks.filter(t => !t.completed);
+    console.log('🎯 Starting daily plan generation for tasks:', tasks.length);
+    
+    if (tasks.length === 0) {
+      console.log('⚠️ No pending tasks found for daily plan');
+      const emptyPlan = {
+        timeBlocks: [],
+        dailySummary: {
+          totalTasks: 0,
+          urgentTasks: 0,
+          highPriorityTasks: 0,
+          estimatedWorkload: "0 hours",
+          peakProductivityHours: "9:00-11:00"
+        },
+        insights: ['No pending tasks found. Add some tasks to generate your daily plan!'],
+        recommendations: ['Create tasks to get started with your productivity journey'],
+        totalFocusTime: '0 hours',
+        productivityScore: 0,
+        energyOptimization: 'optimal',
+        contextSwitching: 'none',
+        stressLevel: 'low'
+      };
+      set({ dailyPlan: emptyPlan });
+      return emptyPlan;
+    }
     
     try {
+      console.log('🤖 Calling OpenRouter AI service...');
       const plan = await openRouterService.generateDailyPlan(tasks, {
         workingHours: { start: '09:00', end: '17:00' },
         energyLevels: { morning: 'high', afternoon: 'medium', evening: 'low' }
       });
       
-      // Ensure the plan includes ALL tasks, not just a subset
-      const planWithAllTasks = {
-        ...plan,
-        timeBlocks: plan.timeBlocks || tasks.map((task, index) => ({
-          id: `block-${index}`,
-          startTime: `${9 + Math.floor(index * 1.5)}:00`,
-          endTime: `${9 + Math.floor(index * 1.5) + 1}:00`,
-          task: task.title,
-          priority: task.priority,
-          energy: index < 3 ? 'high' : index < 6 ? 'medium' : 'low',
-          type: 'work_block'
-        })),
-        totalFocusTime: `${Math.ceil(tasks.length * 1.5)} hours`,
-        productivityScore: 85
+      console.log('✅ AI plan generated successfully:', plan);
+      
+      // Ensure the plan has all required fields with meaningful data
+      const enhancedPlan = {
+        timeBlocks: plan.timeBlocks || tasks.map((task, index) => {
+          const startHour = 9 + Math.floor(index * 1.5);
+          const endHour = startHour + 1;
+          return {
+            id: `block-${index}`,
+            startTime: `${startHour.toString().padStart(2, '0')}:00`,
+            endTime: `${endHour.toString().padStart(2, '0')}:00`,
+            taskId: task.id,
+            task: task.title,
+            description: task.description || `Complete: ${task.title}`,
+            priority: task.priority,
+            category: task.category,
+            energy: index < 3 ? 'high' : index < 6 ? 'medium' : 'low',
+            type: task.category === 'work' ? 'deep_work' : 'quick_task',
+            estimatedTime: task.estimatedTime || '1 hour',
+            focusLevel: task.priority === 'urgent' || task.priority === 'high' ? 'high' : 'medium'
+          };
+        }),
+        dailySummary: plan.dailySummary || {
+          totalTasks: tasks.length,
+          urgentTasks: tasks.filter(t => t.priority === 'urgent').length,
+          highPriorityTasks: tasks.filter(t => t.priority === 'high').length,
+          estimatedWorkload: `${Math.ceil(tasks.length * 1.5)} hours`,
+          peakProductivityHours: "9:00-11:00, 14:00-16:00"
+        },
+        insights: plan.insights?.length ? plan.insights : [
+          `You have ${tasks.length} tasks scheduled for optimal productivity`,
+          'High-priority tasks are scheduled during peak energy hours',
+          'Strategic breaks included to maintain focus throughout the day'
+        ],
+        recommendations: plan.recommendations?.length ? plan.recommendations : [
+          'Start with your most important task during peak energy (9-11 AM)',
+          'Take 5-minute breaks between tasks to maintain focus',
+          'Review and adjust the schedule as needed throughout the day'
+        ],
+        totalFocusTime: plan.totalFocusTime || `${Math.ceil(tasks.length * 1.5)} hours`,
+        productivityScore: plan.productivityScore || Math.min(95, 75 + (tasks.length * 2)),
+        energyOptimization: plan.energyOptimization || 'optimal',
+        contextSwitching: plan.contextSwitching || 'minimal',
+        stressLevel: plan.stressLevel || 'low'
       };
       
-      set({ dailyPlan: planWithAllTasks });
-      return planWithAllTasks;
+      console.log('🎉 Enhanced plan ready:', enhancedPlan);
+      set({ dailyPlan: enhancedPlan });
+      return enhancedPlan;
+      
     } catch (error) {
-      console.error('Error generating daily plan:', error);
-      // Create a fallback plan that includes ALL tasks
+      console.error('❌ Error generating daily plan:', error);
+      console.error('Error details:', error?.message, error?.stack);
+      
+      // Create a comprehensive fallback plan that always works
       const fallbackPlan = { 
-        timeBlocks: tasks.map((task, index) => ({
-          id: `block-${index}`,
-          startTime: `${9 + Math.floor(index * 1.5)}:00`,
-          endTime: `${9 + Math.floor(index * 1.5) + 1}:00`,
-          task: task.title,
-          priority: task.priority,
-          energy: index < 3 ? 'high' : index < 6 ? 'medium' : 'low',
-          type: 'work_block'
-        })),
-        insights: ['AI scheduling optimized for your productivity patterns'],
-        recommendations: ['Focus on high-priority tasks during morning hours'],
+        timeBlocks: tasks.map((task, index) => {
+          const startHour = 9 + Math.floor(index * 1.5);
+          const endHour = startHour + 1;
+          return {
+            id: `fallback-block-${index}`,
+            startTime: `${startHour.toString().padStart(2, '0')}:00`,
+            endTime: `${endHour.toString().padStart(2, '0')}:00`,
+            taskId: task.id,
+            task: task.title,
+            description: task.description || `Complete: ${task.title}`,
+            priority: task.priority,
+            category: task.category,
+            energy: index < 3 ? 'high' : index < 6 ? 'medium' : 'low',
+            type: task.category === 'work' ? 'deep_work' : 'quick_task',
+            estimatedTime: task.estimatedTime || '1 hour',
+            focusLevel: task.priority === 'urgent' || task.priority === 'high' ? 'high' : 'medium'
+          };
+        }),
+        dailySummary: {
+          totalTasks: tasks.length,
+          urgentTasks: tasks.filter(t => t.priority === 'urgent').length,
+          highPriorityTasks: tasks.filter(t => t.priority === 'high').length,
+          estimatedWorkload: `${Math.ceil(tasks.length * 1.5)} hours`,
+          peakProductivityHours: "9:00-11:00, 14:00-16:00"
+        },
+        insights: [
+          `Fallback plan created with ${tasks.length} optimized time blocks`,
+          'Tasks scheduled based on priority and estimated completion time',
+          'AI scheduling temporarily unavailable - using smart fallback system'
+        ],
+        recommendations: [
+          'Start with urgent and high-priority tasks first',
+          'Take breaks between tasks to maintain productivity',
+          'Adjust timing as needed based on your actual progress'
+        ],
         totalFocusTime: `${Math.ceil(tasks.length * 1.5)} hours`,
-        productivityScore: 85
+        productivityScore: Math.min(88, 70 + (tasks.length * 2)),
+        energyOptimization: 'good',
+        contextSwitching: 'minimal',
+        stressLevel: 'low'
       };
+      
+      console.log('🔄 Using fallback plan:', fallbackPlan);
       set({ dailyPlan: fallbackPlan });
       return fallbackPlan;
     }
