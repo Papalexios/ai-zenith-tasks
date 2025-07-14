@@ -1,7 +1,11 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EnhancedTaskApp } from '@/components/tasks/EnhancedTaskApp';
+import { AdvancedTaskFilters } from '@/components/tasks/AdvancedTaskFilters';
+import { EnhancedAIInsights } from '@/components/tasks/EnhancedAIInsights';
+import { RealTimeScheduleAdjuster } from '@/components/tasks/RealTimeScheduleAdjuster';
+import { FocusMode } from '@/components/tasks/FocusMode';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTaskStore } from '@/store/taskStore';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
@@ -13,6 +17,16 @@ const TasksPage = () => {
   const { user, loading, signOut, subscription, checkSubscription } = useAuth();
   const { isLoadingTasks, syncError, tasks, loadTasks } = useTaskStore();
   const navigate = useNavigate();
+  const [focusModeEnabled, setFocusModeEnabled] = useState(false);
+
+  useEffect(() => {
+    const handleFocusModeToggle = (event: any) => {
+      setFocusModeEnabled(event.detail.enabled);
+    };
+
+    window.addEventListener('focusModeToggle', handleFocusModeToggle);
+    return () => window.removeEventListener('focusModeToggle', handleFocusModeToggle);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -123,7 +137,9 @@ const TasksPage = () => {
 
         {/* Task App */}
         {hasAccess ? (
-          <EnhancedTaskApp />
+          <div className={`transition-all duration-300 ${focusModeEnabled ? 'blur-sm opacity-50' : ''}`}>
+            <EnhancedTaskApp />
+          </div>
         ) : (
           <div className="text-center py-12 space-y-4">
             <h2 className="text-xl font-semibold">Access Required</h2>
@@ -132,6 +148,11 @@ const TasksPage = () => {
             </p>
           </div>
         )}
+        
+        <FocusMode 
+          isEnabled={focusModeEnabled} 
+          onToggle={() => setFocusModeEnabled(!focusModeEnabled)} 
+        />
       </div>
     </div>
   );
