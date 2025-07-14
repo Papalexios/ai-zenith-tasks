@@ -251,12 +251,13 @@ Always preserve the original language in the title and other text fields.`
     const model = OPENROUTER_CONFIG.models.DEEPSEEK_R1T2_CHIMERA;
     const today = new Date().toISOString().split('T')[0];
     
-    const completion = await this.client.chat.completions.create({
-      model,
-      messages: [
-        {
-          role: 'system',
-          content: `You are an ELITE productivity optimization expert. Create the MOST EFFICIENT daily schedule that maximizes productivity and minimizes stress.
+    try {
+      const completion = await this.client.chat.completions.create({
+        model,
+        messages: [
+          {
+            role: 'system',
+            content: `You are an ELITE productivity optimization expert. Create the MOST EFFICIENT daily schedule that maximizes productivity and minimizes stress.
 
 🎯 CORE OPTIMIZATION PRINCIPLES:
 1. URGENT TASKS → 9:00-11:00 AM (peak cognitive performance)
@@ -318,10 +319,10 @@ RETURN PERFECT JSON (no markdown, no explanations):
   "contextSwitching": "minimal",
   "stressLevel": "low"
 }`
-        },
-        {
-          role: 'user',
-          content: `Create OPTIMAL daily schedule for these prioritized tasks:
+          },
+          {
+            role: 'user',
+            content: `Create OPTIMAL daily schedule for these prioritized tasks:
 
 ${JSON.stringify(sortedTasks.map(t => ({
   id: t.id,
@@ -340,20 +341,140 @@ Schedule Requirements:
 - Include realistic time estimates
 - No time overlaps
 - Group similar tasks when possible`
-        }
-      ],
-      temperature: 0.1,
-      max_tokens: 2500
-    });
+          }
+        ],
+        temperature: 0.1,
+        max_tokens: 2500
+      });
 
-    const content = completion.choices[0].message.content || '{}';
-    const cleanContent = content
-      .replace(/```json\n?/g, '')
-      .replace(/```\n?/g, '')
-      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
-      .trim();
+      const content = completion.choices[0].message.content || '{}';
+      
+      // Multi-layer JSON parsing with robust error handling
+      const parsedPlan = this.parseAIResponse(content);
+      
+      // Validate and enhance the parsed plan
+      return this.validateAndEnhancePlan(parsedPlan, sortedTasks);
+      
+    } catch (error) {
+      console.error('AI plan generation failed:', error);
+      throw error; // Let the caller handle the fallback
+    }
+  }
+
+  private parseAIResponse(content: string): any {
+    try {
+      // First, try to clean the content
+      let cleanContent = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+        .trim();
+      
+      // Try direct parsing first
+      try {
+        return JSON.parse(cleanContent);
+      } catch (firstParseError) {
+        console.warn('First JSON parse failed, trying alternative cleaning:', firstParseError);
+        
+        // More aggressive cleaning
+        cleanContent = cleanContent
+          .replace(/,\s*}/g, '}')
+          .replace(/,\s*]/g, ']')
+          .replace(/'/g, '"')
+          .replace(/(\w+):/g, '"$1":')
+          .replace(/"\s*([^"]+)\s*"/g, '"$1"');
+        
+        // Try parsing again
+        try {
+          return JSON.parse(cleanContent);
+        } catch (secondParseError) {
+          console.warn('Second JSON parse failed, extracting JSON block:', secondParseError);
+          
+          // Try to extract JSON from the response
+          const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+          }
+          
+          throw new Error('Could not extract valid JSON from AI response');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to parse AI response:', error);
+      throw error;
+    }
+  }
+
+  private validateAndEnhancePlan(plan: any, tasks: any[]): any {
+    // Ensure plan has required structure
+    if (!plan || typeof plan !== 'object') {
+      throw new Error('Invalid plan structure');
+    }
     
-    return JSON.parse(cleanContent);
+    // Validate and fix timeBlocks
+    if (!Array.isArray(plan.timeBlocks)) {
+      plan.timeBlocks = [];
+    }
+    
+    // If no timeBlocks or incomplete ones, create optimized blocks
+    if (plan.timeBlocks.length === 0 || plan.timeBlocks.length < tasks.length) {
+      plan.timeBlocks = this.createOptimizedTimeBlocks(tasks);
+    }
+    
+    // Validate each time block
+    plan.timeBlocks = plan.timeBlocks.map((block: any, index: number) => ({
+      id: block.id || `ai-block-${index}`,
+      startTime: block.startTime || this.calculateTimeSlot(index).start,
+      endTime: block.endTime || this.calculateTimeSlot(index).end,
+      taskId: block.taskId || tasks[index]?.id || `task-${index}`,
+      task: block.task || tasks[index]?.title || `Task ${index + 1}`,
+      description: block.description || `Focus session: ${block.task}`,
+      type: block.type || this.getOptimalTaskType(tasks[index]),
+      energy: block.energy || this.getOptimalEnergyLevel(9 + index * 1.5),
+      priority: block.priority || tasks[index]?.priority || 'medium',
+      category: block.category || tasks[index]?.category || 'general',
+      estimatedTime: block.estimatedTime || this.formatDuration(1.5),
+      focusLevel: block.focusLevel || (block.priority === 'urgent' || block.priority === 'high' ? 'high' : 'medium'),
+      contextGroup: block.contextGroup || block.category
+    }));
+    
+    // Ensure all required fields
+    plan.dailySummary = plan.dailySummary || {
+      totalTasks: tasks.length,
+      urgentTasks: tasks.filter(t => t.priority === 'urgent').length,
+      highPriorityTasks: tasks.filter(t => t.priority === 'high').length,
+      estimatedWorkload: `${Math.ceil(tasks.length * 1.5)} hours`,
+      peakProductivityHours: "9:00-11:00, 14:00-16:00"
+    };
+    
+    plan.insights = plan.insights || [
+      `Optimized schedule created for ${tasks.length} tasks`,
+      'High-priority tasks scheduled during peak energy hours',
+      'Strategic time blocks designed for maximum productivity'
+    ];
+    
+    plan.recommendations = plan.recommendations || [
+      'Start with your most important task during peak energy',
+      'Take 5-minute breaks between tasks to maintain focus',
+      'Adjust timing based on your actual progress'
+    ];
+    
+    plan.totalFocusTime = plan.totalFocusTime || `${Math.ceil(tasks.length * 1.5)} hours`;
+    plan.productivityScore = plan.productivityScore || Math.min(95, 75 + (tasks.length * 3));
+    plan.energyOptimization = plan.energyOptimization || 'optimal';
+    plan.contextSwitching = plan.contextSwitching || 'minimal';
+    plan.stressLevel = plan.stressLevel || 'low';
+    
+    return plan;
+  }
+
+  private calculateTimeSlot(index: number) {
+    const startHour = 9 + Math.floor(index * 1.5);
+    const endHour = Math.min(18, startHour + 1.5);
+    return {
+      start: `${startHour.toString().padStart(2, '0')}:00`,
+      end: `${Math.floor(endHour).toString().padStart(2, '0')}:${Math.floor((endHour % 1) * 60).toString().padStart(2, '0')}`
+    };
   }
 
   private createOptimizedTimeBlocks(tasks: any[]) {
@@ -569,9 +690,43 @@ Be positive, specific, and helpful.`
       let insights;
       try {
         insights = JSON.parse(cleanContent);
+        // Validate that insights is an array and has proper structure
+        if (!Array.isArray(insights)) {
+          throw new Error('Insights is not an array');
+        }
+        // Validate each insight has required fields
+        insights = insights.map(insight => ({
+          type: insight.type || 'productivity',
+          title: insight.title || 'Productivity Tip',
+          description: insight.description || 'Keep up the great work!',
+          actionable: insight.actionable || false,
+          priority: insight.priority || 3
+        }));
       } catch (parseError) {
-        console.warn('Failed to parse AI insights, using fallback');
-        insights = [];
+        console.warn('Failed to parse AI insights, using premium fallback');
+        insights = [
+          {
+            type: 'productivity',
+            title: '🚀 Peak Performance Mode',
+            description: 'You\'re optimizing your workflow with advanced AI scheduling - maintain this momentum!',
+            actionable: true,
+            priority: 1
+          },
+          {
+            type: 'energy',
+            title: '⚡ Energy Optimization',
+            description: 'Your tasks are scheduled during peak energy hours for maximum productivity.',
+            actionable: false,
+            priority: 2
+          },
+          {
+            type: 'suggestion',
+            title: '🎯 Focus Strategy',
+            description: 'Complete one task at a time to maintain deep focus and avoid context switching.',
+            actionable: true,
+            priority: 2
+          }
+        ];
       }
       return insights.slice(0, 3); // Limit to 3 insights
     } catch (error) {
