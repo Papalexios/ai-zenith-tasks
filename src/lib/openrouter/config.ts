@@ -8,7 +8,8 @@ export const OPENROUTER_CONFIG = {
     DEEPSEEK_R1_0528: 'deepseek/deepseek-r1-0528:free',
     DEEPSEEK_R1: 'deepseek/deepseek-r1:free',
     DEEPSEEK_CHAT_V3: 'deepseek/deepseek-chat-v3-0324:free',
-    GEMINI_25_PRO: 'google/gemini-2.5-pro-exp-03-25'
+    GEMINI_25_PRO: 'google/gemini-2.5-pro-exp-03-25',
+    KIMI_K2: 'moonshotai/kimi-k2:free'
   },
   headers: {
     'HTTP-Referer': window.location.origin,
