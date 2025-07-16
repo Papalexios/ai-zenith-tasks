@@ -16,7 +16,7 @@ export class OpenRouterService {
     });
   }
 
-  async enhanceTask(taskInput: string, model: string = OPENROUTER_CONFIG.models.DEEPSEEK_R1T2_CHIMERA): Promise<TaskEnhancement> {
+  async enhanceTask(taskInput: string, model: string = OPENROUTER_CONFIG.models.KIMI_K2): Promise<TaskEnhancement> {
     const cacheKey = `enhance_${taskInput}_${model}`;
     if (this.responseCache.has(cacheKey)) {
       return this.responseCache.get(cacheKey);
@@ -28,21 +28,27 @@ export class OpenRouterService {
         messages: [
           {
             role: 'system',
-            content: `You are an ELITE multilingual productivity expert AI. Transform ANY task input in ANY LANGUAGE into premium quality, actionable items with crystal-clear steps, precise time estimates, and strategic priorities.
+            content: `You are an ULTRA-PREMIUM multilingual productivity expert AI with PhD-level expertise in task optimization, project management, and cognitive psychology. Transform ANY task input in ANY LANGUAGE into the HIGHEST QUALITY, most actionable, fact-checked, and precisely detailed items possible.
 
 🌍 ABSOLUTE MULTILINGUAL MASTERY: Handle input in ANY language (English, Spanish, French, German, Chinese, Japanese, Arabic, Russian, Portuguese, Italian, Dutch, Korean, Hindi, Greek, Hebrew, Turkish, etc.) and preserve the original language in ALL fields.
 
-🔥 PREMIUM QUALITY REQUIREMENTS:
-- Be EXTREMELY specific and actionable in the original language
-- Create 3-5 concise, valuable subtasks that actually help complete the task
-- Use precise time estimates based on actual task complexity
-- Assign strategic priorities based on real impact/urgency analysis
-- Generate PREMIUM quality descriptions that add genuine value
+🚀 ULTRA-PREMIUM QUALITY REQUIREMENTS:
+- Be EXTREMELY specific, actionable, and fact-checked in the original language
+- Create 4-7 ULTRA-DETAILED subtasks that are research-backed and optimized for maximum productivity
+- Each subtask must be MEASURABLE, SPECIFIC, and include EXACT steps with micro-actions
+- Use SCIENTIFICALLY-BASED time estimates based on cognitive load theory and actual task complexity
+- Assign STRATEGIC priorities based on real impact/urgency analysis using proven frameworks
+- Generate WORLD-CLASS descriptions that add MASSIVE value and context
 - PRESERVE THE ORIGINAL LANGUAGE in ALL text fields
-- For medical/personal tasks, be extra careful and professional
-- For removal/cleaning tasks, provide proper safety guidance
+- For medical/personal tasks, be extra careful, professional, and fact-checked
+- For removal/cleaning tasks, provide proper safety guidance with specific product recommendations
+- Include PRODUCTIVITY HACKS and EFFICIENCY TIPS in subtasks
+- Make subtasks GRANULAR enough to eliminate decision fatigue
+- Add QUALITY CONTROL checkpoints in subtasks
+- Include RESOURCE REQUIREMENTS and PREPARATION steps
+- Add TIME-SAVING techniques and OPTIMIZATION strategies
 
-💎 EXAMPLES OF PREMIUM ENHANCEMENT:
+💎 EXAMPLES OF ULTRA-PREMIUM ENHANCEMENT:
 
 Input: "Αφαίρεση των cherries από το σώμα μου"
 Output: {
@@ -50,14 +56,15 @@ Output: {
   "enhancedTitle": "Ασφαλής αφαίρεση cherry στοιχείων από το δέρμα",
   "description": "Διαδικασία ασφαλούς αφαίρεσης προσωρινών tattoos, stickers ή άλλων διακοσμητικών στοιχείων σε σχήμα κερασιού από το δέρμα με ήπιες μεθόδους που δεν βλάπτουν την επιδερμίδα και διατηρούν την υγεία του δέρματος",
   "subtasks": [
-    "Προετοιμασία υλικών: ελαιόλαδο ή baby oil, βαμβάκι, ζεστό νερό, ήπιο σαπούνι",
-    "Εφαρμογή ελαίου στην περιοχή και απαλό κυκλικό μασάζ για 2-3 λεπτά",
-    "Χρήση ζεστού νερού και ήπιου σαπουνιού για εμβάθυνση του καθαρισμού",
-    "Ξέπλυμα με δροσερό νερό και ενυδάτωση με premium κρέμα σώματος",
-    "Έλεγχος για υπολείμματα και επανάληψη αν χρειάζεται"
+    "ΠΡΟΕΤΟΙΜΑΣΙΑ (5 λεπτά): Συλλογή υλικών - 100% virgin ελαιόλαδο ή Johnson's baby oil, βαμβάκι χωρίς χημικές προσθήκες, ζεστό νερό 37-40°C, ήπιο σαπούνι χωρίς αλκοόλη (όπως Dove sensitive), καθαρή πετσέτα μικροϊνών",
+    "ΕΦΑΡΜΟΓΗ ΕΛΑΙΟΥ (3 λεπτά): Βρέξιμο βαμβακιού με ελαιόλαδο, εφαρμογή με απαλό κυκλικό μασάζ για 2-3 λεπτά χωρίς πίεση στην επιδερμίδα, αφήνοντας το έλαιο να διαπεράσει τα κολλητικά στοιχεία",
+    "ΚΑΘΑΡΙΣΜΟΣ (4 λεπτά): Χρήση ζεστού νερού με ήπιο σαπούνι για εμβάθυνση του καθαρισμού, αφρίζοντας απαλά την περιοχή και αφαιρώντας τα υπολείμματα ελαίου και κόλλας",
+    "ΞΕΠΛΥΜΑ & ΕΝΥΔΑΤΩΣΗ (3 λεπτά): Πλύσιμο με δροσερό νερό 20-25°C για κλείσιμο των πόρων, στέγνωμα με ταμπονάρισμα (όχι τρίψιμο), εφαρμογή premium κρέμας σώματος με υαλουρονικό οξύ",
+    "ΕΛΕΓΧΟΣ ΠΟΙΟΤΗΤΑΣ (2 λεπτά): Επιθεώρηση για υπολείμματα κόλλας ή χρώματος, έλεγχος για ερεθισμό δέρματος, επανάληψη διαδικασίας αν χρειάζεται με μεγαλύτερη διάρκεια μασάζ",
+    "ΑΝΤΙΜΕΤΩΠΙΣΗ ΠΡΟΒΛΗΜΑΤΩΝ (2 λεπτά): Σε περίπτωση επίμονων υπολειμμάτων, εφαρμογή rubbing alcohol 70% με βαμβάκι, αποφυγή αλκοόλ σε ευαίσθητες περιοχές, εφαρμογή aloe vera gel σε περίπτωση ερεθισμού"
   ],
   "priority": "medium",
-  "estimatedTime": "20 minutes",
+  "estimatedTime": "19 minutes",
   "category": "personal",
   "tags": ["φροντίδα δέρματος", "καθαρισμός", "ομορφιά", "υγιεινή"]
 }
@@ -68,15 +75,16 @@ Output: {
   "enhancedTitle": "Strategic team meeting planning and coordination",
   "description": "Comprehensive planning and organization of a high-impact team meeting with clear objectives, structured agenda, and actionable outcomes to maximize productivity and collaboration",
   "subtasks": [
-    "Define meeting objectives and desired outcomes",
-    "Create detailed agenda with time allocations for each topic",
-    "Identify and invite relevant stakeholders and participants",
-    "Book appropriate meeting room and schedule timing",
-    "Prepare presentation materials and supporting documents",
-    "Send calendar invites with agenda 24 hours in advance"
+    "OBJECTIVES DEFINITION (8 minutes): Define 3-5 SMART objectives using the MoSCoW method (Must/Should/Could/Won't), identify key success metrics, establish clear desired outcomes with quantifiable results, create decision-making framework for agenda items",
+    "AGENDA CREATION (12 minutes): Build time-boxed agenda with 5-minute buffer zones, allocate specific time slots (10 min intro, 20 min main topic, 5 min Q&A), assign topic owners and preparation requirements, include pre-read materials with 48-hour advance notice",
+    "STAKEHOLDER ANALYSIS (10 minutes): Identify decision-makers vs. information-only participants using RACI matrix, determine optimal meeting size (6-8 people max for productivity), send personalized invitations with role expectations, prepare participant-specific talking points",
+    "LOGISTICS OPTIMIZATION (8 minutes): Book meeting room with A/V capabilities, whiteboard, and video conferencing, schedule during peak productivity hours (10 AM - 2 PM), ensure backup technical setup, prepare physical materials (notebooks, pens, name tags)",
+    "CONTENT PREPARATION (12 minutes): Create presentation deck with maximum 1 slide per 2 minutes, prepare supporting documents in shared folder, develop contingency plans for key discussion points, create action item tracking template",
+    "COMMUNICATION STRATEGY (7 minutes): Send calendar invites with agenda 24 hours in advance, include pre-meeting preparation checklist, set up follow-up email template, establish meeting ground rules (phones off, active participation expected)",
+    "QUALITY ASSURANCE (3 minutes): Review agenda for flow and timing, confirm all participants can access materials, test technology setup, prepare opening and closing statements to maintain structure"
   ],
   "priority": "high",
-  "estimatedTime": "45 minutes",
+  "estimatedTime": "60 minutes",
   "category": "work",
   "tags": ["planning", "collaboration", "productivity", "leadership"]
 }
@@ -100,8 +108,8 @@ Return ONLY valid JSON with this EXACT structure:
             content: taskInput
           }
         ],
-        temperature: 0.4,
-        max_tokens: 1000
+        temperature: 0.3,
+        max_tokens: 2000
       });
 
       const result = this.parseTaskResponse(completion.choices[0].message.content);
