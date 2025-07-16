@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTaskStore, Task } from '@/store/taskStore';
 import { Card, CardContent } from '@/components/ui/card';
@@ -37,7 +37,7 @@ const priorityBadgeColors = {
   urgent: 'bg-red-500/10 text-red-600 border-red-500/20'
 };
 
-export function TaskItem({ task, compact = false }: TaskItemProps) {
+export const TaskItem = React.memo(({ task, compact = false }: TaskItemProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { toggleTask, deleteTask, enhanceTaskWithAI, startFocusTimer, focusTimer } = useTaskStore();
 
@@ -61,11 +61,14 @@ export function TaskItem({ task, compact = false }: TaskItemProps) {
   const isAiEnhancing = task.description?.includes('AI is enhancing');
 
   return (
-    <Card className={`group relative overflow-hidden border-0 transition-all duration-500 hover:shadow-2xl ${
-      task.completed ? 'opacity-70' : ''
-    } ${isCurrentlyFocused ? 'ring-2 ring-primary/50 shadow-glow scale-[1.02]' : ''} ${
-      isAiEnhancing ? 'animate-pulse bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5' : 'bg-gradient-to-br from-card via-card/95 to-card/90'
-    } shadow-lg backdrop-blur-sm`}>
+    <Card 
+      className={`group relative overflow-hidden border-0 transition-all duration-500 hover:shadow-2xl ${
+        task.completed ? 'opacity-70' : ''
+      } ${isCurrentlyFocused ? 'ring-2 ring-primary/50 shadow-glow scale-[1.02]' : ''} ${
+        isAiEnhancing ? 'animate-pulse bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5' : 'bg-gradient-to-br from-card via-card/95 to-card/90'
+      } shadow-lg backdrop-blur-sm`}
+      data-task-id={task.id}
+    >
       
       {/* Ambient Background Effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-accent/3 opacity-50" />
@@ -317,4 +320,6 @@ export function TaskItem({ task, compact = false }: TaskItemProps) {
       </CardContent>
     </Card>
   );
-}
+});
+
+TaskItem.displayName = 'TaskItem';

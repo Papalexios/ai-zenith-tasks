@@ -1,41 +1,56 @@
+import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTaskStore } from '@/store/taskStore';
 import { TaskItem } from './TaskItem';
-import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
-export function TaskList() {
+export const TaskList = React.memo(() => {
   const { tasks, filter, sortBy } = useTaskStore();
 
-  console.log('TaskList render:', { tasksCount: tasks.length, currentFilter: filter });
+  // Memoize filtered and sorted tasks to prevent unnecessary re-computations
+  const { filteredTasks, sortedTasks } = useMemo(() => {
+    const filtered = tasks.filter(task => {
+      switch (filter) {
+        case 'completed':
+          return task.completed;
+        case 'pending':
+          return !task.completed;
+        case 'today':
+          const today = new Date().toISOString().split('T')[0];
+          return task.dueDate === today && !task.completed;
+        case 'overdue':
+          const todayDate = new Date().toISOString().split('T')[0];
+          return task.dueDate && task.dueDate < todayDate && !task.completed;
+        case 'all':
+        default:
+          return true;
+      }
+    });
 
-  const filteredTasks = tasks.filter(task => {
-    switch (filter) {
-      case 'completed':
-        return task.completed;
-      case 'pending':
-        return !task.completed;
-      case 'today':
-        const today = new Date().toISOString().split('T')[0];
-        return task.dueDate === today && !task.completed;
-      case 'overdue':
-        const todayDate = new Date().toISOString().split('T')[0];
-        return task.dueDate && task.dueDate < todayDate && !task.completed;
-      case 'all':
-      default:
-        return true;
-    }
-  });
+    const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+    const sorted = [...filtered].sort((a, b) => {
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1;
+      }
+      
+      // Sort by priority, then by due date, then by creation date
+      const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
+      if (priorityDiff !== 0) return priorityDiff;
+      
+      if (a.dueDate && b.dueDate) {
+        const dateA = new Date(a.dueDate);
+        const dateB = new Date(b.dueDate);
+        return dateA.getTime() - dateB.getTime();
+      }
+      
+      if (a.dueDate && !b.dueDate) return -1;
+      if (!a.dueDate && b.dueDate) return 1;
+      
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
 
-  console.log('Filtered tasks:', { filter, originalCount: tasks.length, filteredCount: filteredTasks.length });
-
-  const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
-  const sortedTasks = filteredTasks.sort((a, b) => {
-    if (a.completed !== b.completed) {
-      return a.completed ? 1 : -1;
-    }
-    return priorityOrder[b.priority] - priorityOrder[a.priority];
-  });
+    return { filteredTasks: filtered, sortedTasks: sorted };
+  }, [tasks, filter, sortBy]);
 
   if (sortedTasks.length === 0) {
     return (
@@ -87,21 +102,19 @@ export function TaskList() {
 
   return (
     <div className="space-y-6">
-      <AnimatePresence>
+      <AnimatePresence mode="popLayout">
         {sortedTasks.map((task, index) => (
           <motion.div
             key={task.id}
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            layout
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -30, scale: 0.95 }}
+            exit={{ opacity: 0, y: -20, scale: 0.98 }}
             transition={{ 
-              delay: index * 0.08, 
-              duration: 0.4,
-              type: "spring",
-              stiffness: 260,
-              damping: 20
+              layout: { duration: 0.2 },
+              opacity: { duration: 0.3 },
+              scale: { duration: 0.2 }
             }}
-            whileHover={{ y: -2 }}
             className="transform-gpu"
           >
             <TaskItem task={task} />
@@ -110,4 +123,6 @@ export function TaskList() {
       </AnimatePresence>
     </div>
   );
-}
+});
+
+TaskList.displayName = 'TaskList';
