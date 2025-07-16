@@ -256,8 +256,9 @@ Always preserve the original language in the title and other text fields.`
   }
 
   private async generateAIPlan(sortedTasks: any[]) {
-    const model = OPENROUTER_CONFIG.models.DEEPSEEK_R1T2_CHIMERA;
+    const model = OPENROUTER_CONFIG.models.KIMI_K2;
     const today = new Date().toISOString().split('T')[0];
+    const dayOfWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' });
     
     try {
       const completion = await this.client.chat.completions.create({
@@ -265,73 +266,149 @@ Always preserve the original language in the title and other text fields.`
         messages: [
           {
             role: 'system',
-            content: `You are an ELITE productivity optimization expert. Create the MOST EFFICIENT daily schedule that maximizes productivity and minimizes stress.
+            content: `You are a WORLD-CLASS productivity optimization expert with PhD-level expertise in cognitive psychology, neuroscience, and peak performance. Create the MOST SCIENTIFICALLY OPTIMIZED daily schedule that maximizes productivity, minimizes cognitive load, and ensures sustainable peak performance.
 
-🎯 CORE OPTIMIZATION PRINCIPLES:
-1. URGENT TASKS → 9:00-11:00 AM (peak cognitive performance)
-2. HIGH PRIORITY → 11:00 AM-2:00 PM (sustained focus period)
-3. MEDIUM PRIORITY → 2:00-4:00 PM (good productivity window)
-4. LOW PRIORITY → 4:00-6:00 PM (administrative time)
+🧠 COGNITIVE SCIENCE PRINCIPLES:
+- **Ultradian Rhythms**: 90-minute focused work blocks followed by 15-20 minute recovery periods
+- **Circadian Optimization**: Align task difficulty with natural energy patterns
+- **Context Switching Penalty**: Minimize cognitive switching costs through strategic task batching
+- **Attention Residue**: Allow buffer time between different task types to prevent mental residue
+- **Flow State Optimization**: Create conditions for deep focus and sustained concentration
+- **Cognitive Load Theory**: Balance intrinsic, extraneous, and germane cognitive loads
 
-⚡ ENERGY & COGNITIVE OPTIMIZATION:
-- Peak energy (9-11 AM): Complex problem-solving, strategic thinking, creative work
-- High energy (11 AM-2 PM): Deep work, important communications, decision-making
-- Medium energy (2-4 PM): Routine tasks, planning, review activities
-- Lower energy (4-6 PM): Admin, organization, simple tasks
+⚡ EVIDENCE-BASED SCHEDULING FRAMEWORK:
+1. **PEAK COGNITIVE HOURS (8:00-11:00 AM)**:
+   - Complex problem-solving and strategic thinking
+   - High-stakes decision making
+   - Creative work requiring original thinking
+   - Learning new concepts or skills
+   - Critical analysis and evaluation
 
-🧠 ADVANCED SCHEDULING RULES:
-- Deep work blocks: 90-120 minutes for complex tasks
-- Quick tasks: 15-30 minutes, batch similar ones together
-- Context switching buffers: 10-15 minutes between different task types
-- Natural break points: Every 90 minutes for sustained performance
+2. **HIGH PRODUCTIVITY WINDOW (11:00 AM-2:00 PM)**:
+   - Deep work sessions for core deliverables
+   - Important communications and presentations
+   - Challenging technical tasks
+   - Project planning and architecture
 
-RETURN PERFECT JSON (no markdown, no explanations):
+3. **STEADY PERFORMANCE PERIOD (2:00-4:00 PM)**:
+   - Routine tasks and maintenance work
+   - Reviews and quality assurance
+   - Administrative responsibilities
+   - Follow-up activities
+
+4. **OPTIMIZATION WINDOW (4:00-6:00 PM)**:
+   - Planning and preparation for tomorrow
+   - Organization and system maintenance
+   - Reflection and learning consolidation
+   - Low-stakes creative exploration
+
+🎯 ADVANCED OPTIMIZATION STRATEGIES:
+- **Task Batching**: Group similar cognitive tasks to minimize switching costs
+- **Energy Management**: Match task energy requirements with natural energy curves
+- **Parkinson's Law Application**: Set tight but realistic time constraints
+- **Pomodoro Integration**: Use 25-minute focused intervals with 5-minute breaks
+- **Priority Matrix**: Eisenhower Matrix for urgent/important categorization
+- **Cognitive Priming**: Sequence tasks to create positive cognitive momentum
+
+📊 PRODUCTIVITY METRICS TO OPTIMIZE:
+- **Focus Intensity**: Sustained attention duration without distractions
+- **Completion Rate**: Percentage of scheduled tasks completed successfully
+- **Energy Efficiency**: Ratio of output to energy expenditure
+- **Context Switching**: Number of cognitive transitions minimized
+- **Flow State Duration**: Time spent in optimal performance states
+- **Stress Minimization**: Balanced workload distribution to prevent burnout
+
+🔬 NEUROSCIENCE-BACKED TECHNIQUES:
+- **Attention Restoration Theory**: Strategic breaks in nature or calm environments
+- **Dual-Coding Theory**: Combine visual and verbal processing when possible
+- **Spacing Effect**: Distribute learning and review across time intervals
+- **Elaborative Rehearsal**: Connect new tasks to existing knowledge frameworks
+- **Metacognitive Awareness**: Include self-monitoring and adjustment periods
+
+RETURN ULTRA-PROFESSIONAL JSON (no markdown, no explanations):
 {
+  "executiveSummary": {
+    "totalOptimizedHours": "X.X hours",
+    "cognitiveLoadScore": "X/10 (optimized)",
+    "productivityIndex": "XX% efficiency gain",
+    "stressMinimization": "XX% stress reduction",
+    "focusQuality": "XX/100 focus optimization score",
+    "energyUtilization": "XX% energy efficiency"
+  },
   "timeBlocks": [
     {
-      "id": "unique-id",
+      "id": "unique-block-id",
       "startTime": "HH:MM",
-      "endTime": "HH:MM",
+      "endTime": "HH:MM", 
       "taskId": "task-id",
       "task": "Task title (original language)",
-      "description": "Specific actions and outcomes (original language)",
-      "type": "deep_work|quick_task|admin|creative|meeting|break",
-      "energy": "high|medium|low",
+      "description": "Detailed execution strategy with specific micro-actions",
+      "type": "deep_work|strategic_thinking|creative_flow|admin_batch|recovery|planning",
+      "cognitiveLoad": "high|medium|low",
+      "energyLevel": "peak|high|medium|low",
       "priority": "urgent|high|medium|low",
       "category": "work|personal|health|learning|finance|creative",
-      "estimatedTime": "X hours Y minutes",
-      "focusLevel": "high|medium|low",
-      "contextGroup": "grouping identifier"
+      "estimatedDuration": "XX minutes",
+      "focusIntensity": "maximum|high|medium|light",
+      "contextGroup": "similar-task-grouping",
+      "productivityTechniques": ["pomodoro", "time-boxing", "batching", "flow-state"],
+      "prerequisites": ["specific preparation steps"],
+      "successMetrics": ["measurable outcome indicators"],
+      "contingencyPlan": "backup strategy if blocked"
     }
   ],
-  "dailySummary": {
-    "totalTasks": 8,
-    "urgentTasks": 2,
-    "highPriorityTasks": 3,
-    "estimatedWorkload": "7.5 hours",
-    "peakProductivityHours": "9:00-11:00, 14:00-16:00"
+  "cognitiveOptimization": {
+    "totalDeepWorkTime": "X.X hours",
+    "contextSwitches": X,
+    "averageTaskDuration": "XX minutes",
+    "cognitiveLoadDistribution": "balanced|front-loaded|back-loaded",
+    "attentionRestorationBreaks": X,
+    "flowStateOpportunities": X
   },
-  "insights": [
-    "Strategic insight about task optimization",
-    "Energy management recommendation",
-    "Productivity enhancement tip"
+  "dailyInsights": [
+    "Advanced productivity insight based on cognitive science",
+    "Evidence-based optimization recommendation",
+    "Neuroscience-backed performance enhancement tip",
+    "Strategic workflow improvement suggestion",
+    "Energy management optimization guidance"
   ],
-  "recommendations": [
-    "Specific actionable productivity advice",
-    "Time management strategy",
-    "Focus optimization technique"
+  "professionalRecommendations": [
+    "PhD-level productivity strategy with scientific backing",
+    "Advanced time management technique with research citations",
+    "Cognitive load optimization method with measurable benefits",
+    "Peak performance protocol with implementation steps",
+    "Sustainable productivity system with long-term benefits"
   ],
-  "totalFocusTime": "6 hours 30 minutes",
-  "productivityScore": 92,
-  "energyOptimization": "optimal",
-  "contextSwitching": "minimal",
-  "stressLevel": "low"
+  "performanceMetrics": {
+    "productivityScore": XX,
+    "cognitiveEfficiency": "XX%",
+    "energyOptimization": "optimal|high|medium|low",
+    "stressLevel": "minimal|low|medium|high",
+    "sustainabilityIndex": "XX/100",
+    "focusQuality": "XX/100",
+    "workLifeBalance": "XX/100"
+  },
+  "adaptiveStrategies": {
+    "contingencyPlanning": "Strategy for unexpected interruptions",
+    "energyRecovery": "Methods for maintaining peak performance",
+    "cognitiveRefresh": "Techniques for mental clarity restoration",
+    "stressManagement": "Evidence-based stress reduction protocols",
+    "performanceTracking": "KPIs for measuring daily success"
+  },
+  "scientificFrameworks": [
+    "Ultradian rhythm optimization applied",
+    "Circadian timing strategy implemented", 
+    "Cognitive load theory principles utilized",
+    "Flow state conditions maximized",
+    "Attention restoration cycles integrated"
+  ]
 }`
           },
           {
             role: 'user',
-            content: `Create OPTIMAL daily schedule for these prioritized tasks:
+            content: `Create the MOST SCIENTIFICALLY OPTIMIZED daily schedule for ${dayOfWeek} using advanced productivity science, cognitive psychology, and neuroscience principles:
 
+TASKS TO OPTIMIZE:
 ${JSON.stringify(sortedTasks.map(t => ({
   id: t.id,
   title: t.title,
@@ -339,20 +416,37 @@ ${JSON.stringify(sortedTasks.map(t => ({
   priority: t.priority,
   category: t.category,
   estimatedTime: t.estimatedTime,
-  dueDate: t.dueDate
+  dueDate: t.dueDate,
+  subtasks: t.subtasks,
+  complexity: this.assessTaskComplexity(t),
+  cognitiveLoad: this.determineCognitiveLoad(t),
+  energyRequirement: this.calculateEnergyRequirement(t)
 })))}
 
-Schedule Requirements:
-- Working hours: 9:00 AM - 6:00 PM (9 hours)
-- Schedule ALL tasks efficiently
-- Optimize for peak productivity
-- Include realistic time estimates
-- No time overlaps
-- Group similar tasks when possible`
+OPTIMIZATION REQUIREMENTS:
+- Working hours: 8:00 AM - 6:00 PM (10 hours available)
+- Apply circadian rhythm optimization
+- Minimize cognitive switching costs
+- Maximize flow state opportunities
+- Include strategic breaks and recovery periods
+- Balance cognitive load throughout the day
+- Integrate evidence-based productivity techniques
+- Ensure sustainable peak performance
+- Include contingency planning for interruptions
+- Optimize for both efficiency and effectiveness
+
+PERFORMANCE GOALS:
+- Achieve 90%+ task completion rate
+- Maintain high focus quality (80/100+)
+- Minimize stress and cognitive fatigue
+- Optimize energy utilization efficiency
+- Create sustainable productivity patterns
+- Maximize deep work time (4+ hours)
+- Balance challenge with recovery periods`
           }
         ],
         temperature: 0.1,
-        max_tokens: 2500
+        max_tokens: 4000
       });
 
       const content = completion.choices[0].message.content || '{}';
@@ -779,6 +873,123 @@ Be positive, specific, and helpful.`
       estimatedTime: '30 minutes',
       category: 'general'
     };
+  }
+
+  private assessTaskComplexity(task: any): 'low' | 'medium' | 'high' | 'very_high' {
+    let complexity = 0;
+    
+    // Factor in priority (urgent/high priority tasks are often more complex)
+    if (task.priority === 'urgent') complexity += 3;
+    else if (task.priority === 'high') complexity += 2;
+    else if (task.priority === 'medium') complexity += 1;
+    
+    // Factor in estimated time
+    const timeStr = task.estimatedTime || '30 minutes';
+    const timeNumber = parseInt(timeStr);
+    if (timeNumber > 120) complexity += 3;
+    else if (timeNumber > 60) complexity += 2;
+    else if (timeNumber > 30) complexity += 1;
+    
+    // Factor in number of subtasks
+    if (task.subtasks && task.subtasks.length > 5) complexity += 2;
+    else if (task.subtasks && task.subtasks.length > 2) complexity += 1;
+    
+    // Factor in category
+    if (task.category === 'work' || task.category === 'creative') complexity += 1;
+    if (task.category === 'learning') complexity += 2;
+    
+    // Factor in description length (longer descriptions often indicate more complex tasks)
+    if (task.description && task.description.length > 200) complexity += 1;
+    
+    if (complexity >= 7) return 'very_high';
+    if (complexity >= 5) return 'high';
+    if (complexity >= 3) return 'medium';
+    return 'low';
+  }
+
+  private determineCognitiveLoad(task: any): 'low' | 'medium' | 'high' | 'very_high' {
+    let load = 0;
+    
+    // Different categories have different cognitive loads
+    const categoryLoad = {
+      'work': 2,
+      'creative': 3,
+      'learning': 3,
+      'finance': 2,
+      'health': 1,
+      'personal': 1,
+      'social': 1
+    };
+    
+    load += categoryLoad[task.category] || 1;
+    
+    // Priority affects cognitive load
+    if (task.priority === 'urgent') load += 3;
+    else if (task.priority === 'high') load += 2;
+    else if (task.priority === 'medium') load += 1;
+    
+    // Time pressure increases cognitive load
+    if (task.dueDate) {
+      const dueDate = new Date(task.dueDate);
+      const today = new Date();
+      const daysUntilDue = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+      if (daysUntilDue <= 1) load += 2;
+      else if (daysUntilDue <= 3) load += 1;
+    }
+    
+    // Complex tasks have higher cognitive load
+    const complexity = this.assessTaskComplexity(task);
+    if (complexity === 'very_high') load += 3;
+    else if (complexity === 'high') load += 2;
+    else if (complexity === 'medium') load += 1;
+    
+    if (load >= 8) return 'very_high';
+    if (load >= 6) return 'high';
+    if (load >= 4) return 'medium';
+    return 'low';
+  }
+
+  private calculateEnergyRequirement(task: any): 'low' | 'medium' | 'high' | 'very_high' {
+    let energy = 0;
+    
+    // Base energy requirement by category
+    const categoryEnergy = {
+      'creative': 3,
+      'learning': 3,
+      'work': 2,
+      'finance': 2,
+      'health': 1,
+      'personal': 1,
+      'social': 1
+    };
+    
+    energy += categoryEnergy[task.category] || 1;
+    
+    // Priority affects energy requirement
+    if (task.priority === 'urgent') energy += 2;
+    else if (task.priority === 'high') energy += 1;
+    
+    // Estimated time affects energy requirement
+    const timeStr = task.estimatedTime || '30 minutes';
+    const timeNumber = parseInt(timeStr);
+    if (timeNumber > 120) energy += 3;
+    else if (timeNumber > 60) energy += 2;
+    else if (timeNumber > 30) energy += 1;
+    
+    // Cognitive load affects energy requirement
+    const cognitiveLoad = this.determineCognitiveLoad(task);
+    if (cognitiveLoad === 'very_high') energy += 3;
+    else if (cognitiveLoad === 'high') energy += 2;
+    else if (cognitiveLoad === 'medium') energy += 1;
+    
+    // Tasks with many subtasks require more energy
+    if (task.subtasks && task.subtasks.length > 5) energy += 2;
+    else if (task.subtasks && task.subtasks.length > 2) energy += 1;
+    
+    if (energy >= 9) return 'very_high';
+    if (energy >= 7) return 'high';
+    if (energy >= 5) return 'medium';
+    return 'low';
   }
 
   private trackModelUsage(model: string) {
