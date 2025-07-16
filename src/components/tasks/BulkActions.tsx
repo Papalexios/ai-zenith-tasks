@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTaskStore } from '@/store/taskStore';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle,
@@ -21,6 +21,7 @@ export function BulkActions() {
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   
+  const { toast } = useToast();
   const { tasks, toggleTask, deleteTask, updateTask } = useTaskStore();
 
   const pendingTasks = tasks.filter(t => !t.completed);

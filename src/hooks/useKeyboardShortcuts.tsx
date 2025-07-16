@@ -1,8 +1,9 @@
 import { useEffect, useCallback } from 'react';
 import { useTaskStore } from '@/store/taskStore';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 export function useKeyboardShortcuts() {
+  const { toast } = useToast();
   const { 
     addTask, 
     setFilter, 
