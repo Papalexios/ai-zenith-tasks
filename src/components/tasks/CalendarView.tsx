@@ -149,6 +149,12 @@ export const CalendarView = () => {
           start: startOfYear(currentDate),
           end: endOfYear(currentDate)
         };
+      case 'timeblock':
+      default:
+        return {
+          start: startOfWeek(currentDate, { weekStartsOn: 1 }),
+          end: endOfWeek(currentDate, { weekStartsOn: 1 })
+        };
     }
   };
 
