@@ -248,13 +248,23 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
         console.log('Task data being synced:', taskData);
 
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('tasks')
-          .upsert(taskData);
+          .upsert(taskData, {
+            onConflict: 'id',
+            ignoreDuplicates: false
+          });
 
         if (error) {
           console.error('Supabase upsert error:', error);
-          throw error;
+          console.error('Error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+          });
+          console.error('Task data that failed:', taskData);
+          throw new Error(`Database error: ${error.message || 'Unknown database error'}`);
         }
 
         console.log('Task synced successfully:', task.id);
