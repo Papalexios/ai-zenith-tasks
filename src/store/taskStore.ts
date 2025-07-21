@@ -164,8 +164,25 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       console.log('Formatted tasks:', formattedTasks);
       console.log('Number of tasks loaded:', formattedTasks.length);
 
+      // Preserve local changes when reloading tasks
+      const currentTasks = get().tasks;
+      const mergedTasks = formattedTasks.map(dbTask => {
+        const localTask = currentTasks.find(t => t.id === dbTask.id);
+        
+        // If there's a local version that's newer or has unsaved changes, keep local subtasks
+        if (localTask && localTask.subtasks && localTask.subtasks.length > 0) {
+          // Preserve local subtasks if they exist and DB version doesn't have them
+          if (!dbTask.subtasks || dbTask.subtasks.length === 0) {
+            console.log(`Preserving local subtasks for task ${dbTask.id}:`, localTask.subtasks);
+            return { ...dbTask, subtasks: localTask.subtasks };
+          }
+        }
+        
+        return dbTask;
+      });
+      
       set({ 
-        tasks: formattedTasks, 
+        tasks: mergedTasks, 
         isLoadingTasks: false, 
         syncStatus: 'synced',
         syncError: null
