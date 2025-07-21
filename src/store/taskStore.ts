@@ -361,44 +361,40 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
     if (!useAI) return;
 
-    // AI Enhancement in background - PREMIUM QUALITY
+    // Natural Language Processing only (no automatic enhancement)
     try {
-      console.log('🤖 Starting AI enhancement for:', taskInput);
+      console.log('🔍 Processing natural language for:', taskInput);
       set({ isLoading: true });
       
-      const [nlpResult, enhancement] = await Promise.all([
-        openRouterService.parseNaturalLanguage(taskInput),
-        openRouterService.enhanceTask(taskInput)
-      ]);
+      const nlpResult = await openRouterService.parseNaturalLanguage(taskInput);
       
       console.log('🎯 NLP Result:', nlpResult);
-      console.log('✨ AI Enhancement:', enhancement);
       
       const today = new Date().toISOString().split('T')[0];
-      let finalDueDate = nlpResult.dueDate || enhancement.deadline;
+      let finalDueDate = nlpResult.dueDate;
       
       if (!finalDueDate) {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        finalDueDate = enhancement.priority === 'urgent' ? today : tomorrow.toISOString().split('T')[0];
+        finalDueDate = nlpResult.priority === 'urgent' ? today : tomorrow.toISOString().split('T')[0];
       }
       
       if (finalDueDate && finalDueDate < today) {
         finalDueDate = today;
       }
       
-      // Update with PREMIUM AI enhancement
+      // Update with NLP parsing only (preserves original language)
       await get().updateTask(taskId, {
-        title: enhancement.enhancedTitle || taskInput.trim(),
-        description: enhancement.description,
-        priority: enhancement.priority || 'medium',
-        category: enhancement.category || 'general',
-        estimatedTime: enhancement.estimatedTime || '30 minutes',
-        subtasks: enhancement.subtasks || [],
+        title: nlpResult.title || taskInput.trim(),
+        description: `Task: ${taskInput.trim()}`,
+        priority: nlpResult.priority || 'medium',
+        category: 'general',
+        estimatedTime: '30 minutes',
+        subtasks: [],
         dueDate: finalDueDate,
         dueTime: nlpResult.dueTime,
         tags: nlpResult.tags || [],
-        aiEnhanced: true,
+        aiEnhanced: false,
         aiModelUsed: 'deepseek-r1t2-chimera'
       });
       
