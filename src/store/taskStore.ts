@@ -410,14 +410,17 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         finalDueDate = today;
       }
       
-      // Update with NLP parsing only (preserves original language)
+      // Get current task to preserve existing subtasks
+      const currentTask = get().tasks.find(t => t.id === taskId);
+      
+      // Update with NLP parsing only (preserves original language and subtasks)
       await get().updateTask(taskId, {
         title: nlpResult.title || taskInput.trim(),
         description: `Task: ${taskInput.trim()}`,
         priority: nlpResult.priority || 'medium',
         category: 'general',
         estimatedTime: '30 minutes',
-        subtasks: [],
+        subtasks: currentTask?.subtasks || [], // Preserve existing subtasks
         dueDate: finalDueDate,
         dueTime: nlpResult.dueTime,
         tags: nlpResult.tags || [],
