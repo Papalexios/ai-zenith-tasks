@@ -18,6 +18,7 @@ import { useGoogleCalendarSync } from '@/hooks/useGoogleCalendarSync';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
+import { ProductivityOracle } from './ProductivityOracle';
 
 export const EnhancedTaskApp = () => {
   const [showDailyPlan, setShowDailyPlan] = useState(false);
@@ -84,6 +85,7 @@ export const EnhancedTaskApp = () => {
             <CalendarView />
           ) : (
             <>
+              <ProductivityOracle />
               <TaskList />
               <AIInsights />
             </>
