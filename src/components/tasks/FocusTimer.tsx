@@ -41,7 +41,7 @@ export function FocusTimer() {
       exit={{ opacity: 0, y: -20 }}
       className="fixed bottom-6 right-6 z-50"
     >
-      <Card className="w-80 shadow-glow border-2 border-primary/20 bg-background/95 backdrop-blur">
+      <Card data-demo="focus-timer" className="w-80 shadow-glow border-2 border-primary/20 bg-background/95 backdrop-blur">
         <CardContent className="p-6">
           <div className="space-y-4">
             {/* Header */}

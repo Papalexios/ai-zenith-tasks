@@ -19,6 +19,8 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { ProductivityOracle } from './ProductivityOracle';
+import { InteractiveDemo } from '@/components/onboarding/InteractiveDemo';
+import { useOnboarding } from '@/components/onboarding/OnboardingProvider';
 
 export const EnhancedTaskApp = () => {
   const [showDailyPlan, setShowDailyPlan] = useState(false);
@@ -27,8 +29,9 @@ export const EnhancedTaskApp = () => {
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  // Initialize keyboard shortcuts
+  // Initialize keyboard shortcuts and onboarding
   const { shortcuts } = useKeyboardShortcuts();
+  const { showDemo, completeDemo } = useOnboarding();
 
   const {
     focusTimer,
@@ -54,6 +57,7 @@ export const EnhancedTaskApp = () => {
           {/* Command Palette Trigger */}
           <Button
             id="command-palette-trigger"
+            data-demo="command-palette"
             variant="outline"
             onClick={() => setShowCommandPalette(true)}
             className="gap-2 bg-background/50 backdrop-blur-sm border-border/30 hover:border-primary/30"
@@ -73,11 +77,15 @@ export const EnhancedTaskApp = () => {
 
         <PremiumStatsCard />
 
-        <TaskInputForm />
+        <div data-demo="task-input">
+          <TaskInputForm />
+        </div>
 
         <BulkActions />
 
-        <TaskFilters />
+        <div data-demo="task-filters">
+          <TaskFilters />
+        </div>
 
         {/* Main Content */}
         <div className="space-y-6">
@@ -85,8 +93,12 @@ export const EnhancedTaskApp = () => {
             <CalendarView />
           ) : (
             <>
-              <ProductivityOracle />
-              <TaskList />
+              <div data-demo="productivity-oracle">
+                <ProductivityOracle />
+              </div>
+              <div data-demo="task-list">
+                <TaskList />
+              </div>
               <AIInsights />
             </>
           )}
@@ -119,6 +131,13 @@ export const EnhancedTaskApp = () => {
         <CommandPalette 
           open={showCommandPalette} 
           onOpenChange={setShowCommandPalette} 
+        />
+
+        {/* Interactive Demo */}
+        <InteractiveDemo
+          isOpen={showDemo}
+          onClose={() => {}}
+          onComplete={completeDemo}
         />
       </div>
     </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Calendar, Zap, BarChart3, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DemoTrigger } from '@/components/onboarding/DemoTrigger';
 
 interface TaskAppHeaderProps {
   onDailyPlanClick: () => void;
@@ -33,7 +34,10 @@ export const TaskAppHeader = ({
         
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center justify-center lg:justify-end gap-2">
+          <DemoTrigger />
+          
           <Button
+            data-demo="daily-plan-btn"
             variant="outline"
             size="sm"
             onClick={onDailyPlanClick}
@@ -44,6 +48,7 @@ export const TaskAppHeader = ({
           </Button>
           
           <Button
+            data-demo="analytics-btn"
             variant="outline"
             size="sm"
             onClick={onAnalyticsClick}
