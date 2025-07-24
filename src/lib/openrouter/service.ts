@@ -16,7 +16,7 @@ export class OpenRouterService {
     });
   }
 
-  async enhanceTask(taskInput: string, model: string = OPENROUTER_CONFIG.models.KIMI_K2): Promise<TaskEnhancement> {
+  async enhanceTask(taskInput: string, model: string = OPENROUTER_CONFIG.models.CYPHER_ALPHA): Promise<TaskEnhancement> {
     const cacheKey = `enhance_${taskInput}_${model}`;
     if (this.responseCache.has(cacheKey)) {
       return this.responseCache.get(cacheKey);
@@ -28,25 +28,22 @@ export class OpenRouterService {
         messages: [
           {
             role: 'system',
-            content: `You are an ULTRA-PREMIUM multilingual productivity expert AI with PhD-level expertise in task optimization, project management, and cognitive psychology. Transform ANY task input in ANY LANGUAGE into the HIGHEST QUALITY, most actionable, fact-checked, and precisely detailed items possible.
+            content: `You are a task optimization assistant. Your job is to ONLY enhance and optimize the given task WITHOUT changing the core content or language.
 
-🌍 ABSOLUTE MULTILINGUAL MASTERY: Handle input in ANY language (English, Spanish, French, German, Chinese, Japanese, Arabic, Russian, Portuguese, Italian, Dutch, Korean, Hindi, Greek, Hebrew, Turkish, etc.) and preserve the original language in ALL fields.
+CRITICAL RULES:
+- NEVER translate or change the language of the original task
+- NEVER modify the main task title unless it's clearly broken
+- PRESERVE the original intent and content exactly
+- Only add helpful details like time estimates, priority, and actionable subtasks
+- If the task is already well-formatted, make minimal changes
+- ALWAYS preserve the original language throughout
 
-🚀 ULTRA-PREMIUM QUALITY REQUIREMENTS:
-- Be EXTREMELY specific, actionable, and fact-checked in the original language
-- Create 4-7 ULTRA-DETAILED subtasks that are research-backed and optimized for maximum productivity
-- Each subtask must be MEASURABLE, SPECIFIC, and include EXACT steps with micro-actions
-- Use SCIENTIFICALLY-BASED time estimates based on cognitive load theory and actual task complexity
-- Assign STRATEGIC priorities based on real impact/urgency analysis using proven frameworks
-- Generate WORLD-CLASS descriptions that add MASSIVE value and context
-- PRESERVE THE ORIGINAL LANGUAGE in ALL text fields
-- For medical/personal tasks, be extra careful, professional, and fact-checked
-- For removal/cleaning tasks, provide proper safety guidance with specific product recommendations
-- Include PRODUCTIVITY HACKS and EFFICIENCY TIPS in subtasks
-- Make subtasks GRANULAR enough to eliminate decision fatigue
-- Add QUALITY CONTROL checkpoints in subtasks
-- Include RESOURCE REQUIREMENTS and PREPARATION steps
-- Add TIME-SAVING techniques and OPTIMIZATION strategies
+Task Enhancement Guidelines:
+- Break down into 3-5 specific, actionable subtasks if helpful
+- Suggest realistic time estimates (15-120 minutes)
+- Add relevant tags for organization
+- Keep the original title and description intact
+- Only enhance, never replace or translate
 
 💎 EXAMPLES OF ULTRA-PREMIUM ENHANCEMENT:
 
@@ -117,8 +114,16 @@ Return ONLY valid JSON with this EXACT structure:
       this.trackModelUsage(model);
       
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error('OpenRouter task enhancement error:', error);
+      
+      // Handle rate limiting gracefully
+      if (error?.status === 429 || error?.message?.includes('429')) {
+        console.warn('Rate limited, using fallback enhancement');
+        return this.fallbackTaskEnhancement(taskInput);
+      }
+      
+      // Handle other API errors
       return this.fallbackTaskEnhancement(taskInput);
     }
   }

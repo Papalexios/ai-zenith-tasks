@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TaskEditModal } from './TaskEditModal';
+import { useToast } from '@/hooks/use-toast';
 import { 
   MoreHorizontal, 
   Sparkles, 
@@ -39,7 +40,9 @@ const priorityBadgeColors = {
 
 export const TaskItem = React.memo(({ task, compact = false }: TaskItemProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const { toggleTask, deleteTask, enhanceTaskWithAI, startFocusTimer, focusTimer } = useTaskStore();
+  const { toast } = useToast();
 
   const handleToggle = () => {
     toggleTask(task.id);
@@ -50,7 +53,24 @@ export const TaskItem = React.memo(({ task, compact = false }: TaskItemProps) =>
   };
 
   const handleEnhanceWithAI = async () => {
-    await enhanceTaskWithAI(task.id);
+    if (isEnhancing) return;
+    
+    setIsEnhancing(true);
+    try {
+      await enhanceTaskWithAI(task.id);
+      toast({
+        title: "Task Enhanced",
+        description: "Task has been optimized with AI insights",
+      });
+    } catch (error) {
+      toast({
+        title: "Enhancement Failed", 
+        description: "Service temporarily unavailable. Try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsEnhancing(false);
+    }
   };
 
   const handleStartFocus = () => {
@@ -62,7 +82,7 @@ export const TaskItem = React.memo(({ task, compact = false }: TaskItemProps) =>
 
   return (
     <Card 
-      className={`group relative overflow-hidden border-0 transition-all duration-500 hover:shadow-2xl ${
+      className={`premium-card group relative overflow-hidden border-0 transition-all duration-500 hover:shadow-2xl ${
         task.completed ? 'opacity-70' : ''
       } ${isCurrentlyFocused ? 'ring-2 ring-primary/50 shadow-glow scale-[1.02]' : ''} ${
         isAiEnhancing ? 'animate-pulse bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5' : 'bg-gradient-to-br from-card via-card/95 to-card/90'
@@ -283,15 +303,16 @@ export const TaskItem = React.memo(({ task, compact = false }: TaskItemProps) =>
         {/* Compact Mobile Actions */}
         {!task.completed && (
           <div className="flex items-center gap-1 mt-3 pt-3 border-t border-border/20">
-            {!task.aiEnhanced && !isAiEnhancing && (
+            {!task.aiEnhanced && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleEnhanceWithAI}
-                className="h-7 px-2 gap-1 text-xs hover:scale-105 transition-all duration-300 bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 border-primary/30 hover:border-primary/50 text-primary"
+                disabled={isEnhancing}
+                className="enhance-button h-7 px-2 gap-1 text-xs hover:scale-105 transition-all duration-300 bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 border-primary/30 hover:border-primary/50 text-primary disabled:opacity-50"
               >
-                <Sparkles className="h-3 w-3" />
-                <span className="font-medium">Enhance</span>
+                <Sparkles className={`h-3 w-3 ${isEnhancing ? 'animate-spin' : ''}`} />
+                <span className="font-medium">{isEnhancing ? 'Enhancing...' : 'Enhance'}</span>
               </Button>
             )}
             

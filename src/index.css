@@ -159,6 +159,24 @@
     @apply bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300;
   }
 
+  /* Premium app effects */
+  .premium-card {
+    @apply transition-all duration-300 hover:-translate-y-1;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .premium-card:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  }
+  
+  .enhance-button {
+    @apply transition-all duration-200;
+  }
+  
+  .enhance-button:active {
+    transform: translateY(1px) scale(0.98);
+  }
+
   /* AI particle effects */
   .ai-glow {
     @apply relative;
