@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EnhancedTaskApp } from '@/components/tasks/EnhancedTaskApp';
+import { UltraMobileTaskApp } from '@/components/tasks/UltraMobileTaskApp';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { AdvancedTaskFilters } from '@/components/tasks/AdvancedTaskFilters';
 import { EnhancedAIInsights } from '@/components/tasks/EnhancedAIInsights';
 import { RealTimeScheduleAdjuster } from '@/components/tasks/RealTimeScheduleAdjuster';
@@ -18,6 +20,7 @@ const TasksPage = () => {
   const { isLoadingTasks, syncError, tasks, loadTasks } = useTaskStore();
   const navigate = useNavigate();
   const [focusModeEnabled, setFocusModeEnabled] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleFocusModeToggle = (event: any) => {
@@ -138,7 +141,7 @@ const TasksPage = () => {
         {/* Task App */}
         {hasAccess ? (
           <div className={`transition-all duration-300 ${focusModeEnabled ? 'blur-sm opacity-50' : ''}`}>
-            <EnhancedTaskApp />
+            {isMobile ? <UltraMobileTaskApp /> : <EnhancedTaskApp />}
           </div>
         ) : (
           <div className="text-center py-12 space-y-4">

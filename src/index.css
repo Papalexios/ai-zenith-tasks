@@ -177,6 +177,73 @@
     transform: translateY(1px) scale(0.98);
   }
 
+  /* Mobile responsiveness enhancements */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Enhanced mobile scrollbars */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Ultra-responsive text scaling */
+  @media (max-width: 360px) {
+    .text-responsive-xs {
+      font-size: 0.75rem;
+    }
+    .text-responsive-sm {
+      font-size: 0.875rem;
+    }
+    .text-responsive-base {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (min-width: 361px) and (max-width: 640px) {
+    .text-responsive-xs {
+      font-size: 0.875rem;
+    }
+    .text-responsive-sm {
+      font-size: 1rem;
+    }
+    .text-responsive-base {
+      font-size: 1.125rem;
+    }
+  }
+
+  /* Touch targets for mobile */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Mobile-optimized cards */
+  .mobile-card {
+    @apply rounded-lg p-3 bg-card border border-border/50 shadow-sm;
+  }
+
+  @media (min-width: 640px) {
+    .mobile-card {
+      @apply rounded-xl p-4 shadow-md;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .mobile-card {
+      @apply rounded-2xl p-6 shadow-lg;
+    }
+  }
+
   /* AI particle effects */
   .ai-glow {
     @apply relative;

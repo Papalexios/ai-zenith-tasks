@@ -16,15 +16,22 @@ export class OpenRouterService {
     });
   }
 
-  async enhanceTask(taskInput: string, model: string = OPENROUTER_CONFIG.models.CYPHER_ALPHA): Promise<TaskEnhancement> {
-    const cacheKey = `enhance_${taskInput}_${model}`;
+  async enhanceTask(taskInput: string, model?: string): Promise<TaskEnhancement> {
+    // Rotate between best models for optimal performance and efficiency
+    const models = [
+      OPENROUTER_CONFIG.models.QWEN3_235B,
+      OPENROUTER_CONFIG.models.KIMI_K2,
+      OPENROUTER_CONFIG.models.CYPHER_ALPHA
+    ];
+    const selectedModel = model || models[Math.floor(Math.random() * models.length)];
+    const cacheKey = `enhance_${taskInput}_${selectedModel}`;
     if (this.responseCache.has(cacheKey)) {
       return this.responseCache.get(cacheKey);
     }
 
     try {
       const completion = await this.client.chat.completions.create({
-        model,
+        model: selectedModel,
         messages: [
           {
             role: 'system',
