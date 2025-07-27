@@ -19,11 +19,58 @@ export function useDailyPlan() {
   const handleGeneratePlan = async () => {
     setIsGenerating(true);
     try {
-      const generatedPlan = await generateDailyPlan();
+      // Set a 15-second timeout for daily plan generation
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Plan generation timeout')), 15000);
+      });
+
+      const generatedPlan = await Promise.race([
+        generateDailyPlan(),
+        timeoutPromise
+      ]);
+      
       setPlan(generatedPlan);
       setEditedTimeBlocks(generatedPlan?.timeBlocks || []);
+      
+      // Show success message
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "Daily Plan Generated",
+          description: "Your optimized schedule is ready using our fastest AI models!"
+        });
+      });
+      
     } catch (error) {
       console.error('Failed to generate plan:', error);
+      
+      // Show error with helpful message
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "Plan Generation Failed",
+          description: "Don't worry! We'll create a basic schedule from your tasks.",
+          variant: "destructive"
+        });
+      });
+      
+      // Create a basic fallback plan from current tasks
+      const basicPlan = {
+        title: "Today's Basic Schedule",
+        totalEstimatedTime: "6 hours",
+        timeBlocks: tasks.slice(0, 6).map((task: any, index: number) => ({
+          id: `basic-${index}`,
+          task: task.title,
+          description: task.description || `Work on: ${task.title}`,
+          startTime: `${9 + index * 1.5}:00`.split('.')[0].padStart(5, '0'),
+          endTime: `${10.5 + index * 1.5}:00`.split('.')[0].padStart(5, '0'),
+          priority: task.priority || 'medium',
+          energy: index < 2 ? 'high' : 'medium',
+          type: 'deep work',
+          taskId: task.id
+        }))
+      };
+      
+      setPlan(basicPlan);
+      setEditedTimeBlocks(basicPlan.timeBlocks);
     } finally {
       setIsGenerating(false);
     }
