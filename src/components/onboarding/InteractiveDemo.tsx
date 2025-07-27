@@ -172,6 +172,7 @@ export const InteractiveDemo: React.FC<InteractiveDemoProps> = ({
   };
 
   const handleSkip = () => {
+    onComplete();
     onClose();
   };
 

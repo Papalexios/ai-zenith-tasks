@@ -9,6 +9,7 @@ export const TaskList = React.memo(() => {
 
   // Memoize filtered and sorted tasks to prevent unnecessary re-computations
   const { filteredTasks, sortedTasks } = useMemo(() => {
+    
     const filtered = tasks.filter(task => {
       switch (filter) {
         case 'completed':

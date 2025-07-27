@@ -245,7 +245,7 @@ export const CalendarView = () => {
   const autoScheduleTasks = useCallback(() => {
     const unscheduledTasks = tasks.filter(task => 
       !task.completed && 
-      (!task.dueDate || !task.dueTime) &&
+      (!task.dueTime) &&  // Only check for missing time, not date
       (filterCategory === 'all' || task.category === filterCategory)
     );
 
@@ -322,7 +322,7 @@ export const CalendarView = () => {
 
   const unscheduledTasks = tasks.filter(task => 
     !task.completed && 
-    (!task.dueDate || !task.dueTime) &&
+    (!task.dueTime) &&  // Only check for missing time
     (filterCategory === 'all' || task.category === filterCategory)
   );
 

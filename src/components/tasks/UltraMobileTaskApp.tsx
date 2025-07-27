@@ -50,6 +50,7 @@ export function UltraMobileTaskApp() {
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.description?.toLowerCase().includes(searchQuery.toLowerCase());
     
+    
     const matchesFilter = (() => {
       switch (filter) {
         case 'completed':

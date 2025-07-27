@@ -256,10 +256,11 @@ Suggest 3-5 specific tasks that would be optimal to work on right now, consideri
 
 Return as array of actionable suggestions.`;
 
-      const suggestions = await this.openRouterService.enhanceTask(prompt);
+      const response = await this.openRouterService.enhanceTask(prompt);
       
-      // Parse and return suggestions
-      return this.parseSuggestions(suggestions.enhancedTitle || 'Focus on high-priority tasks during your current energy level.');
+      // Extract and parse suggestions properly
+      const suggestionsText = response.description || response.enhancedTitle || 'Focus on high-priority tasks during your current energy level.';
+      return this.parseSuggestions(suggestionsText);
     } catch (error) {
       console.error('Error generating context-aware suggestions:', error);
       return ['Consider working on your highest priority task based on your current energy level.'];
@@ -412,19 +413,34 @@ Return as array of actionable suggestions.`;
 
   private parseSuggestions(aiResponse: string): string[] {
     try {
+      // Remove debug information if present
+      const cleanedResponse = aiResponse.replace(/Generate context-aware task suggestions based on:[\s\S]*?Return as array of actionable suggestions\./g, '').trim();
+      
       // Try to parse as JSON array first
-      if (aiResponse.startsWith('[')) {
-        return JSON.parse(aiResponse);
+      if (cleanedResponse.startsWith('[')) {
+        return JSON.parse(cleanedResponse);
       }
       
-      // Otherwise split by lines and clean up
-      return aiResponse
+      // Handle bullet points or numbered lists
+      const lines = cleanedResponse
         .split('\n')
         .map(line => line.trim())
-        .filter(line => line.length > 0 && !line.startsWith('-'))
+        .filter(line => line.length > 0)
+        .map(line => {
+          // Clean up bullet points, numbers, and other prefixes
+          return line
+            .replace(/^[-•*]\s*/, '')
+            .replace(/^\d+\.\s*/, '')
+            .replace(/^[→➤▶]\s*/, '')
+            .trim();
+        })
+        .filter(line => line.length > 10 && !line.includes('Current Context:') && !line.includes('Available Tasks:'))
         .slice(0, 5);
-    } catch {
-      return [aiResponse];
+      
+      return lines.length > 0 ? lines : ['Focus on your highest priority tasks during your current energy level.'];
+    } catch (error) {
+      console.error('Error parsing suggestions:', error);
+      return ['Consider working on your highest priority task based on your current energy level.'];
     }
   }
 }
