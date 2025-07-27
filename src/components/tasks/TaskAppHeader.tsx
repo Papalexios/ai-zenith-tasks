@@ -1,25 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Calendar, Zap, BarChart3, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DemoTrigger } from '@/components/onboarding/DemoTrigger';
+import { SyncDestinationModal } from './SyncDestinationModal';
+import { useGoogleCalendarSync } from '@/hooks/useGoogleCalendarSync';
 
 interface TaskAppHeaderProps {
   onDailyPlanClick: () => void;
   onAnalyticsClick: () => void;
   onCalendarToggle: () => void;
-  onSyncAll: () => void;
   showCalendar: boolean;
-  isSyncing: boolean;
 }
 
 export const TaskAppHeader = ({
   onDailyPlanClick,
   onAnalyticsClick,
   onCalendarToggle,
-  onSyncAll,
-  showCalendar,
-  isSyncing
+  showCalendar
 }: TaskAppHeaderProps) => {
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const { getSyncableTasks, isSyncing } = useGoogleCalendarSync();
+  
+  const syncableTasks = getSyncableTasks(false);
+
+  const handleSyncClick = () => {
+    if (syncableTasks.length === 0) {
+      return;
+    }
+    setShowSyncModal(true);
+  };
   return (
     <div className="mb-8">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -71,17 +80,26 @@ export const TaskAppHeader = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={onSyncAll}
-            disabled={isSyncing}
+            onClick={handleSyncClick}
+            disabled={isSyncing || syncableTasks.length === 0}
             className="flex items-center gap-2"
           >
             <Calendar className="h-4 w-4" />
             <span className="hidden sm:inline">
-              {isSyncing ? 'Syncing...' : 'Sync All'}
+              {isSyncing ? 'Syncing...' : `Sync All (${syncableTasks.length})`}
             </span>
           </Button>
         </div>
       </div>
+      
+      <SyncDestinationModal
+        isOpen={showSyncModal}
+        onClose={() => setShowSyncModal(false)}
+        tasksToSync={syncableTasks}
+        onSyncComplete={() => {
+          // Refresh or handle completion
+        }}
+      />
     </div>
   );
 };

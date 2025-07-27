@@ -39,8 +39,6 @@ export const EnhancedTaskApp = () => {
     clearSyncError
   } = useTaskStore();
 
-  const { syncAllTasks, isSyncing } = useGoogleCalendarSync();
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/5">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
@@ -49,9 +47,7 @@ export const EnhancedTaskApp = () => {
             onDailyPlanClick={() => setShowDailyPlan(true)}
             onAnalyticsClick={() => setShowAnalytics(true)}
             onCalendarToggle={() => setShowCalendar(!showCalendar)}
-            onSyncAll={() => syncAllTasks(false)}
             showCalendar={showCalendar}
-            isSyncing={isSyncing}
           />
           
           {/* Command Palette Trigger */}

@@ -54,19 +54,56 @@ export const useGoogleCalendarSync = () => {
   const syncAllTasks = async (includeCompleted = false) => {
     setIsSyncing(true);
     try {
-      const tasksToSync = includeCompleted ? tasks : tasks.filter(t => !t.completed);
-      const syncPromises = tasksToSync.map(task => syncTaskToCalendar(task.id));
-      
-      await Promise.all(syncPromises);
-      
-      toast({
-        title: "Calendar Sync Complete",
-        description: `${tasksToSync.length} tasks synced to Google Calendar with full details and subtasks.`,
+      // Filter tasks that have a specific date (not just incomplete ones)
+      const tasksToSync = tasks.filter(task => {
+        const hasDate = task.dueDate && task.dueDate !== '';
+        const shouldInclude = includeCompleted ? true : !task.completed;
+        return hasDate && shouldInclude;
       });
+
+      if (tasksToSync.length === 0) {
+        toast({
+          title: "No Tasks to Sync",
+          description: "No tasks found with specific dates to sync.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      let successCount = 0;
+      let failureCount = 0;
+
+      // Process tasks individually to handle failures gracefully
+      for (const task of tasksToSync) {
+        try {
+          await syncTaskToCalendar(task.id);
+          successCount++;
+          
+          // Add small delay to prevent overwhelming the API
+          await new Promise(resolve => setTimeout(resolve, 300));
+        } catch (error) {
+          console.error(`Failed to sync task ${task.id}:`, error);
+          failureCount++;
+        }
+      }
+      
+      if (successCount > 0) {
+        toast({
+          title: "Calendar Sync Complete! 🎉",
+          description: `${successCount} tasks synced successfully${failureCount > 0 ? `, ${failureCount} failed` : ''}.`,
+        });
+      } else {
+        toast({
+          title: "Sync Failed",
+          description: "All tasks failed to sync. Please check your internet connection and try again.",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
+      console.error('Sync all tasks error:', error);
       toast({
         title: "Sync Failed",
-        description: "Some tasks failed to sync. Please try again.",
+        description: "An unexpected error occurred during sync. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -82,10 +119,20 @@ export const useGoogleCalendarSync = () => {
     }
   };
 
+  // Get tasks that can be synced (have dates)
+  const getSyncableTasks = (includeCompleted = false) => {
+    return tasks.filter(task => {
+      const hasDate = task.dueDate && task.dueDate !== '';
+      const shouldInclude = includeCompleted ? true : !task.completed;
+      return hasDate && shouldInclude;
+    });
+  };
+
   return {
     syncTaskToCalendar,
     syncAllTasks,
     autoSyncTask,
+    getSyncableTasks,
     isSyncing
   };
 };
