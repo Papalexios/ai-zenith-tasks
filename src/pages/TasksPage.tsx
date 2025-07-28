@@ -16,7 +16,23 @@ import { Button } from '@/components/ui/button';
 import { LogOut, RefreshCw } from 'lucide-react';
 
 const TasksPage = () => {
-  const { user, loading, signOut, subscription, checkSubscription } = useAuth();
+  // Safe auth hook usage with fallback
+  let authResult;
+  try {
+    authResult = useAuth();
+  } catch (error) {
+    console.error('Auth context error:', error);
+    // Fallback state
+    authResult = {
+      user: null,
+      loading: true,
+      signOut: async () => {},
+      subscription: null,
+      checkSubscription: async () => {}
+    };
+  }
+  
+  const { user, loading, signOut, subscription, checkSubscription } = authResult;
   const { isLoadingTasks, syncError, tasks, loadTasks } = useTaskStore();
   const navigate = useNavigate();
   const [focusModeEnabled, setFocusModeEnabled] = useState(false);
