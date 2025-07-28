@@ -78,28 +78,13 @@ export class OpenRouterService {
       } catch (error) {
         console.warn(`Model ${modelPriority[i]} failed:`, error);
         
-        // If this isn't the last model, try the next one
-        if (i < modelPriority.length - 1) {
-          continue;
-        }
-        
-        // All models failed, check cache as last resort
-        const cachedResponse = this.responseCache.get(`enhance_${taskInput}`);
-        if (cachedResponse) {
-          try {
-            return this.parseTaskResponse(cachedResponse);
-          } catch (parseError) {
-            // Cache corrupted, fall through to fallback
-          }
-        }
-        
-        // Return fallback enhancement
-        console.warn('All models failed, using fallback enhancement');
-        return this.getFallbackTaskEnhancement(taskInput);
+        // Continue to next model, don't throw errors during task editing
+        continue;
       }
     }
 
-    // This shouldn't be reached, but just in case
+    // All models failed - return simple enhancement that won't cause sync failure
+    console.warn('All AI models failed, returning minimal enhancement to prevent sync error');
     return this.getFallbackTaskEnhancement(taskInput);
   }
 

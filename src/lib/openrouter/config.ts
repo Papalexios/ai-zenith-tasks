@@ -13,15 +13,12 @@ export const OPENROUTER_CONFIG = {
     DEEPSEEK_R1: 'deepseek/deepseek-r1:free',
     GEMINI_25_PRO: 'google/gemini-2.5-pro-exp-03-25'
   },
-  // Model priority order: fastest first, most capable last
+  // Model priority order: fastest first, most capable last - removed problematic models
   modelPriority: [
     'deepseek/deepseek-chat-v3-0324:free',
     'qwen/qwen3-235b-a22b-2507:free', 
     'moonshotai/kimi-k2:free',
-    'tngtech/deepseek-r1t2-chimera:free',
-    'deepseek/deepseek-r1-0528:free',
-    'deepseek/deepseek-r1:free',
-    'google/gemini-2.5-pro-exp-03-25'
+    'tngtech/deepseek-r1t2-chimera:free'
   ],
   headers: {
     'HTTP-Referer': window.location.origin,
