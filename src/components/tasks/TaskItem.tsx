@@ -272,7 +272,7 @@ export const TaskItem = React.memo(({ task, compact = false }: TaskItemProps) =>
           </div>
         </div>
 
-        {/* Premium Subtasks Section */}
+        {/* Interactive Subtasks Section */}
         {isExpanded && task.subtasks && task.subtasks.length > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -282,19 +282,59 @@ export const TaskItem = React.memo(({ task, compact = false }: TaskItemProps) =>
             className="mt-4 pt-4 border-t border-border/30"
           >
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-foreground/80 flex items-center gap-2">
-                <div className="w-1 h-4 bg-gradient-to-b from-primary to-accent rounded-full" />
-                Subtasks ({task.subtasks.length})
-              </h4>
-              <div className="space-y-2 pl-4">
-                {task.subtasks.map((subtask, index) => (
-                  <div key={index} className="flex items-start gap-3 group">
-                    <div className="w-2 h-2 bg-gradient-to-r from-primary/60 to-accent/60 rounded-full mt-2 flex-shrink-0" />
-                    <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-200 leading-relaxed">
-                      {subtask}
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-foreground/80 flex items-center gap-2">
+                  <div className="w-1 h-4 bg-gradient-to-b from-primary to-accent rounded-full" />
+                  Subtasks ({task.completedSubtasks?.length || 0}/{task.subtasks.length})
+                </h4>
+                {task.subtasks.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-2 bg-muted/30 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
+                        style={{ 
+                          width: `${((task.completedSubtasks?.length || 0) / task.subtasks.length) * 100}%` 
+                        }}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {Math.round(((task.completedSubtasks?.length || 0) / task.subtasks.length) * 100)}%
                     </span>
                   </div>
-                ))}
+                )}
+              </div>
+              <div className="space-y-2 pl-4">
+                {task.subtasks.map((subtask, index) => {
+                  const isCompleted = task.completedSubtasks?.includes(index) || false;
+                  return (
+                    <div key={index} className="flex items-start gap-3 group">
+                      <Checkbox
+                        checked={isCompleted}
+                        onCheckedChange={(checked) => {
+                          const { updateTask } = useTaskStore.getState();
+                          const completedSubtasks = task.completedSubtasks || [];
+                          let newCompletedSubtasks;
+                          
+                          if (checked) {
+                            newCompletedSubtasks = [...completedSubtasks, index];
+                          } else {
+                            newCompletedSubtasks = completedSubtasks.filter(i => i !== index);
+                          }
+                          
+                          updateTask(task.id, { completedSubtasks: newCompletedSubtasks });
+                        }}
+                        className="mt-1 w-4 h-4 transition-all duration-300 hover:scale-110"
+                      />
+                      <span className={`text-sm transition-colors duration-200 leading-relaxed ${
+                        isCompleted 
+                          ? 'line-through text-muted-foreground/60' 
+                          : 'text-muted-foreground group-hover:text-foreground'
+                      }`}>
+                        {subtask}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </motion.div>

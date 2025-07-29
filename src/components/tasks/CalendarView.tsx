@@ -86,11 +86,24 @@ const DroppableTimeSlot: React.FC<DroppableTimeSlotProps> = ({ date, hour, timeB
     id: `slot-${date}-${hour}`,
     data: { date, hour }
   });
+  
+  const tasks = useTaskStore(state => state.tasks);
 
   const slotTimeBlocks = timeBlocks.filter(tb => {
     const tbHour = parseInt(tb.startTime.split(':')[0]);
     return tb.date === date && tbHour === hour;
   });
+  
+  const getCategoryColor = (category: string) => {
+    const colors = {
+      work: 'bg-blue-500/20 text-blue-700 border-blue-500/30',
+      personal: 'bg-green-500/20 text-green-700 border-green-500/30',
+      health: 'bg-red-500/20 text-red-700 border-red-500/30',
+      finance: 'bg-yellow-500/20 text-yellow-700 border-yellow-500/30',
+      education: 'bg-purple-500/20 text-purple-700 border-purple-500/30',
+    };
+    return colors[category as keyof typeof colors] || 'bg-gray-500/20 text-gray-700 border-gray-500/30';
+  };
 
   return (
     <div
@@ -104,10 +117,21 @@ const DroppableTimeSlot: React.FC<DroppableTimeSlotProps> = ({ date, hour, timeB
       </div>
       <div className="space-y-1">
         {slotTimeBlocks.map(tb => {
-          // We'll need to find the task for this time block
+          const task = tasks.find(t => t.id === tb.taskId);
+          if (!task) return null;
+          
           return (
-            <div key={tb.id} className="text-xs bg-primary/10 p-1 rounded">
-              Time blocked
+            <div 
+              key={tb.id} 
+              className={`text-xs p-2 rounded border cursor-pointer transition-all hover:scale-105 ${getCategoryColor(task.category || 'general')}`}
+              onClick={() => {
+                // Handle task click - could open task details or edit modal
+                console.log('Task clicked:', task);
+              }}
+              title={`${task.title} - ${task.category || 'General'}`}
+            >
+              <div className="font-medium truncate">{task.title}</div>
+              <div className="text-xs opacity-70 mt-1">{task.category || 'General'}</div>
             </div>
           );
         })}

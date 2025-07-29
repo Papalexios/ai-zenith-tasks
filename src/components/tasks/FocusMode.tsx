@@ -95,15 +95,23 @@ export const FocusMode: React.FC<FocusModeProps> = ({ isEnabled, onToggle }) => 
 
   if (!isEnabled) {
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onToggle}
-        className="gap-2 fixed bottom-6 right-6 z-50 shadow-lg"
-      >
-        <Eye className="h-4 w-4" />
-        Enter Focus Mode
-      </Button>
+      <Card className="p-6 text-center bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
+        <div className="space-y-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center mx-auto">
+            <Timer className="h-8 w-8 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Focus Mode</h3>
+            <p className="text-sm text-muted-foreground">
+              Stay focused with Pomodoro timer and distraction-free task view
+            </p>
+          </div>
+          <Button onClick={onToggle} className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90">
+            <Timer className="h-4 w-4 mr-2" />
+            Enter Focus Mode
+          </Button>
+        </div>
+      </Card>
     );
   }
 
@@ -116,7 +124,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ isEnabled, onToggle }) => 
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
                 <Timer className="h-6 w-6 text-primary" />
-                <h2 className="text-2xl font-bold">Focus Mode</h2>
+                <h2 className="text-2xl font-bold">Focus Mode: Today's AI-Generated Plan</h2>
                 <Badge variant={isBreak ? "secondary" : "default"} className="text-sm">
                   {isBreak ? 'Break Time' : 'Work Session'}
                 </Badge>
