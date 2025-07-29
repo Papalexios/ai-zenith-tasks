@@ -20,10 +20,10 @@ export function LoadingState() {
   }, []);
 
   const getMessage = () => {
-    if (timeElapsed < 3) return `Analyzing your tasks${dots}`;
-    if (timeElapsed < 8) return `Creating optimal schedule${dots}`;
-    if (timeElapsed < 15) return `AI is working hard${dots}`;
-    return `Almost ready${dots}`;
+    if (timeElapsed < 2) return `🧠 Analyzing your tasks${dots}`;
+    if (timeElapsed < 4) return `⚡ Optimizing time blocks${dots}`;
+    if (timeElapsed < 6) return `🎯 Balancing priorities${dots}`;
+    return `✨ Finalizing your schedule${dots}`;
   };
 
   return (
@@ -32,9 +32,14 @@ export function LoadingState() {
       <p className="text-muted-foreground font-medium">
         {getMessage()}
       </p>
-      {timeElapsed > 5 && (
+      {timeElapsed > 3 && (
         <p className="text-xs text-muted-foreground/60 mt-2">
-          Using fastest AI models for quick response...
+          Using DeepSeek Chat V3 • Ultra-fast AI processing
+        </p>
+      )}
+      {timeElapsed > 6 && (
+        <p className="text-xs text-green-600/80 mt-1">
+          Background optimization in progress...
         </p>
       )}
     </div>

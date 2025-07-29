@@ -21,6 +21,7 @@ import { Search } from 'lucide-react';
 import { ProductivityOracle } from './ProductivityOracle';
 import { InteractiveDemo } from '@/components/onboarding/InteractiveDemo';
 import { useOnboarding } from '@/components/onboarding/OnboardingProvider';
+import { DashboardAIInsights } from './DashboardAIInsights';
 
 export const EnhancedTaskApp = () => {
   const [showDailyPlan, setShowDailyPlan] = useState(false);
@@ -72,6 +73,9 @@ export const EnhancedTaskApp = () => {
         />
 
         <PremiumStatsCard />
+
+        {/* AI Insights Dashboard */}
+        <DashboardAIInsights />
 
         <div data-demo="task-input">
           <TaskInputForm />

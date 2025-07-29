@@ -153,7 +153,7 @@ export class OpenRouterService {
   private async generateFastPlan(tasks: any[], userPreferences: any = {}): Promise<any> {
     // Use fastest model first (DeepSeek Chat V3)
     const fastModel = OPENROUTER_CONFIG.modelPriority[0];
-    const timeout = 10000; // 10 second timeout for daily plans
+    const timeout = 4000; // 4 second timeout for ultra-fast response
     
     try {
       const planPromise = this.client.chat.completions.create({
@@ -161,32 +161,30 @@ export class OpenRouterService {
         messages: [
           {
             role: 'system',
-            content: `Create an optimal daily schedule. Return ONLY valid JSON with this structure:
+            content: `Ultra-fast daily planner. Return JSON only:
             {
-              "title": "Today's Optimized Schedule",
-              "totalEstimatedTime": "X hours Y minutes", 
+              "title": "Today's Plan",
+              "totalEstimatedTime": "6 hours", 
               "timeBlocks": [
                 {
-                  "id": "unique-id",
-                  "task": "task title",
-                  "description": "task details",
-                  "startTime": "HH:MM",
-                  "endTime": "HH:MM", 
-                  "priority": "low|medium|high|urgent",
-                  "energy": "low|medium|high",
-                  "type": "deep work|communication|administrative|creative",
-                  "taskId": "original-task-id"
+                  "task": "task name",
+                  "startTime": "09:00",
+                  "endTime": "10:30", 
+                  "priority": "high",
+                  "energy": "high",
+                  "type": "work",
+                  "taskId": "id"
                 }
               ]
             }`
           },
           {
             role: 'user',
-            content: `Create an optimized daily plan for these tasks: ${JSON.stringify(tasks.slice(0, 10))}`
+            content: `Plan ${Math.min(tasks.length, 6)} tasks starting 9AM: ${tasks.slice(0, 6).map(t => `${t.title}(${t.priority})`).join(', ')}`
           }
         ],
-        temperature: 0.3,
-        max_tokens: 2000
+        temperature: 0.1,
+        max_tokens: 800
       });
 
       const timeoutPromise = new Promise((_, reject) => {

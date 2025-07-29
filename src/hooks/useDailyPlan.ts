@@ -16,12 +16,22 @@ export function useDailyPlan() {
   // Use existing plan from store if available
   const currentPlan = plan || dailyPlan;
 
+  // Background plan generation
   const handleGeneratePlan = async () => {
+    // Start with instant feedback
+    import('@/hooks/use-toast').then(({ toast }) => {
+      toast({
+        title: "AI Plan Generation Started",
+        description: "Your optimized schedule is being created. We'll notify you when ready!",
+      });
+    });
+
     setIsGenerating(true);
+    
+    // Fast 5-second generation attempt
     try {
-      // Set a 15-second timeout for daily plan generation
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Plan generation timeout')), 15000);
+        setTimeout(() => reject(new Error('Fast generation timeout')), 5000);
       });
 
       const generatedPlan = await Promise.race([
@@ -32,45 +42,62 @@ export function useDailyPlan() {
       setPlan(generatedPlan);
       setEditedTimeBlocks(generatedPlan?.timeBlocks || []);
       
-      // Show success message
+      // Success notification
       import('@/hooks/use-toast').then(({ toast }) => {
         toast({
-          title: "Daily Plan Generated",
-          description: "Your optimized schedule is ready using our fastest AI models!"
+          title: "✨ Daily Plan Ready!",
+          description: "Your AI-optimized schedule is complete. Click Daily Plan to view."
         });
       });
       
     } catch (error) {
-      console.error('Failed to generate plan:', error);
+      console.warn('Fast generation failed, creating instant basic plan:', error);
       
-      // Show error with helpful message
-      import('@/hooks/use-toast').then(({ toast }) => {
-        toast({
-          title: "Plan Generation Failed",
-          description: "Don't worry! We'll create a basic schedule from your tasks.",
-          variant: "destructive"
-        });
-      });
-      
-      // Create a basic fallback plan from current tasks
+      // Create instant basic plan while AI works in background
       const basicPlan = {
-        title: "Today's Basic Schedule",
-        totalEstimatedTime: "6 hours",
-        timeBlocks: tasks.slice(0, 6).map((task: any, index: number) => ({
+        title: "Today's Schedule",
+        totalEstimatedTime: `${tasks.length * 1.5} hours`,
+        timeBlocks: tasks.slice(0, 8).map((task: any, index: number) => ({
           id: `basic-${index}`,
           task: task.title,
           description: task.description || `Work on: ${task.title}`,
-          startTime: `${9 + index * 1.5}:00`.split('.')[0].padStart(5, '0'),
-          endTime: `${10.5 + index * 1.5}:00`.split('.')[0].padStart(5, '0'),
+          startTime: `${String(9 + Math.floor(index * 1.5)).padStart(2, '0')}:${index % 2 === 0 ? '00' : '30'}`,
+          endTime: `${String(10 + Math.floor(index * 1.5)).padStart(2, '0')}:${index % 2 === 0 ? '30' : '00'}`,
           priority: task.priority || 'medium',
-          energy: index < 2 ? 'high' : 'medium',
-          type: 'deep work',
+          energy: index < 3 ? 'high' : index < 6 ? 'medium' : 'low',
+          type: task.priority === 'urgent' ? 'urgent task' : 'focused work',
           taskId: task.id
         }))
       };
       
       setPlan(basicPlan);
       setEditedTimeBlocks(basicPlan.timeBlocks);
+      
+      // Immediate feedback
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "Quick Plan Created",
+          description: "Basic schedule ready! AI is still optimizing in the background."
+        });
+      });
+      
+      // Continue trying to improve in background
+      setTimeout(async () => {
+        try {
+          const improvedPlan = await generateDailyPlan();
+          setPlan(improvedPlan);
+          setEditedTimeBlocks(improvedPlan?.timeBlocks || []);
+          
+          import('@/hooks/use-toast').then(({ toast }) => {
+            toast({
+              title: "🚀 Enhanced Plan Ready!",
+              description: "AI has optimized your schedule with better time allocation."
+            });
+          });
+        } catch (bgError) {
+          console.warn('Background optimization failed:', bgError);
+        }
+      }, 1000);
     } finally {
       setIsGenerating(false);
     }
