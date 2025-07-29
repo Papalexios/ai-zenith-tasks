@@ -16,48 +16,59 @@ export class OpenRouterService {
     });
   }
 
-  async enhanceTask(taskInput: string, model?: string): Promise<TaskEnhancement> {
-    // Use fast fallback system with timeout
-    const modelPriority = OPENROUTER_CONFIG.modelPriority;
-    const timeout = 8000; // 8 second timeout per model
+  async enhanceTask(taskInput: string, useBackgroundMode = false): Promise<TaskEnhancement> {
+    // Use ultra-fast models for immediate user interactions
+    const models = useBackgroundMode ? OPENROUTER_CONFIG.qualityModels : OPENROUTER_CONFIG.fastModels;
+    const timeout = useBackgroundMode ? 15000 : 3000; // 3s for immediate, 15s for background
+    
+    const cacheKey = `enhance_${taskInput}_${models[0]}`;
+    if (this.responseCache.has(cacheKey)) {
+      return this.responseCache.get(cacheKey);
+    }
 
-    for (let i = 0; i < modelPriority.length; i++) {
+    // Try fast models with ultra-short timeout for snappy UX
+    for (const model of models) {
       try {
-        const selectedModel = modelPriority[i];
-        const cacheKey = `enhance_${taskInput}_${selectedModel}`;
-        
-        if (this.responseCache.has(cacheKey)) {
-          return this.responseCache.get(cacheKey);
-        }
-
         const completionPromise = this.client.chat.completions.create({
-          model: selectedModel,
+          model,
           messages: [
             {
               role: 'system',
-              content: `You are a productivity AI that enhances task descriptions. Analyze the task and provide structured improvements.
-              
-              CRITICAL: Respond with ONLY valid JSON in this exact format:
-              {
-                "originalTask": "original input task",
-                "enhancedTitle": "clear, actionable task title",
-                "description": "detailed description with context",
-                "estimatedTime": "X minutes" or "X hours",
-                "priority": "low" | "medium" | "high" | "urgent",
-                "subtasks": ["subtask 1", "subtask 2"],
-                "category": "work" | "personal" | "health" | "learning" | "general"
-              }`
+              content: useBackgroundMode 
+                ? `You are an expert productivity AI. Provide detailed task enhancement with deep analysis and comprehensive subtasks.
+                
+                CRITICAL: Respond with ONLY valid JSON in this exact format:
+                {
+                  "originalTask": "original input task",
+                  "enhancedTitle": "clear, actionable task title",
+                  "description": "detailed description with context and best practices",
+                  "estimatedTime": "X minutes" or "X hours",
+                  "priority": "low" | "medium" | "high" | "urgent",
+                  "subtasks": ["detailed subtask 1", "detailed subtask 2", "detailed subtask 3"],
+                  "category": "work" | "personal" | "health" | "learning" | "general"
+                }`
+                : `Ultra-fast task enhancer. Provide quick, actionable improvements.
+                
+                CRITICAL: Respond with ONLY valid JSON:
+                {
+                  "originalTask": "original input task",
+                  "enhancedTitle": "clear, actionable task title", 
+                  "description": "brief description",
+                  "estimatedTime": "X minutes",
+                  "priority": "low" | "medium" | "high" | "urgent",
+                  "subtasks": ["subtask 1", "subtask 2"],
+                  "category": "work" | "personal" | "health" | "learning" | "general"
+                }`
             },
             {
               role: 'user',
-              content: `Enhance this task: ${taskInput}`
+              content: `Enhance: ${taskInput}`
             }
           ],
-          temperature: 0.7,
-          max_tokens: 500
+          temperature: useBackgroundMode ? 0.8 : 0.3,
+          max_tokens: useBackgroundMode ? 800 : 300
         });
 
-        // Race the API call against a timeout
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => reject(new Error('Request timeout')), timeout);
         });
@@ -65,43 +76,59 @@ export class OpenRouterService {
         const completion = await Promise.race([completionPromise, timeoutPromise]) as any;
         const response = completion.choices[0]?.message?.content;
         
-        if (!response) {
-          throw new Error('No response from AI');
+        if (!response) continue;
+
+        const enhancement = this.parseTaskResponse(response);
+        this.responseCache.set(cacheKey, enhancement);
+        this.trackModelUsage(model);
+
+        // If this was a fast response, start background refinement
+        if (!useBackgroundMode) {
+          this.refineTaskInBackground(taskInput, enhancement);
         }
 
-        // Cache successful response
-        this.responseCache.set(cacheKey, response);
-        this.trackModelUsage(selectedModel);
-
-        return this.parseTaskResponse(response);
+        return enhancement;
         
       } catch (error) {
-        console.warn(`Model ${modelPriority[i]} failed:`, error);
-        
-        // Continue to next model, don't throw errors during task editing
+        console.warn(`Model ${model} failed:`, error);
         continue;
       }
     }
 
-    // All models failed - return simple enhancement that won't cause sync failure
-    console.warn('All AI models failed, returning minimal enhancement to prevent sync error');
     return this.getFallbackTaskEnhancement(taskInput);
   }
 
+  private refineTaskInBackground(taskInput: string, initialEnhancement: TaskEnhancement) {
+    // Start background refinement with quality models after fast response
+    setTimeout(async () => {
+      try {
+        const refinedEnhancement = await this.enhanceTask(taskInput, true);
+        if (refinedEnhancement && refinedEnhancement.subtasks.length > initialEnhancement.subtasks.length) {
+          // Cache the improved version for future use
+          this.responseCache.set(`refined_${taskInput}`, refinedEnhancement);
+        }
+      } catch (error) {
+        console.warn('Background refinement failed:', error);
+      }
+    }, 100);
+  }
+
   async parseNaturalLanguage(input: string): Promise<any> {
+    // Ultra-fast parsing using the fastest model with minimal timeout
+    const fastModel = OPENROUTER_CONFIG.fastModels[0];
+    const timeout = 2000; // 2 second max for instant feel
+    
     try {
-      const today = new Date();
-      
-      const completion = await this.client.chat.completions.create({
-        model: OPENROUTER_CONFIG.modelPriority[0], // Use fastest model
+      const completionPromise = this.client.chat.completions.create({
+        model: fastModel,
         messages: [
           {
             role: 'system',
-            content: `Extract structured information from natural language task input. Return ONLY valid JSON:
+            content: `Ultra-fast natural language parser. Extract task info instantly. Return ONLY JSON:
             {
               "title": "extracted task title",
               "dueDate": "YYYY-MM-DD or null",
-              "dueTime": "HH:MM or null",
+              "dueTime": "HH:MM or null", 
               "priority": "low|medium|high|urgent"
             }`
           },
@@ -110,24 +137,21 @@ export class OpenRouterService {
             content: input
           }
         ],
-        temperature: 0.3,
-        max_tokens: 400
+        temperature: 0.1,
+        max_tokens: 200
       });
 
-      const content = completion.choices[0].message.content || '{}';
-      const cleanContent = content
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
-        .trim();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Parse timeout')), timeout);
+      });
+
+      const completion = await Promise.race([completionPromise, timeoutPromise]) as any;
+      const content = completion.choices[0]?.message?.content || '{}';
+      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       
-      try {
-        return JSON.parse(cleanContent);
-      } catch (parseError) {
-        console.warn('Failed to parse natural language, using fallback');
-        return { title: input, priority: 'medium', dueDate: null };
-      }
+      return JSON.parse(cleanContent);
     } catch (error) {
-      console.error('Natural language parsing error:', error);
+      // Instant fallback for uninterrupted UX
       return { title: input, priority: 'medium', dueDate: null };
     }
   }
@@ -151,9 +175,9 @@ export class OpenRouterService {
   }
 
   private async generateFastPlan(tasks: any[], userPreferences: any = {}): Promise<any> {
-    // Use fastest model first (DeepSeek Chat V3)
-    const fastModel = OPENROUTER_CONFIG.modelPriority[0];
-    const timeout = 4000; // 4 second timeout for ultra-fast response
+    // Ultra-aggressive fast planning using fastest model
+    const fastModel = OPENROUTER_CONFIG.fastModels[0];
+    const timeout = 2000; // 2 second max for instant response
     
     try {
       const planPromise = this.client.chat.completions.create({
@@ -161,17 +185,17 @@ export class OpenRouterService {
         messages: [
           {
             role: 'system',
-            content: `Ultra-fast daily planner. Return JSON only:
+            content: `Lightning-fast planner. Return JSON instantly:
             {
               "title": "Today's Plan",
-              "totalEstimatedTime": "6 hours", 
+              "totalEstimatedTime": "X hours",
               "timeBlocks": [
                 {
                   "task": "task name",
                   "startTime": "09:00",
-                  "endTime": "10:30", 
+                  "endTime": "10:30",
                   "priority": "high",
-                  "energy": "high",
+                  "energy": "high", 
                   "type": "work",
                   "taskId": "id"
                 }
@@ -180,15 +204,15 @@ export class OpenRouterService {
           },
           {
             role: 'user',
-            content: `Plan ${Math.min(tasks.length, 6)} tasks starting 9AM: ${tasks.slice(0, 6).map(t => `${t.title}(${t.priority})`).join(', ')}`
+            content: `Instant plan for ${Math.min(tasks.length, 5)} tasks: ${tasks.slice(0, 5).map(t => t.title).join(', ')}`
           }
         ],
         temperature: 0.1,
-        max_tokens: 800
+        max_tokens: 600
       });
 
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Fast plan timeout')), timeout);
+        setTimeout(() => reject(new Error('Lightning timeout')), timeout);
       });
 
       const completion = await Promise.race([planPromise, timeoutPromise]) as any;
@@ -197,17 +221,54 @@ export class OpenRouterService {
       if (response) {
         const plan = this.parsePlanResponse(response);
         if (plan && this.validatePlan(plan)) {
-          // Start background improvement with better model
-          this.improveInBackground(tasks, userPreferences, plan);
+          // Start immediate background optimization with quality models
+          this.optimizePlanInBackground(tasks, userPreferences, plan);
           return plan;
         }
       }
     } catch (error) {
-      console.warn('Fast model failed, trying fallback:', error);
+      console.warn('Lightning-fast model failed:', error);
     }
 
-    // Fallback to instant local plan
+    // Instant fallback
     return this.createFallbackPlan(tasks);
+  }
+
+  private optimizePlanInBackground(tasks: any[], userPreferences: any, initialPlan: any) {
+    // Immediate background optimization with quality models
+    setTimeout(async () => {
+      try {
+        const qualityModel = OPENROUTER_CONFIG.qualityModels[0];
+        const optimizedPlan = await this.generateDetailedPlan(tasks, userPreferences, qualityModel);
+        
+        if (optimizedPlan && this.validatePlan(optimizedPlan)) {
+          this.responseCache.set(`optimized_plan_${Date.now()}`, JSON.stringify(optimizedPlan));
+          console.log('Background plan optimization completed with quality model');
+        }
+      } catch (error) {
+        console.warn('Background optimization failed:', error);
+      }
+    }, 50); // Start optimization immediately
+  }
+
+  private async generateDetailedPlan(tasks: any[], userPreferences: any, model: string): Promise<any> {
+    const completion = await this.client.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: 'system',
+          content: `Expert productivity planner. Create optimal schedule with deep analysis and time management principles.`
+        },
+        {
+          role: 'user',
+          content: `Create detailed optimized plan: ${JSON.stringify(tasks.slice(0, 8))}`
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 1500
+    });
+
+    return this.parsePlanResponse(completion.choices[0].message.content || '{}');
   }
 
   private improveInBackground(tasks: any[], userPreferences: any, initialPlan: any) {
@@ -317,18 +378,22 @@ export class OpenRouterService {
   }
 
   async provideCoaching(userContext: any): Promise<AIInsight[]> {
+    // Ultra-fast insights using fastest model with immediate fallback
+    const fastModel = OPENROUTER_CONFIG.fastModels[0];
+    const timeout = 1500; // 1.5 second max for instant insights
+    
     try {
-      const completion = await this.client.chat.completions.create({
-        model: OPENROUTER_CONFIG.modelPriority[0], // Use fastest model
+      const completionPromise = this.client.chat.completions.create({
+        model: fastModel,
         messages: [
           {
             role: 'system',
-            content: `Provide helpful productivity insights. Return ONLY valid JSON array:
+            content: `Lightning-fast productivity coach. Return ONLY JSON array:
             [
               {
                 "type": "productivity",
-                "title": "Short tip title",
-                "description": "Helpful actionable advice",
+                "title": "Quick tip",
+                "description": "Instant actionable advice",
                 "actionable": true,
                 "priority": 1
               }
@@ -336,28 +401,68 @@ export class OpenRouterService {
           },
           {
             role: 'user',
-            content: `Provide insights for: ${JSON.stringify(userContext)}`
+            content: `Quick insights: ${JSON.stringify(userContext).slice(0, 200)}`
           }
         ],
-        temperature: 0.8,
-        max_tokens: 600
+        temperature: 0.5,
+        max_tokens: 300
       });
 
-      const content = completion.choices[0].message.content || '[]';
-      const cleanContent = content
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
-        .trim();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Coaching timeout')), timeout);
+      });
+
+      const completion = await Promise.race([completionPromise, timeoutPromise]) as any;
+      const content = completion.choices[0]?.message?.content || '[]';
+      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       
-      try {
-        const insights = JSON.parse(cleanContent);
-        return Array.isArray(insights) ? insights.slice(0, 3) : [];
-      } catch (parseError) {
-        return this.getFallbackInsights();
-      }
+      const insights = JSON.parse(cleanContent);
+      
+      // Start background enhancement with quality models
+      this.enhanceInsightsInBackground(userContext);
+      
+      return Array.isArray(insights) ? insights.slice(0, 3) : this.getFallbackInsights();
     } catch (error) {
-      console.error('Coaching error:', error);
       return this.getFallbackInsights();
+    }
+  }
+
+  private enhanceInsightsInBackground(userContext: any) {
+    setTimeout(async () => {
+      try {
+        const qualityModel = OPENROUTER_CONFIG.qualityModels[0];
+        const enhancedInsights = await this.generateDetailedInsights(userContext, qualityModel);
+        if (enhancedInsights) {
+          this.responseCache.set(`enhanced_insights_${Date.now()}`, JSON.stringify(enhancedInsights));
+        }
+      } catch (error) {
+        console.warn('Background insight enhancement failed:', error);
+      }
+    }, 100);
+  }
+
+  private async generateDetailedInsights(userContext: any, model: string): Promise<AIInsight[]> {
+    const completion = await this.client.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: 'system',
+          content: `Expert productivity coach. Provide deep, personalized insights with advanced productivity science.`
+        },
+        {
+          role: 'user',
+          content: `Detailed analysis for: ${JSON.stringify(userContext)}`
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 800
+    });
+
+    const content = completion.choices[0].message.content || '[]';
+    try {
+      return JSON.parse(content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim());
+    } catch {
+      return [];
     }
   }
 
