@@ -1,40 +1,66 @@
-// OpenRouter Configuration
+// OpenRouter Configuration - Optimized for Lightning-Fast Response
 export const OPENROUTER_CONFIG = {
   baseURL: 'https://openrouter.ai/api/v1',
   apiKey: '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',
+  
   models: {
-    // Ultra-fast models for immediate user interactions
-    DEEPSEEK_CHAT_V3: 'deepseek/deepseek-chat-v3-0324:free',
-    QWEN3_235B: 'qwen/qwen3-235b-a22b-2507:free',
-    KIMI_K2: 'moonshotai/kimi-k2:free',
-    // Reasoning models for background refinement
-    DEEPSEEK_R1T2_CHIMERA: 'tngtech/deepseek-r1t2-chimera:free',
-    DEEPSEEK_R1_0528: 'deepseek/deepseek-r1-0528:free',
-    GEMINI_25_PRO: 'google/gemini-2.5-pro-exp-03-25'
+    // Lightning-fast models for instant user interactions (< 800ms response)
+    HORIZON_ALPHA: 'openrouter/horizon-alpha',           // OpenRouter's fastest model
+    DEEPSEEK_CHAT_V3: 'deepseek/deepseek-chat-v3-0324:free',  // Ultra-fast chat
+    QWEN3_235B: 'qwen/qwen3-235b-a22b-2507:free',        // Blazing fast inference
+    KIMI_K2: 'moonshotai/kimi-k2:free',                  // Lightning response
+    
+    // Premium reasoning models for background refinement (2-10s response)
+    DEEPSEEK_R1T2_CHIMERA: 'tngtech/deepseek-r1t2-chimera:free',  // Advanced reasoning
+    DEEPSEEK_R1_0528: 'deepseek/deepseek-r1-0528:free',          // Deep reasoning
+    GEMINI_25_PRO: 'google/gemini-2.5-pro-exp-03-25'            // Premium capability
   },
-  // Speed-optimized priority: ultra-fast models first for snappy UX
-  fastModels: [
-    'deepseek/deepseek-chat-v3-0324:free',    // Ultra-fast chat model
-    'qwen/qwen3-235b-a22b-2507:free',         // Fast inference
-    'moonshotai/kimi-k2:free'                 // Fast response
+  
+  // Lightning models: Instant response for user-facing interactions (< 800ms timeout)
+  lightningModels: [
+    'openrouter/horizon-alpha',              // Fastest available
+    'deepseek/deepseek-chat-v3-0324:free',   // Ultra-fast chat
+    'qwen/qwen3-235b-a22b-2507:free',        // Blazing inference
+    'moonshotai/kimi-k2:free'                // Lightning response
   ],
-  // Quality models for background processing and refinement
+  
+  // Speed models: Fast response for immediate feedback (< 2s timeout)
+  speedModels: [
+    'deepseek/deepseek-chat-v3-0324:free',   // Primary speed model
+    'qwen/qwen3-235b-a22b-2507:free',        // Secondary speed
+    'openrouter/horizon-alpha',              // Backup lightning
+    'moonshotai/kimi-k2:free'                // Tertiary speed
+  ],
+  
+  // Quality models: Background processing and refinement (5-15s timeout)
   qualityModels: [
-    'tngtech/deepseek-r1t2-chimera:free',     // Advanced reasoning
-    'deepseek/deepseek-r1-0528:free',         // Deep reasoning
-    'google/gemini-2.5-pro-exp-03-25'        // Pro-level capability
+    'tngtech/deepseek-r1t2-chimera:free',    // Best reasoning
+    'deepseek/deepseek-r1-0528:free',        // Deep analysis
+    'google/gemini-2.5-pro-exp-03-25',      // Premium quality
+    'deepseek/deepseek-chat-v3-0324:free'    // Quality fallback
   ],
-  // Legacy priority for compatibility
+  
+  // Optimized priority: Lightning first, then speed, then quality
   modelPriority: [
-    'deepseek/deepseek-chat-v3-0324:free',
-    'qwen/qwen3-235b-a22b-2507:free', 
-    'moonshotai/kimi-k2:free',
-    'tngtech/deepseek-r1t2-chimera:free',
-    'deepseek/deepseek-r1-0528:free',
-    'google/gemini-2.5-pro-exp-03-25'
+    'openrouter/horizon-alpha',              // Lightning: Instant response
+    'deepseek/deepseek-chat-v3-0324:free',   // Speed: Ultra-fast
+    'qwen/qwen3-235b-a22b-2507:free',        // Speed: Fast inference  
+    'moonshotai/kimi-k2:free',               // Speed: Quick response
+    'tngtech/deepseek-r1t2-chimera:free',    // Quality: Advanced reasoning
+    'deepseek/deepseek-r1-0528:free',        // Quality: Deep reasoning
+    'google/gemini-2.5-pro-exp-03-25'       // Quality: Premium capability
   ],
+  
+  // Legacy arrays for compatibility
+  fastModels: [
+    'openrouter/horizon-alpha',
+    'deepseek/deepseek-chat-v3-0324:free',
+    'qwen/qwen3-235b-a22b-2507:free',
+    'moonshotai/kimi-k2:free'
+  ],
+  
   headers: {
     'HTTP-Referer': window.location.origin,
-    'X-Title': 'AI Productivity Assistant'
+    'X-Title': 'AI Productivity Assistant - Premium Performance'
   }
 };

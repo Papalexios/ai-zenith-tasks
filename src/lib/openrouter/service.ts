@@ -17,85 +17,130 @@ export class OpenRouterService {
   }
 
   async enhanceTask(taskInput: string, useBackgroundMode = false): Promise<TaskEnhancement> {
-    // Use ultra-fast models for immediate user interactions
-    const models = useBackgroundMode ? OPENROUTER_CONFIG.qualityModels : OPENROUTER_CONFIG.fastModels;
-    const timeout = useBackgroundMode ? 15000 : 3000; // 3s for immediate, 15s for background
-    
-    const cacheKey = `enhance_${taskInput}_${models[0]}`;
+    const cacheKey = `enhance_${taskInput}_${useBackgroundMode ? 'quality' : 'lightning'}`;
     if (this.responseCache.has(cacheKey)) {
       return this.responseCache.get(cacheKey);
     }
 
-    // Try fast models with ultra-short timeout for snappy UX
-    for (const model of models) {
-      try {
-        const completionPromise = this.client.chat.completions.create({
-          model,
+    try {
+      // LIGHTNING response for instant user feedback (< 700ms)
+      const models = useBackgroundMode 
+        ? OPENROUTER_CONFIG.qualityModels 
+        : OPENROUTER_CONFIG.lightningModels;
+      const timeout = useBackgroundMode ? 12000 : 700; // 12s for quality, 700ms for lightning
+      
+      console.log(`⚡ ${useBackgroundMode ? 'Quality processing' : 'Lightning enhancement'} with: ${models[0]}`);
+      
+      const response = await Promise.race([
+        this.client.chat.completions.create({
+          model: models[0],
           messages: [
             {
               role: 'system',
               content: useBackgroundMode 
-                ? `You are an expert productivity AI. Provide detailed task enhancement with deep analysis and comprehensive subtasks.
-                
-                CRITICAL: Respond with ONLY valid JSON in this exact format:
-                {
-                  "originalTask": "original input task",
-                  "enhancedTitle": "clear, actionable task title",
-                  "description": "detailed description with context and best practices",
-                  "estimatedTime": "X minutes" or "X hours",
-                  "priority": "low" | "medium" | "high" | "urgent",
-                  "subtasks": ["detailed subtask 1", "detailed subtask 2", "detailed subtask 3"],
-                  "category": "work" | "personal" | "health" | "learning" | "general"
-                }`
-                : `Ultra-fast task enhancer. Provide quick, actionable improvements.
-                
-                CRITICAL: Respond with ONLY valid JSON:
-                {
-                  "originalTask": "original input task",
-                  "enhancedTitle": "clear, actionable task title", 
-                  "description": "brief description",
-                  "estimatedTime": "X minutes",
-                  "priority": "low" | "medium" | "high" | "urgent",
-                  "subtasks": ["subtask 1", "subtask 2"],
-                  "category": "work" | "personal" | "health" | "learning" | "general"
-                }`
+                ? `Premium AI productivity consultant. Provide comprehensive task analysis with deep insights.
+
+RESPOND ONLY with valid JSON:
+{
+  "originalTask": "original input task",
+  "enhancedTitle": "Professionally crafted, specific task title",
+  "description": "Detailed, strategic description with context and best practices",
+  "estimatedTime": "X minutes" or "X hours",
+  "priority": "low" | "medium" | "high" | "urgent",
+  "subtasks": ["Detailed step 1 with specific actions", "Step 2 with clear deliverables", "Step 3 with measurable outcomes", "Step 4 with verification", "Final step with completion criteria"],
+  "category": "work" | "personal" | "health" | "learning" | "finance" | "creative" | "social" | "general"
+}
+
+Provide 4-6 comprehensive subtasks with strategic depth.`
+                : `Ultra-fast task enhancement AI. Respond in <700ms with actionable breakdown.
+
+RESPOND ONLY with valid JSON:
+{
+  "originalTask": "original input task",
+  "enhancedTitle": "Clear, actionable task title",
+  "description": "Brief but helpful context",
+  "estimatedTime": "X minutes",
+  "priority": "low" | "medium" | "high" | "urgent", 
+  "subtasks": ["Quick action 1", "Quick action 2", "Quick action 3"],
+  "category": "work" | "personal" | "health" | "learning" | "general"
+}
+
+Focus on speed and immediate actionability.`
             },
             {
               role: 'user',
-              content: `Enhance: ${taskInput}`
+              content: `Enhance: "${taskInput}"`
             }
           ],
-          temperature: useBackgroundMode ? 0.8 : 0.3,
-          max_tokens: useBackgroundMode ? 800 : 300
-        });
+          temperature: useBackgroundMode ? 0.6 : 0.2,
+          max_tokens: useBackgroundMode ? 1000 : 400
+        }),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), timeout)
+        )
+      ]);
 
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Request timeout')), timeout);
-        });
-
-        const completion = await Promise.race([completionPromise, timeoutPromise]) as any;
-        const response = completion.choices[0]?.message?.content;
-        
-        if (!response) continue;
-
-        const enhancement = this.parseTaskResponse(response);
-        this.responseCache.set(cacheKey, enhancement);
-        this.trackModelUsage(model);
-
-        // If this was a fast response, start background refinement
-        if (!useBackgroundMode) {
-          this.refineTaskInBackground(taskInput, enhancement);
-        }
-
-        return enhancement;
-        
-      } catch (error) {
-        console.warn(`Model ${model} failed:`, error);
-        continue;
+      if (!response.choices[0]?.message?.content) {
+        throw new Error('No response content');
       }
-    }
 
-    return this.getFallbackTaskEnhancement(taskInput);
+      const enhancement = this.parseTaskResponse(response.choices[0].message.content);
+      this.responseCache.set(cacheKey, enhancement);
+      this.trackModelUsage(models[0]);
+
+      // Always enhance in background unless already in background mode
+      if (!useBackgroundMode) {
+        setTimeout(() => this.refineTaskInBackground(taskInput, enhancement), 50);
+      }
+
+      return enhancement;
+
+    } catch (error) {
+      console.warn(`${useBackgroundMode ? 'Quality' : 'Lightning'} enhancement failed, trying speed models:`, error);
+      
+      // Fallback to speed models for immediate response
+      const speedModels = OPENROUTER_CONFIG.speedModels;
+      for (let i = 0; i < speedModels.length; i++) {
+        try {
+          const speedModel = speedModels[i];
+          console.log(`🏃 Speed fallback: ${speedModel}`);
+          
+          const response = await Promise.race([
+            this.client.chat.completions.create({
+              model: speedModel,
+              messages: [
+                {
+                  role: 'system',
+                  content: `Fast task enhancement. JSON only.`
+                },
+                {
+                  role: 'user',
+                  content: `Task: "${taskInput}"`
+                }
+              ],
+              temperature: 0.2,
+              max_tokens: 300
+            }),
+            new Promise<never>((_, reject) => 
+              setTimeout(() => reject(new Error('Speed timeout')), 2000)
+            )
+          ]);
+
+          if (response.choices[0]?.message?.content) {
+            const enhancement = this.parseTaskResponse(response.choices[0].message.content);
+            this.responseCache.set(cacheKey, enhancement);
+            this.trackModelUsage(speedModel);
+            return enhancement;
+          }
+        } catch (speedError) {
+          console.warn(`Speed fallback ${i} failed:`, speedError);
+          continue;
+        }
+      }
+
+      // Ultimate fallback
+      return this.getFallbackTaskEnhancement(taskInput);
+    }
   }
 
   private refineTaskInBackground(taskInput: string, initialEnhancement: TaskEnhancement) {
@@ -114,17 +159,17 @@ export class OpenRouterService {
   }
 
   async parseNaturalLanguage(input: string): Promise<any> {
-    // Ultra-fast parsing using the fastest model with minimal timeout
-    const fastModel = OPENROUTER_CONFIG.fastModels[0];
-    const timeout = 2000; // 2 second max for instant feel
+    // LIGHTNING parsing using the fastest model with ultra-minimal timeout
+    const lightningModel = OPENROUTER_CONFIG.lightningModels[0];
+    const timeout = 800; // 800ms max for instant feel
     
     try {
       const completionPromise = this.client.chat.completions.create({
-        model: fastModel,
+        model: lightningModel,
         messages: [
           {
             role: 'system',
-            content: `Ultra-fast natural language parser. Extract task info instantly. Return ONLY JSON:
+            content: `Lightning-fast NLP parser. Extract task info in <800ms. Return ONLY JSON:
             {
               "title": "extracted task title",
               "dueDate": "YYYY-MM-DD or null",
@@ -137,20 +182,22 @@ export class OpenRouterService {
             content: input
           }
         ],
-        temperature: 0.1,
-        max_tokens: 200
+        temperature: 0.05,
+        max_tokens: 150
       });
 
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Parse timeout')), timeout);
+        setTimeout(() => reject(new Error('Lightning parse timeout')), timeout);
       });
 
       const completion = await Promise.race([completionPromise, timeoutPromise]) as any;
       const content = completion.choices[0]?.message?.content || '{}';
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       
+      console.log('⚡ Lightning parsing completed');
       return JSON.parse(cleanContent);
     } catch (error) {
+      console.warn('Lightning parse failed, instant fallback:', error);
       // Instant fallback for uninterrupted UX
       return { title: input, priority: 'medium', dueDate: null };
     }
@@ -174,23 +221,24 @@ export class OpenRouterService {
     }
   }
 
-  private async generateFastPlan(tasks: any[], userPreferences: any = {}): Promise<any> {
-    // Ultra-aggressive fast planning using fastest model
-    const fastModel = OPENROUTER_CONFIG.fastModels[0];
-    const timeout = 2000; // 2 second max for instant response
+  private async generateLightningPlan(tasks: any[], userPreferences: any = {}): Promise<any> {
+    // Ultra-aggressive lightning planning using fastest model (< 1s)
+    const lightningModel = OPENROUTER_CONFIG.lightningModels[0];
+    const timeout = 1000; // 1 second max for instant response
     
     try {
       const planPromise = this.client.chat.completions.create({
-        model: fastModel,
+        model: lightningModel,
         messages: [
           {
             role: 'system',
-            content: `Lightning-fast planner. Return JSON instantly:
+            content: `Lightning-fast daily planner. Return JSON instantly:
             {
-              "title": "Today's Plan",
+              "title": "Today's AI-Optimized Plan",
               "totalEstimatedTime": "X hours",
               "timeBlocks": [
                 {
+                  "id": "block_1",
                   "task": "task name",
                   "startTime": "09:00",
                   "endTime": "10:30",
@@ -199,16 +247,17 @@ export class OpenRouterService {
                   "type": "work",
                   "taskId": "id"
                 }
-              ]
+              ],
+              "insights": ["Lightning insight"]
             }`
           },
           {
             role: 'user',
-            content: `Instant plan for ${Math.min(tasks.length, 5)} tasks: ${tasks.slice(0, 5).map(t => t.title).join(', ')}`
+            content: `Lightning plan: ${tasks.slice(0, 4).map(t => `${t.title} (${t.priority})`).join(', ')}`
           }
         ],
         temperature: 0.1,
-        max_tokens: 600
+        max_tokens: 500
       });
 
       const timeoutPromise = new Promise((_, reject) => {
@@ -221,17 +270,75 @@ export class OpenRouterService {
       if (response) {
         const plan = this.parsePlanResponse(response);
         if (plan && this.validatePlan(plan)) {
-          // Start immediate background optimization with quality models
-          this.optimizePlanInBackground(tasks, userPreferences, plan);
+          console.log('⚡ Lightning plan generated successfully');
           return plan;
         }
       }
     } catch (error) {
-      console.warn('Lightning-fast model failed:', error);
+      console.warn('Lightning plan failed:', error);
     }
 
-    // Instant fallback
-    return this.createFallbackPlan(tasks);
+    return null;
+  }
+
+  private async generateFastPlan(tasks: any[], userPreferences: any = {}): Promise<any> {
+    // Fast planning using speed models (< 2s)
+    const speedModel = OPENROUTER_CONFIG.speedModels[0];
+    const timeout = 2000; // 2 second max for speed response
+    
+    try {
+      const planPromise = this.client.chat.completions.create({
+        model: speedModel,
+        messages: [
+          {
+            role: 'system',
+            content: `Fast daily planner. Return optimized JSON:
+            {
+              "title": "Today's Optimized Plan",
+              "totalEstimatedTime": "X hours",
+              "timeBlocks": [
+                {
+                  "id": "block_1",
+                  "task": "task name",
+                  "startTime": "09:00",
+                  "endTime": "10:30",
+                  "priority": "high",
+                  "energy": "high", 
+                  "type": "work",
+                  "taskId": "id"
+                }
+              ],
+              "insights": ["Speed insight 1", "Speed insight 2"]
+            }`
+          },
+          {
+            role: 'user',
+            content: `Speed plan for ${Math.min(tasks.length, 6)} tasks: ${tasks.slice(0, 6).map(t => `${t.title} (${t.priority})`).join(', ')}`
+          }
+        ],
+        temperature: 0.2,
+        max_tokens: 800
+      });
+
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Speed timeout')), timeout);
+      });
+
+      const completion = await Promise.race([planPromise, timeoutPromise]) as any;
+      const response = completion.choices[0]?.message?.content;
+
+      if (response) {
+        const plan = this.parsePlanResponse(response);
+        if (plan && this.validatePlan(plan)) {
+          console.log('🏃 Speed plan generated successfully');
+          return plan;
+        }
+      }
+    } catch (error) {
+      console.warn('Speed plan failed:', error);
+    }
+
+    return null;
   }
 
   private optimizePlanInBackground(tasks: any[], userPreferences: any, initialPlan: any) {

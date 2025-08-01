@@ -20,10 +20,12 @@ export function LoadingState() {
   }, []);
 
   const getMessage = () => {
-    if (timeElapsed < 2) return `🧠 Analyzing your tasks${dots}`;
-    if (timeElapsed < 4) return `⚡ Optimizing time blocks${dots}`;
-    if (timeElapsed < 6) return `🎯 Balancing priorities${dots}`;
-    return `✨ Finalizing your schedule${dots}`;
+    if (timeElapsed < 1) return `⚡ Lightning AI processing${dots}`;
+    if (timeElapsed < 2) return `🧠 Analyzing task priorities${dots}`;
+    if (timeElapsed < 3) return `⚡ Optimizing time blocks${dots}`;
+    if (timeElapsed < 4) return `🎯 Balancing workload${dots}`;
+    if (timeElapsed < 6) return `✨ Finalizing schedule${dots}`;
+    return `🔄 Background optimization${dots}`;
   };
 
   return (
@@ -32,14 +34,19 @@ export function LoadingState() {
       <p className="text-muted-foreground font-medium">
         {getMessage()}
       </p>
-      {timeElapsed > 3 && (
+      {timeElapsed > 1 && (
         <p className="text-xs text-muted-foreground/60 mt-2">
-          Using DeepSeek Chat V3 • Ultra-fast AI processing
+          {timeElapsed < 3 ? 'Horizon Alpha • Lightning speed' : 'DeepSeek R1 • Advanced reasoning'}
         </p>
       )}
-      {timeElapsed > 6 && (
+      {timeElapsed > 2 && (
+        <p className="text-xs text-blue-600/80 mt-1">
+          Premium AI models optimizing your schedule...
+        </p>
+      )}
+      {timeElapsed > 4 && (
         <p className="text-xs text-green-600/80 mt-1">
-          Background optimization in progress...
+          Background enhancement for perfect results...
         </p>
       )}
     </div>
