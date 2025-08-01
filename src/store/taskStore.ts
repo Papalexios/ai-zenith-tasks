@@ -156,7 +156,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         category: task.category,
         estimatedTime: task.estimated_time || undefined,
         subtasks: task.subtasks || [],
-        completedSubtasks: task.completed_subtasks || [],
+        completedSubtasks: [],
         aiEnhanced: task.ai_enhanced,
         aiModelUsed: task.ai_model_used || undefined,
         tags: task.tags || [],
@@ -243,7 +243,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
           category: task.category,
           estimated_time: task.estimatedTime || null,
           subtasks: task.subtasks || [],
-          completed_subtasks: task.completedSubtasks || [],
+          
           ai_enhanced: task.aiEnhanced,
           ai_model_used: task.aiModelUsed || null,
           tags: task.tags || [],
