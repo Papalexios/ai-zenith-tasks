@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Timer, Play, Pause, Square, Eye, EyeOff, Volume2, VolumeX } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Timer, Play, Pause, Square, Eye, EyeOff, Volume2, VolumeX, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTaskStore } from '@/store/taskStore';
 
 interface FocusModeProps {
@@ -19,6 +20,28 @@ export const FocusMode: React.FC<FocusModeProps> = ({ isEnabled, onToggle }) => 
   const [isBreak, setIsBreak] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [sessionCount, setSessionCount] = useState(0);
+
+  // Handle ESC key to exit focus mode
+  const handleEscapeKey = useCallback((event: KeyboardEvent) => {
+    if (event.key === 'Escape' && isEnabled) {
+      onToggle();
+    }
+  }, [isEnabled, onToggle]);
+
+  // Handle click outside to exit focus mode
+  const handleOverlayClick = useCallback((event: React.MouseEvent) => {
+    if (event.target === event.currentTarget) {
+      onToggle();
+    }
+  }, [onToggle]);
+
+  // Add ESC key listener
+  useEffect(() => {
+    if (isEnabled) {
+      document.addEventListener('keydown', handleEscapeKey);
+      return () => document.removeEventListener('keydown', handleEscapeKey);
+    }
+  }, [isEnabled, handleEscapeKey]);
 
   const pendingTasks = tasks.filter(t => !t.completed);
   const currentTask = pendingTasks[currentTaskIndex];
@@ -116,32 +139,51 @@ export const FocusMode: React.FC<FocusModeProps> = ({ isEnabled, onToggle }) => 
   }
 
   return (
-    <div className="fixed inset-0 bg-background/95 backdrop-blur-sm z-50 flex items-center justify-center">
-      <div className="w-full max-w-2xl mx-4">
-        <Card className="shadow-2xl border-2">
-          <CardContent className="p-8">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <Timer className="h-6 w-6 text-primary" />
-                <h2 className="text-2xl font-bold">Focus Mode: Today's AI-Generated Plan</h2>
-                <Badge variant={isBreak ? "secondary" : "default"} className="text-sm">
-                  {isBreak ? 'Break Time' : 'Work Session'}
-                </Badge>
+    <TooltipProvider>
+      <div 
+        className="fixed inset-0 bg-background/95 backdrop-blur-sm z-50 flex items-center justify-center"
+        onClick={handleOverlayClick}
+      >
+        <div className="w-full max-w-2xl mx-4">
+          <Card className="shadow-2xl border-2">
+            <CardContent className="p-8">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <Timer className="h-6 w-6 text-primary" />
+                  <h2 className="text-2xl font-bold">Focus Mode: Today's AI-Generated Plan</h2>
+                  <Badge variant={isBreak ? "secondary" : "default"} className="text-sm">
+                    {isBreak ? 'Break Time' : 'Work Session'}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSoundEnabled(!soundEnabled)}
+                      >
+                        {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {soundEnabled ? 'Disable sound' : 'Enable sound'}
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="sm" onClick={onToggle}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Exit Focus Mode (ESC)
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSoundEnabled(!soundEnabled)}
-                >
-                  {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-                </Button>
-                <Button variant="ghost" size="sm" onClick={onToggle}>
-                  <EyeOff className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
 
             {/* Current Task */}
             {currentTask && !isBreak && (
@@ -229,7 +271,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ isEnabled, onToggle }) => 
             </div>
 
             {/* Session Stats */}
-            <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="grid grid-cols-3 gap-4 text-center mb-6">
               <div className="p-4 bg-muted/50 rounded-lg">
                 <div className="text-2xl font-bold text-primary">{sessionCount}</div>
                 <div className="text-sm text-muted-foreground">Sessions</div>
@@ -245,9 +287,21 @@ export const FocusMode: React.FC<FocusModeProps> = ({ isEnabled, onToggle }) => 
                 <div className="text-sm text-muted-foreground">Focus Time</div>
               </div>
             </div>
+            
+            {/* Exit Focus Mode Button */}
+            <div className="text-center">
+              <Button variant="outline" onClick={onToggle} className="gap-2">
+                <X className="h-4 w-4" />
+                Exit Focus Mode
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                Press ESC or click outside to exit
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
     </div>
+    </TooltipProvider>
   );
 };
