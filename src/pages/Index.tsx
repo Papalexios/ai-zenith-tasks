@@ -232,6 +232,18 @@ const Index = () => {
       <AIDemo />
       <Pricing />
       <FinalCTA />
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <Button
+            onClick={() => window.location.href = '/app'}
+            variant="outline"
+            size="sm"
+            className="bg-background/90 backdrop-blur-sm"
+          >
+            Dev: Go to App
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
