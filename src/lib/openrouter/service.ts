@@ -29,7 +29,7 @@ export class OpenRouterService {
         : OPENROUTER_CONFIG.lightningModels;
       const timeout = useBackgroundMode ? 12000 : 700; // 12s for quality, 700ms for lightning
       
-      console.log(`⚡ ${useBackgroundMode ? 'Quality processing' : 'Lightning enhancement'} with: ${models[0]}`);
+      // Removed console.log for production optimization
       
       const response = await Promise.race([
         this.client.chat.completions.create({

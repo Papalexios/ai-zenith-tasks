@@ -106,7 +106,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   // Data persistence methods
   loadTasks: async () => {
-    console.log('loadTasks called');
+    // Development logging removed for production
     set({ isLoadingTasks: true, syncStatus: 'syncing', syncError: null });
     
     try {
