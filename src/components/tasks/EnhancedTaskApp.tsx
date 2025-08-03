@@ -1,40 +1,29 @@
-import React, { useState, Suspense, lazy, memo, useCallback, useMemo } from 'react';
+import React, { useState, memo, useCallback, useMemo } from 'react';
 import { useTaskStore, Task } from '@/store/taskStore';
 import { TaskAppHeader } from './TaskAppHeader';
 import { TaskInputForm } from './TaskInputForm';
 import { TaskFilters } from './TaskFilters';
 import { SyncStatusAlert } from './SyncStatusAlert';
 import { TaskList } from './TaskList';
+import { AIInsights } from './AIInsights';
 import { BulkActions } from './BulkActions';
+import { CalendarView } from './CalendarView';
+import { DailyPlanModal } from './DailyPlanModal';
+import { AnalyticsModal } from './AnalyticsModal';
+import { TaskEditModal } from './TaskEditModal';
+import { CommandPalette } from './CommandPalette';
 import { InteractiveDemo } from '../onboarding/InteractiveDemo';
 import { FocusTimer } from './FocusTimer';
 import { PremiumStatsCard } from './PremiumStatsCard';
+import { DashboardAIInsights } from './DashboardAIInsights';
+import { ProductivityOracle } from './ProductivityOracle';
+import { EnterpriseBulkOperations } from '../enterprise/BulkOperations';
+import { AdminDashboard } from '../enterprise/AdminDashboard';
 import { EnterpriseErrorBoundary } from '../ui/error-boundary';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOnboarding } from '../onboarding/OnboardingProvider';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-
-// Lazy load heavy components for better performance
-const AIInsights = lazy(() => import('./AIInsights').then(m => ({ default: m.AIInsights })));
-const CalendarView = lazy(() => import('./CalendarView').then(m => ({ default: m.CalendarView })));
-const DailyPlanModal = lazy(() => import('./DailyPlanModal').then(m => ({ default: m.DailyPlanModal })));
-const AnalyticsModal = lazy(() => import('./AnalyticsModal').then(m => ({ default: m.AnalyticsModal })));
-const TaskEditModal = lazy(() => import('./TaskEditModal').then(m => ({ default: m.TaskEditModal })));
-const CommandPalette = lazy(() => import('./CommandPalette').then(m => ({ default: m.CommandPalette })));
-const DashboardAIInsights = lazy(() => import('./DashboardAIInsights').then(m => ({ default: m.DashboardAIInsights })));
-const ProductivityOracle = lazy(() => import('./ProductivityOracle').then(m => ({ default: m.ProductivityOracle })));
-const EnterpriseBulkOperations = lazy(() => import('../enterprise/BulkOperations').then(m => ({ default: m.EnterpriseBulkOperations })));
-const AdminDashboard = lazy(() => import('../enterprise/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
-
-// Loading component for better UX
-const ComponentSkeleton = memo(() => (
-  <div className="space-y-4">
-    <Skeleton className="h-8 w-full" />
-    <Skeleton className="h-32 w-full" />
-  </div>
-));
 
 export const EnhancedTaskApp = memo(() => {
   const [showDailyPlan, setShowDailyPlan] = useState(false);
@@ -76,12 +65,8 @@ export const EnhancedTaskApp = memo(() => {
             
             <div className="flex items-center gap-2">
               {/* Enterprise Operations */}
-              <Suspense fallback={<Skeleton className="h-10 w-32" />}>
-                <EnterpriseBulkOperations />
-              </Suspense>
-              <Suspense fallback={<Skeleton className="h-10 w-32" />}>
-                <AdminDashboard />
-              </Suspense>
+              <EnterpriseBulkOperations />
+              <AdminDashboard />
               
               {/* Command Palette Trigger */}
               <Button
@@ -108,9 +93,7 @@ export const EnhancedTaskApp = memo(() => {
           <PremiumStatsCard />
 
           {/* AI Insights Dashboard */}
-          <Suspense fallback={<ComponentSkeleton />}>
-            <DashboardAIInsights />
-          </Suspense>
+          <DashboardAIInsights />
 
           <div data-demo="task-input">
             <TaskInputForm />
@@ -125,22 +108,16 @@ export const EnhancedTaskApp = memo(() => {
           {/* Main Content */}
           <div className="space-y-6">
             {showCalendar ? (
-              <Suspense fallback={<ComponentSkeleton />}>
-                <CalendarView />
-              </Suspense>
+              <CalendarView />
             ) : (
               <>
                 <div data-demo="productivity-oracle">
-                  <Suspense fallback={<ComponentSkeleton />}>
-                    <ProductivityOracle />
-                  </Suspense>
+                  <ProductivityOracle />
                 </div>
                 <div data-demo="task-list">
                   <TaskList />
                 </div>
-                <Suspense fallback={<ComponentSkeleton />}>
-                  <AIInsights />
-                </Suspense>
+                <AIInsights />
               </>
             )}
           </div>
@@ -153,34 +130,26 @@ export const EnhancedTaskApp = memo(() => {
           )}
 
           {/* Modals */}
-          <Suspense fallback={null}>
-            <DailyPlanModal 
-              open={showDailyPlan} 
-              onOpenChange={setShowDailyPlan} 
-            />
-          </Suspense>
+          <DailyPlanModal 
+            open={showDailyPlan} 
+            onOpenChange={setShowDailyPlan} 
+          />
           
-          <Suspense fallback={null}>
-            <AnalyticsModal 
-              open={showAnalytics} 
-              onOpenChange={setShowAnalytics}
-            />
-          </Suspense>
+          <AnalyticsModal 
+            open={showAnalytics} 
+            onOpenChange={setShowAnalytics}
+          />
           
           {editingTask && (
-            <Suspense fallback={null}>
-              <TaskEditModal task={editingTask}>
-                <div></div>
-              </TaskEditModal>
-            </Suspense>
+            <TaskEditModal task={editingTask}>
+              <div></div>
+            </TaskEditModal>
           )}
 
-          <Suspense fallback={null}>
-            <CommandPalette 
-              open={showCommandPalette} 
-              onOpenChange={setShowCommandPalette} 
-            />
-          </Suspense>
+          <CommandPalette 
+            open={showCommandPalette} 
+            onOpenChange={setShowCommandPalette} 
+          />
 
           {/* Interactive Demo */}
           <InteractiveDemo
