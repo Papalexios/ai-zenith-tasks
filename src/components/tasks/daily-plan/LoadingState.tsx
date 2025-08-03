@@ -36,7 +36,7 @@ export function LoadingState() {
       </p>
       {timeElapsed > 1 && (
         <p className="text-xs text-muted-foreground/60 mt-2">
-          {timeElapsed < 3 ? 'Horizon Alpha • Lightning speed' : 'DeepSeek R1 • Advanced reasoning'}
+          {timeElapsed < 3 ? 'Horizon Beta • Ultra-premium speed' : 'DeepSeek R1 • Advanced reasoning'}
         </p>
       )}
       {timeElapsed > 2 && (

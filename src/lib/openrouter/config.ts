@@ -5,7 +5,7 @@ export const OPENROUTER_CONFIG = {
   
   models: {
     // Lightning-fast models for instant user interactions (< 800ms response)
-    HORIZON_ALPHA: 'openrouter/horizon-alpha',           // OpenRouter's fastest model
+    HORIZON_BETA: 'openrouter/horizon-beta',             // OpenRouter's ultra-premium fastest model
     DEEPSEEK_CHAT_V3: 'deepseek/deepseek-chat-v3-0324:free',  // Ultra-fast chat
     QWEN3_235B: 'qwen/qwen3-235b-a22b-2507:free',        // Blazing fast inference
     KIMI_K2: 'moonshotai/kimi-k2:free',                  // Lightning response
@@ -16,9 +16,9 @@ export const OPENROUTER_CONFIG = {
     GEMINI_25_PRO: 'google/gemini-2.5-pro-exp-03-25'            // Premium capability
   },
   
-  // Lightning models: Instant response for user-facing interactions (< 800ms timeout)
+  // Lightning models: Instant response for user-facing interactions (< 500ms timeout)
   lightningModels: [
-    'openrouter/horizon-alpha',              // Fastest available
+    'openrouter/horizon-beta',               // Ultra-premium fastest available
     'deepseek/deepseek-chat-v3-0324:free',   // Ultra-fast chat
     'qwen/qwen3-235b-a22b-2507:free',        // Blazing inference
     'moonshotai/kimi-k2:free'                // Lightning response
@@ -26,9 +26,9 @@ export const OPENROUTER_CONFIG = {
   
   // Speed models: Fast response for immediate feedback (< 2s timeout)
   speedModels: [
+    'openrouter/horizon-beta',               // Ultra-premium primary
     'deepseek/deepseek-chat-v3-0324:free',   // Primary speed model
     'qwen/qwen3-235b-a22b-2507:free',        // Secondary speed
-    'openrouter/horizon-alpha',              // Backup lightning
     'moonshotai/kimi-k2:free'                // Tertiary speed
   ],
   
@@ -40,9 +40,9 @@ export const OPENROUTER_CONFIG = {
     'deepseek/deepseek-chat-v3-0324:free'    // Quality fallback
   ],
   
-  // Optimized priority: Lightning first, then speed, then quality
+  // Optimized priority: Ultra-premium lightning first, then speed, then quality
   modelPriority: [
-    'openrouter/horizon-alpha',              // Lightning: Instant response
+    'openrouter/horizon-beta',               // Ultra-premium: Instant response
     'deepseek/deepseek-chat-v3-0324:free',   // Speed: Ultra-fast
     'qwen/qwen3-235b-a22b-2507:free',        // Speed: Fast inference  
     'moonshotai/kimi-k2:free',               // Speed: Quick response
@@ -53,7 +53,7 @@ export const OPENROUTER_CONFIG = {
   
   // Legacy arrays for compatibility
   fastModels: [
-    'openrouter/horizon-alpha',
+    'openrouter/horizon-beta',
     'deepseek/deepseek-chat-v3-0324:free',
     'qwen/qwen3-235b-a22b-2507:free',
     'moonshotai/kimi-k2:free'
