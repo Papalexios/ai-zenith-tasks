@@ -96,14 +96,14 @@ Focus on speed and immediate actionability.`
       return enhancement;
 
     } catch (error) {
-      console.warn(`${useBackgroundMode ? 'Quality' : 'Lightning'} enhancement failed, trying speed models:`, error);
+      // Production logging minimized for performance
       
       // Fallback to speed models for immediate response
       const speedModels = OPENROUTER_CONFIG.speedModels;
       for (let i = 0; i < speedModels.length; i++) {
         try {
           const speedModel = speedModels[i];
-          console.log(`🏃 Speed fallback: ${speedModel}`);
+          // Development only: console.log(`🏃 Speed fallback: ${speedModel}`);
           
           const response = await Promise.race([
             this.client.chat.completions.create({
@@ -133,7 +133,7 @@ Focus on speed and immediate actionability.`
             return enhancement;
           }
         } catch (speedError) {
-          console.warn(`Speed fallback ${i} failed:`, speedError);
+          // Development only: console.warn(`Speed fallback ${i} failed:`, speedError);
           continue;
         }
       }
