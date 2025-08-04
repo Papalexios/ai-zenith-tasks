@@ -231,6 +231,11 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
           throw new Error('No authenticated user found');
         }
 
+        // Remove past due dates to avoid database validation errors
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
+        const shouldClearDueDate = task.dueDate && task.dueDate < today;
+        
         const taskData = {
           id: task.id,
           user_id: session.user.id,
@@ -238,8 +243,8 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
           description: task.description || null,
           completed: task.completed,
           priority: task.priority,
-          due_date: task.dueDate || null,
-          due_time: task.dueTime && task.dueTime.trim() !== '' ? task.dueTime : null,
+          due_date: shouldClearDueDate ? null : (task.dueDate || null),
+          due_time: shouldClearDueDate ? null : (task.dueTime && task.dueTime.trim() !== '' ? task.dueTime : null),
           category: task.category,
           estimated_time: task.estimatedTime || null,
           subtasks: task.subtasks || [],
