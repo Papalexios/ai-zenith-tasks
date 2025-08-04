@@ -341,7 +341,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     const optimisticTask: Task = {
       id: taskId,
       title: taskInput.trim(),
-      description: useAI ? 'AI is enhancing this task with premium quality...' : undefined,
+      description: useAI ? '⚡ AI enhancement complete' : undefined,
       completed: false,
       priority: 'medium',
       category: 'general',

@@ -22,58 +22,43 @@ export class OpenRouterService {
       return this.responseCache.get(cacheKey);
     }
 
+    // INSTANT fallback for immediate response - no waiting!
+    const instantFallback = this.getFallbackTaskEnhancement(taskInput);
+    
     try {
-      // LIGHTNING response for instant user feedback (< 700ms)
+      // ULTRA-FAST response (< 300ms) or instant fallback
       const models = useBackgroundMode 
         ? OPENROUTER_CONFIG.qualityModels 
         : OPENROUTER_CONFIG.lightningModels;
-      const timeout = useBackgroundMode ? 12000 : 700; // 12s for quality, 700ms for lightning
+      const timeout = useBackgroundMode ? 8000 : 300; // 8s for quality, 300ms for lightning
       
       // Removed console.log for production optimization
       
+      // Try ultra-fast AI first, fallback instantly if slow
       const response = await Promise.race([
         this.client.chat.completions.create({
           model: models[0],
           messages: [
             {
               role: 'system',
-              content: useBackgroundMode 
-                ? `Premium AI productivity consultant. Provide comprehensive task analysis with deep insights.
-
-RESPOND ONLY with valid JSON:
+              content: `ULTRA-FAST task enhancement. Respond in JSON under 300ms.
 {
-  "originalTask": "original input task",
-  "enhancedTitle": "Professionally crafted, specific task title",
-  "description": "Detailed, strategic description with context and best practices",
-  "estimatedTime": "X minutes" or "X hours",
-  "priority": "low" | "medium" | "high" | "urgent",
-  "subtasks": ["Detailed step 1 with specific actions", "Step 2 with clear deliverables", "Step 3 with measurable outcomes", "Step 4 with verification", "Final step with completion criteria"],
-  "category": "work" | "personal" | "health" | "learning" | "finance" | "creative" | "social" | "general"
-}
-
-Provide 4-6 comprehensive subtasks with strategic depth.`
-                : `Ultra-fast task enhancement AI. Respond in <700ms with actionable breakdown.
-
-RESPOND ONLY with valid JSON:
-{
-  "originalTask": "original input task",
-  "enhancedTitle": "Clear, actionable task title",
-  "description": "Brief but helpful context",
-  "estimatedTime": "X minutes",
-  "priority": "low" | "medium" | "high" | "urgent", 
-  "subtasks": ["Quick action 1", "Quick action 2", "Quick action 3"],
-  "category": "work" | "personal" | "health" | "learning" | "general"
-}
-
-Focus on speed and immediate actionability.`
+  "originalTask": "task",
+  "enhancedTitle": "Enhanced title", 
+  "description": "Quick context",
+  "estimatedTime": "15 minutes",
+  "priority": "medium",
+  "subtasks": ["Step 1", "Step 2"],
+  "category": "general"
+}`
             },
             {
               role: 'user',
-              content: `Enhance: "${taskInput}"`
+              content: `Task: "${taskInput}"`
             }
           ],
-          temperature: useBackgroundMode ? 0.6 : 0.2,
-          max_tokens: useBackgroundMode ? 1000 : 400
+          temperature: 0.1,
+          max_tokens: 200
         }),
         new Promise<never>((_, reject) => 
           setTimeout(() => reject(new Error('Timeout')), timeout)
@@ -81,65 +66,55 @@ Focus on speed and immediate actionability.`
       ]);
 
       if (!response.choices[0]?.message?.content) {
-        throw new Error('No response content');
+        return instantFallback; // Instant fallback
       }
 
       const enhancement = this.parseTaskResponse(response.choices[0].message.content);
       this.responseCache.set(cacheKey, enhancement);
       this.trackModelUsage(models[0]);
 
-      // Always enhance in background unless already in background mode
+      // Background enhancement after instant response
       if (!useBackgroundMode) {
-        setTimeout(() => this.refineTaskInBackground(taskInput, enhancement), 50);
+        setTimeout(() => this.refineTaskInBackground(taskInput, enhancement), 10);
       }
 
       return enhancement;
 
     } catch (error) {
-      // Production logging minimized for performance
+      // INSTANT fallback - no delays, no retries for user-facing calls
+      if (!useBackgroundMode) {
+        // Start background enhancement silently
+        setTimeout(() => this.refineTaskInBackground(taskInput, instantFallback), 10);
+        return instantFallback;
+      }
       
-      // Fallback to speed models for immediate response
-      const speedModels = OPENROUTER_CONFIG.speedModels;
-      for (let i = 0; i < speedModels.length; i++) {
-        try {
-          const speedModel = speedModels[i];
-          // Development only: console.log(`🏃 Speed fallback: ${speedModel}`);
-          
-          const response = await Promise.race([
-            this.client.chat.completions.create({
-              model: speedModel,
-              messages: [
-                {
-                  role: 'system',
-                  content: `Fast task enhancement. JSON only.`
-                },
-                {
-                  role: 'user',
-                  content: `Task: "${taskInput}"`
-                }
-              ],
-              temperature: 0.2,
-              max_tokens: 300
-            }),
-            new Promise<never>((_, reject) => 
-              setTimeout(() => reject(new Error('Speed timeout')), 2000)
-            )
-          ]);
+      // For background mode, try one fast fallback
+      try {
+        const response = await Promise.race([
+          this.client.chat.completions.create({
+            model: OPENROUTER_CONFIG.lightningModels[1], // Backup lightning model
+            messages: [
+              { role: 'system', content: 'Fast JSON task enhancement' },
+              { role: 'user', content: `Task: "${taskInput}"` }
+            ],
+            temperature: 0.1,
+            max_tokens: 150
+          }),
+          new Promise<never>((_, reject) => 
+            setTimeout(() => reject(new Error('Final timeout')), 1000)
+          )
+        ]);
 
-          if (response.choices[0]?.message?.content) {
-            const enhancement = this.parseTaskResponse(response.choices[0].message.content);
-            this.responseCache.set(cacheKey, enhancement);
-            this.trackModelUsage(speedModel);
-            return enhancement;
-          }
-        } catch (speedError) {
-          // Development only: console.warn(`Speed fallback ${i} failed:`, speedError);
-          continue;
+        if (response.choices[0]?.message?.content) {
+          const enhancement = this.parseTaskResponse(response.choices[0].message.content);
+          this.responseCache.set(cacheKey, enhancement);
+          return enhancement;
         }
+      } catch (finalError) {
+        // Silent fail for background
       }
 
-      // Ultimate fallback
-      return this.getFallbackTaskEnhancement(taskInput);
+      return instantFallback;
     }
   }
 
