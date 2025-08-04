@@ -78,15 +78,12 @@ export const TaskItem = React.memo(({ task, compact = false }: TaskItemProps) =>
   };
 
   const isCurrentlyFocused = focusTimer.taskId === task.id;
-  const isAiEnhancing = task.description?.includes('AI is enhancing');
 
   return (
     <Card 
       className={`premium-card group relative overflow-hidden border-0 transition-all duration-500 hover:shadow-2xl ${
         task.completed ? 'opacity-70' : ''
-      } ${isCurrentlyFocused ? 'ring-2 ring-primary/50 shadow-glow scale-[1.02]' : ''} ${
-        isAiEnhancing ? 'animate-pulse bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5' : 'bg-gradient-to-br from-card via-card/95 to-card/90'
-      } shadow-lg backdrop-blur-sm`}
+      } ${isCurrentlyFocused ? 'ring-2 ring-primary/50 shadow-glow scale-[1.02]' : ''} bg-gradient-to-br from-card via-card/95 to-card/90 shadow-lg backdrop-blur-sm`}
       data-task-id={task.id}
     >
       
@@ -141,7 +138,7 @@ export const TaskItem = React.memo(({ task, compact = false }: TaskItemProps) =>
                 </h3>
                 
                 {/* AI Enhancement Badge */}
-                {task.aiEnhanced && !isAiEnhancing && (
+                {task.aiEnhanced && (
                   <div className="flex items-center gap-2 text-xs text-primary/80">
                     <div className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full border border-primary/20">
                       <Sparkles className="h-3 w-3" />
@@ -153,24 +150,10 @@ export const TaskItem = React.memo(({ task, compact = false }: TaskItemProps) =>
               
               {/* Description */}
               {task.description && (
-                <div className={`text-xs sm:text-sm transition-all duration-300 ${
-                  isAiEnhancing ? 'text-primary font-medium' : 'text-muted-foreground'
-                }`}>
-                  {isAiEnhancing ? (
-                    <div className="flex items-center gap-2 p-3 rounded-lg bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border border-primary/20 backdrop-blur-sm">
-                      <div className="relative">
-                        <Sparkles className="h-4 w-4 animate-pulse text-primary flex-shrink-0" />
-                        <div className="absolute inset-0 animate-ping">
-                          <Sparkles className="h-4 w-4 text-primary/50 flex-shrink-0" />
-                        </div>
-                      </div>
-                      <span className="text-xs font-medium">AI is enhancing this task...</span>
-                    </div>
-                  ) : (
-                    <p className="line-clamp-2 sm:line-clamp-3 leading-relaxed text-xs sm:text-sm">
-                      {task.description}
-                    </p>
-                  )}
+                <div className="text-xs sm:text-sm transition-all duration-300 text-muted-foreground">
+                  <p className="line-clamp-2 sm:line-clamp-3 leading-relaxed text-xs sm:text-sm">
+                    {task.description}
+                  </p>
                 </div>
               )}
               
@@ -191,7 +174,7 @@ export const TaskItem = React.memo(({ task, compact = false }: TaskItemProps) =>
                 )}
                 
                 {/* AI Badge */}
-                {task.aiEnhanced && !isAiEnhancing && (
+                {task.aiEnhanced && (
                   <Badge className="bg-gradient-to-r from-primary/15 via-accent/15 to-primary/15 text-primary border border-primary/30 text-xs font-medium px-2 py-1 rounded-full transition-all duration-300 hover:scale-105 backdrop-blur-sm">
                     <Sparkles className="mr-1 h-3 w-3 flex-shrink-0" />
                     AI
