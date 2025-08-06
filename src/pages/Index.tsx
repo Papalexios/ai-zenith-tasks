@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
 import { AIDemo } from '@/components/landing/AIDemo';
+import Footer from '@/components/layout/Footer';
 import { ArrowRight, CheckCircle, Star, TrendingUp, Users, Zap } from 'lucide-react';
 
 // Social Proof Section
@@ -232,6 +233,7 @@ const Index = () => {
       <AIDemo />
       <Pricing />
       <FinalCTA />
+      <Footer />
       {process.env.NODE_ENV === 'development' && (
         <div className="fixed bottom-4 right-4 z-50">
           <Button
