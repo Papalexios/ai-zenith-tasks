@@ -34,8 +34,8 @@ const App = () => (
         <OnboardingProvider>
           <Toaster />
           <Sonner />
-          <CookieConsent />
           <BrowserRouter>
+            <CookieConsent />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/app" element={<TasksPage />} />
