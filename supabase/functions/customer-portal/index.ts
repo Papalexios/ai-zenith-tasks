@@ -56,6 +56,12 @@ serve(async (req) => {
       logStep("Checked subscribers table", { subscriberData, subscriberError });
       
       if (subscriberData?.stripe_customer_id) {
+        // Check if it's a test/manual customer ID
+        if (subscriberData.stripe_customer_id === 'manual_test_customer' || 
+            subscriberData.stripe_customer_id.startsWith('manual_')) {
+          throw new Error(`Your subscription is set up for testing only. Please contact support to activate a real Stripe customer portal. Email: ${user.email}`);
+        }
+        
         // Try to retrieve the customer by ID
         try {
           const customer = await stripe.customers.retrieve(subscriberData.stripe_customer_id);
@@ -63,6 +69,7 @@ serve(async (req) => {
           logStep("Found customer by ID from database", { customerId: subscriberData.stripe_customer_id });
         } catch (stripeError) {
           logStep("Failed to retrieve customer by ID", { error: stripeError.message });
+          throw new Error(`Stripe customer ${subscriberData.stripe_customer_id} not found. Please contact support to resolve this subscription issue.`);
         }
       }
     }
