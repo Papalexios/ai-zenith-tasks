@@ -40,25 +40,44 @@ export const SubscriptionBanner = () => {
   };
 
   const handleManageSubscription = async () => {
-    if (!session) return;
+    if (!session) {
+      toast.error('Please log in to manage your subscription');
+      return;
+    }
     
+    console.log('🔧 Starting subscription management...');
     setIsLoading(true);
+    
     try {
+      console.log('📞 Calling customer-portal function...');
       const { data, error } = await supabase.functions.invoke('customer-portal', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
       });
 
+      console.log('📋 Customer portal response:', { data, error });
+
       if (error) {
-        toast.error('Failed to open customer portal');
+        console.error('❌ Customer portal error:', error);
+        toast.error(`Failed to open customer portal: ${error.message || 'Unknown error'}`);
         return;
       }
 
+      if (!data?.url) {
+        console.error('❌ No URL returned from customer portal');
+        toast.error('No customer portal URL received');
+        return;
+      }
+
+      console.log('✅ Opening customer portal:', data.url);
       // Open customer portal in a new tab
       window.open(data.url, '_blank');
+      toast.success('Opening customer portal...');
+      
     } catch (error) {
-      toast.error('Something went wrong');
+      console.error('❌ Unexpected error:', error);
+      toast.error(`Something went wrong: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
