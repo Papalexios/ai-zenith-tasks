@@ -24,9 +24,12 @@ const Support = () => {
     setIsSubmitting(true);
 
     try {
-      // In a real app, you'd send this to your support system
-      // For now, we'll just show a success message
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      // Send support email via edge function
+      const { data, error } = await supabase.functions.invoke('send-support-email', {
+        body: formData
+      });
+
+      if (error) throw error;
       
       toast({
         title: "Message sent!",
@@ -74,7 +77,7 @@ const Support = () => {
                     View FAQ
                   </Button>
                 </Link>
-                <a href="mailto:support@yourdomain.com">
+                <a href="mailto:support@aitaskmanagerpro.com">
                   <Button variant="outline" className="w-full justify-start">
                     <Mail className="mr-2 h-4 w-4" />
                     Email Support

@@ -59,7 +59,7 @@ serve(async (req) => {
         // Check if it's a test/manual customer ID
         if (subscriberData.stripe_customer_id === 'manual_test_customer' || 
             subscriberData.stripe_customer_id.startsWith('manual_')) {
-          throw new Error(`Your subscription is set up for testing only. Please contact support to activate a real Stripe customer portal. Email: ${user.email}`);
+          throw new Error(`Your subscription is set up for testing only. To set up real Stripe billing, please upgrade your account through our checkout process first, then return here to manage your subscription.`);
         }
         
         // Try to retrieve the customer by ID

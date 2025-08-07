@@ -78,8 +78,8 @@ const PrivacyPolicy = () => {
           <h2>8. Contact Us</h2>
           <p>
             If you have any questions about this privacy policy, please contact us at{" "}
-            <a href="mailto:privacy@yourdomain.com" className="text-primary hover:underline">
-              privacy@yourdomain.com
+            <a href="mailto:privacy@aitaskmanagerpro.com" className="text-primary hover:underline">
+              privacy@aitaskmanagerpro.com
             </a>
           </p>
         </div>

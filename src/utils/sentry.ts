@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 export const initSentry = () => {
   if (process.env.NODE_ENV === 'production') {
     Sentry.init({
-      dsn: "YOUR_SENTRY_DSN_HERE", // Replace with your actual Sentry DSN
+      dsn: "https://your-sentry-dsn@o123456.ingest.us.sentry.io/1234567", // Replace with your actual Sentry DSN
       environment: process.env.NODE_ENV,
       tracesSampleRate: 0.1,
       replaysSessionSampleRate: 0.1,

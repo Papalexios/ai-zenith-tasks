@@ -88,8 +88,8 @@ const TermsOfService = () => {
           <h2>11. Contact Information</h2>
           <p>
             Questions about the Terms of Service should be sent to{" "}
-            <a href="mailto:legal@yourdomain.com" className="text-primary hover:underline">
-              legal@yourdomain.com
+            <a href="mailto:legal@aitaskmanagerpro.com" className="text-primary hover:underline">
+              legal@aitaskmanagerpro.com
             </a>
           </p>
         </div>
