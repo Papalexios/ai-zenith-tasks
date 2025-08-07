@@ -41,9 +41,34 @@ serve(async (req) => {
       apiVersion: "2023-10-16" 
     });
     
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    // First try to find customer by email
+    let customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    logStep("Searched for customer by email", { email: user.email, found: customers.data.length });
+    
     if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found for this user");
+      // Try to find customer by checking the subscribers table for stripe_customer_id
+      const { data: subscriberData, error: subscriberError } = await supabaseClient
+        .from('subscribers')
+        .select('stripe_customer_id')
+        .eq('email', user.email)
+        .single();
+      
+      logStep("Checked subscribers table", { subscriberData, subscriberError });
+      
+      if (subscriberData?.stripe_customer_id) {
+        // Try to retrieve the customer by ID
+        try {
+          const customer = await stripe.customers.retrieve(subscriberData.stripe_customer_id);
+          customers = { data: [customer] };
+          logStep("Found customer by ID from database", { customerId: subscriberData.stripe_customer_id });
+        } catch (stripeError) {
+          logStep("Failed to retrieve customer by ID", { error: stripeError.message });
+        }
+      }
+    }
+    
+    if (customers.data.length === 0) {
+      throw new Error(`No Stripe customer found for email ${user.email}. Please contact support to resolve this subscription issue.`);
     }
     
     const customerId = customers.data[0].id;
