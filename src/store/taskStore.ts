@@ -568,7 +568,15 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     set({ isLoading: true });
 
     try {
+      console.log('🚀 Starting AI enhancement for task:', task.title);
       const enhancement = await openRouterService.enhanceTask(task.title);
+      
+      console.log('✨ AI enhancement result:', enhancement);
+      
+      // Validate that we got a proper enhancement
+      if (!enhancement || !enhancement.enhancedTitle || enhancement.enhancedTitle === task.title) {
+        throw new Error('AI enhancement did not provide improved content');
+      }
       
       get().updateTask(id, {
         title: enhancement.enhancedTitle,
@@ -576,12 +584,39 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         priority: enhancement.priority,
         category: enhancement.category,
         estimatedTime: enhancement.estimatedTime,
-        subtasks: enhancement.subtasks,
+        subtasks: enhancement.subtasks || [],
         aiEnhanced: true,
         aiModelUsed: 'cypher-alpha'
       });
+
+      console.log('✅ Task enhanced successfully');
+      
+      // Show success toast
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "AI Enhancement Complete",
+          description: "Your task has been enhanced with AI insights and actionable steps",
+        });
+      });
+      
     } catch (error) {
-      console.error('Error enhancing task:', error);
+      console.error('❌ Error enhancing task:', error);
+      
+      // Mark as enhanced but with minimal changes if AI fails
+      get().updateTask(id, {
+        description: task.description || `Enhanced task: ${task.title}`,
+        aiEnhanced: false, // Don't mark as enhanced if it failed
+        estimatedTime: task.estimatedTime || '30 minutes'
+      });
+      
+      // Show error toast
+      import('@/hooks/use-toast').then(({ toast }) => {
+        toast({
+          title: "AI Enhancement Failed",
+          description: "Unable to enhance task with AI. Please try again.",
+          variant: "destructive"
+        });
+      });
     } finally {
       set({ isLoading: false });
     }
