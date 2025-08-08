@@ -4,6 +4,7 @@ import './index.css'
 import { initSentry } from './utils/sentry'
 import { initGoogleAnalytics } from './utils/analytics'
 import { HelmetProvider } from 'react-helmet-async'
+import { EnterpriseErrorBoundary } from '@/components/ui/error-boundary'
 
 // Initialize error monitoring
 initSentry()
@@ -20,6 +21,8 @@ if (process.env.NODE_ENV === 'production') {
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
-    <App />
+    <EnterpriseErrorBoundary>
+      <App />
+    </EnterpriseErrorBoundary>
   </HelmetProvider>
 );
