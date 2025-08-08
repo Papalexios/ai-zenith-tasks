@@ -63,14 +63,12 @@ export class EnterpriseErrorBoundary extends Component<Props, State> {
 
     // In production, send to monitoring service
     if (process.env.NODE_ENV === 'production') {
-      // TODO: Send to error monitoring service (Sentry, LogRocket, etc.)
       this.sendErrorToMonitoring(error, errorInfo, errorId);
     }
   }
 
   private sendErrorToMonitoring = async (error: Error, errorInfo: ErrorInfo, errorId: string) => {
     try {
-      // Example: Send to error monitoring service
       const errorReport = {
         errorId,
         message: error.message,
@@ -79,20 +77,17 @@ export class EnterpriseErrorBoundary extends Component<Props, State> {
         userAgent: navigator.userAgent,
         timestamp: new Date().toISOString(),
         url: window.location.href,
-        userId: localStorage.getItem('userId'), // If available
-        sessionId: sessionStorage.getItem('sessionId') // If available
+        userId: localStorage.getItem('userId'),
+        sessionId: sessionStorage.getItem('sessionId')
       };
 
-      // TODO: Replace with actual monitoring service endpoint
-      // await fetch('/api/errors', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(errorReport)
-      // });
-      
+      // Send to Sentry (or console in dev) via utility wrapper
+      const { captureException } = await import('@/utils/sentry');
+      captureException(error, errorReport);
+
       logger.info('Error report sent to monitoring service', { errorId });
     } catch (monitoringError) {
-      logger.error('Failed to send error to monitoring service', monitoringError);
+      logger.error('Failed to send error to monitoring service', monitoringError as any);
     }
   };
 
@@ -232,7 +227,7 @@ export class EnterpriseErrorBoundary extends Component<Props, State> {
                   onClick={() => {
                     const subject = encodeURIComponent(`Error Report - ${this.state.errorId}`);
                     const body = encodeURIComponent(`Error ID: ${this.state.errorId}\nError: ${this.state.error?.message}\nTimestamp: ${new Date().toISOString()}`);
-                    window.open(`mailto:support@yourapp.com?subject=${subject}&body=${body}`);
+                    window.open(`mailto:support@aitaskmanagerpro.com?subject=${subject}&body=${body}`);
                   }}
                 >
                   Report Issue

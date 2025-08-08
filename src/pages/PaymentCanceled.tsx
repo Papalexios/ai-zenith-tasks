@@ -1,11 +1,17 @@
 import { Link } from "react-router-dom";
 import { XCircle, ArrowLeft, CreditCard } from "lucide-react";
+import { Helmet } from 'react-helmet-async';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const PaymentCanceled = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
+      <Helmet>
+        <title>Payment Canceled - AI Task Manager Pro</title>
+        <meta name="description" content="Your payment was canceled. You can try upgrading again anytime." />
+        <link rel="canonical" href={(typeof window !== 'undefined' ? window.location.origin : '') + '/payment-canceled'} />
+      </Helmet>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">

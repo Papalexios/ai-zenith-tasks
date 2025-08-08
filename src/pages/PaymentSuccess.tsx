@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle, ArrowRight, Loader2 } from "lucide-react";
+import { Helmet } from 'react-helmet-async';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +37,11 @@ const PaymentSuccess = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
+        <Helmet>
+          <title>Payment Successful - AI Task Manager Pro</title>
+          <meta name="description" content="Your subscription is active. Enjoy AI Task Manager Pro!" />
+          <link rel="canonical" href={(typeof window !== 'undefined' ? window.location.origin : '') + '/payment-success'} />
+        </Helmet>
         <Card className="w-full max-w-md">
           <CardContent className="pt-6">
             <div className="text-center space-y-4">

@@ -6,9 +6,14 @@ declare global {
   }
 }
 
-// Initialize Google Analytics
+let GA_ID: string | null = null;
+let GA_INITIALIZED = false;
+
+// Initialize Google Analytics (call only when user consented to analytics)
 export const initGoogleAnalytics = (measurementId: string) => {
   if (typeof window === 'undefined') return;
+  if (!measurementId || measurementId === 'GA_MEASUREMENT_ID') return; // prevent placeholder use
+  if (GA_INITIALIZED) return;
 
   // Load Google Analytics script
   const script1 = document.createElement('script');
@@ -20,7 +25,7 @@ export const initGoogleAnalytics = (measurementId: string) => {
   window.dataLayer = window.dataLayer || [];
   window.gtag = function gtag() {
     window.dataLayer?.push(arguments);
-  };
+  } as any;
   
   window.gtag('js', new Date());
   window.gtag('config', measurementId, {
@@ -28,11 +33,14 @@ export const initGoogleAnalytics = (measurementId: string) => {
     page_location: window.location.href,
     send_page_view: true
   });
+
+  GA_ID = measurementId;
+  GA_INITIALIZED = true;
 };
 
 // Track custom events
 export const trackEvent = (action: string, category: string, label?: string, value?: number) => {
-  if (typeof window === 'undefined' || !window.gtag) return;
+  if (typeof window === 'undefined' || !window.gtag || !GA_INITIALIZED) return;
 
   window.gtag('event', action, {
     event_category: category,
@@ -43,9 +51,9 @@ export const trackEvent = (action: string, category: string, label?: string, val
 
 // Track page views
 export const trackPageView = (path: string, title?: string) => {
-  if (typeof window === 'undefined' || !window.gtag) return;
+  if (typeof window === 'undefined' || !window.gtag || !GA_INITIALIZED || !GA_ID) return;
 
-  window.gtag('config', 'GA_MEASUREMENT_ID', {
+  window.gtag('config', GA_ID, {
     page_path: path,
     page_title: title,
   });
@@ -60,7 +68,7 @@ export const trackSignup = (method: string = 'email') => {
 export const trackPurchase = (value: number, currency: string = 'USD') => {
   trackEvent('purchase', 'ecommerce', 'subscription', value);
   
-  if (window.gtag) {
+  if (typeof window !== 'undefined' && window.gtag && GA_INITIALIZED) {
     window.gtag('event', 'purchase', {
       transaction_id: Date.now().toString(),
       value: value,

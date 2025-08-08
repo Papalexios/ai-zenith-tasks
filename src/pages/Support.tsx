@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mail, MessageCircle, Send } from "lucide-react";
+import { Helmet } from 'react-helmet-async';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -52,6 +53,11 @@ const Support = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8">
+          <Helmet>
+            <title>Support - AI Task Manager Pro</title>
+            <meta name="description" content="Get help with AI Task Manager Pro. Contact support or browse our FAQ." />
+            <link rel="canonical" href={(typeof window !== 'undefined' ? window.location.origin : '') + '/support'} />
+          </Helmet>
           <Link to="/">
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="mr-2 h-4 w-4" />

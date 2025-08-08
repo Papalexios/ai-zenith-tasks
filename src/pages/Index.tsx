@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
@@ -227,6 +228,11 @@ const FinalCTA = () => (
 const Index = () => {
   return (
     <div className="min-h-screen">
+      <Helmet>
+        <title>AI Task Manager Pro | AI Productivity App</title>
+        <meta name="description" content="AI-powered task management: smart prioritization, natural language parsing, and advanced analytics." />
+        <link rel="canonical" href={(typeof window !== 'undefined' ? window.location.origin : '') + '/'} />
+      </Helmet>
       <HeroSection />
       <SocialProof />
       <FeaturesSection />

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { Helmet } from 'react-helmet-async';
 import { Button } from "@/components/ui/button";
 
 const PrivacyPolicy = () => {
@@ -7,6 +8,11 @@ const PrivacyPolicy = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8">
+          <Helmet>
+            <title>Privacy Policy - AI Task Manager Pro</title>
+            <meta name="description" content="Read the Privacy Policy for AI Task Manager Pro." />
+            <link rel="canonical" href={(typeof window !== 'undefined' ? window.location.origin : '') + '/privacy'} />
+          </Helmet>
           <Link to="/">
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="mr-2 h-4 w-4" />

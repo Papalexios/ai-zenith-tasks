@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { Helmet } from 'react-helmet-async';
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -46,10 +47,10 @@ const FAQ = () => {
       question: "How does the AI learn my preferences?",
       answer: "Our AI analyzes your task completion patterns, timing, and behavior to provide personalized recommendations. All analysis is done securely and privately within your account."
     },
-    {
-      question: "What if I need help?",
-      answer: "Pro subscribers get priority email support with responses within 24 hours. Free users can access our help center and community forums. Contact us anytime at support@yourdomain.com."
-    },
+      {
+        question: "What if I need help?",
+        answer: "Pro subscribers get priority email support with responses within 24 hours. Free users can access our help center and community forums. Contact us anytime at support@aitaskmanagerpro.com."
+      },
     {
       question: "Can I change my plan?",
       answer: "Yes, you can upgrade or downgrade your plan at any time through your account settings. Changes take effect immediately, and billing is prorated accordingly."
@@ -64,6 +65,11 @@ const FAQ = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8">
+          <Helmet>
+            <title>FAQ - AI Task Manager Pro</title>
+            <meta name="description" content="Answers to common questions about AI Task Manager Pro: pricing, features, security, and more." />
+            <link rel="canonical" href={(typeof window !== 'undefined' ? window.location.origin : '') + '/faq'} />
+          </Helmet>
           <Link to="/">
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="mr-2 h-4 w-4" />
